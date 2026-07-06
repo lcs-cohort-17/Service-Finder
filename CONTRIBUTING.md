@@ -9,10 +9,9 @@ This guide covers everything you need to know to contribute correctly. Please re
 We use a two-tier branch system for development and deployment:
 
 | Branch | Purpose | Who Can Push |
-|--------|---------|--------------|
+| :--- | :--- | :--- |
 | **`dev`** | Main development branch. All daily feature and bugfix branches branch off from here and merge back into here. | All devs via PR |
-| **`main`** | Final production branch. Code is only moved here at the end of a sprint for final release. | Git Lead only (via PR) |
-| **`gh-pages`** | Compiled frontend assets for GitHub Pages deployment. | Git Lead (auto-deployed) |
+| **`main`** | Final production branch. Code is only moved here at the end of a sprint (Sprint 1, Sprint 2) for final release. | Git Lead only (via PR) |
 
 ⚠️ **Never push directly to `dev` or `main`.** Always create a dedicated branch.
 
@@ -24,9 +23,8 @@ Always create your branch from an up-to-date `dev` branch using these exact nami
 
 | Your Role / Task | Branch Name Format | Real-World Example |
 | :--- | :--- | :--- |
-| **Frontend Feature** | `your-name/feature/screen-name` | `jake/feature/map-view` |
-| **Backend Feature** | `your-name/feature/api-endpoint` | `alex/feature/auth-login` |
-| **Bug Fixes** | `your-name/bugfix/description` | `sarah/bugfix/map-markers` |
+| **Frontend Feature** | `your-name/dev/FE-###` | `jake/dev/FE-001` |
+| **Backend Feature** | `your-name/dev/BE-###` | `alex/dev/BE-001` |
 | **Scrum Masters (SM)** | `your-name/SM-team/branch-purpose` | `sarah/SM-team/repo-cleanup` |
 | **Quality Assurance (QA)** | `your-name/qa/test-description` | `alex/qa/map-load-test` |
 

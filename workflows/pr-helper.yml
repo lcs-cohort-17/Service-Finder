@@ -1,0 +1,57 @@
+name: PR Helper
+
+on:
+  pull_request:
+    types: [opened]
+
+jobs:
+  check-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR completeness
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prBody = context.payload.pull_request.body || '';
+            const prNumber = context.payload.pull_request.number;
+            
+            const issues = [];
+            
+            // Check for summary
+            if (!prBody.includes('## Summary') && !prBody.includes('## 📝 Summary')) {
+              issues.push('- [ ] Add a **Summary** of what you changed');
+            }
+            
+            // Check for test steps
+            if (!prBody.includes('## How to Test') && !prBody.includes('## 🧪 How to Test')) {
+              issues.push('- [ ] Add **Test Steps** so reviewers know how to test');
+            }
+            
+            // Check for ticket link
+            if (!prBody.includes('LS-') && !prBody.includes('Ticket')) {
+              issues.push('- [ ] Link to your **Ticket**');
+            }
+            
+            // Check for screenshots (if UI changed)
+            if (prBody.includes('UI changed') && !prBody.includes('![') && !prBody.includes('screenshot')) {
+              issues.push('- [ ] Add **Screenshots** if you changed the UI');
+            }
+            
+            if (issues.length > 0) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: `
+## 👋 Hey there!
+
+Before we review your PR, please make sure you've completed these items:
+
+${issues.join('\n')}
+
+**Need help?** Check the [PR Example](link-to-example) or ask your SM.
+
+Thanks! 🚀
+`
+              });
+            }

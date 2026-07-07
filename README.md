@@ -21,11 +21,14 @@
 | # | Feature | Description |
 |---|---------|-------------|
 | 1 | **Interactive Map** | Display public services with markers using Google Maps API |
-| 2 | **Search & Filter** | Find services by type (clinics, libraries, shelters, etc.) |
-| 3 | **User Authentication** | Login/Register using Firebase Authentication |
-| 4 | **Service Suggestions** | Logged-in users can propose new locations |
-| 5 | **Mobile Responsive** | Works on all device sizes |
-| 6 | **Live Deployment** | Accessible via GitHub Pages |
+| 2 | **Display nearby services (Markers)** | Find services by type (clinics, libraries, shelters, etc.) |
+| 3 | **Service details** | View detailed information about each service |
+| 4 | **Filter Services** | Filter services by category or type |
+| 5 | **Directions** | Get directions to a selected service |
+| 6 | **User Authentication** | Login/Register using Firebase Authentication |
+| 7 | **User Sessions** | Logout capabilities |
+| 8 | **Service Suggestions** | Logged-in users can propose new locations |
+| 9 | **Mobile Responsive + Fast Performance** | Works on all device sizes |
 
 ---
 
@@ -38,7 +41,7 @@
 | **Backend** | Node.js + Express | v18+ |
 | **Auth** | Firebase Authentication | Latest |
 | **Database** | Firebase Firestore | Latest |
-| **Hosting** | GitHub Pages | Vercel | Netlify |
+| **Hosting** | GitHub Pages / Vercel / Netlify | – |
 | **Version Control** | Git + GitHub | – |
 
 ---

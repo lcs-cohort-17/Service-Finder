@@ -1,6 +1,6 @@
 # 🌍 Service Finder – Free Maps API
 
-> (WARNING | INFORMATION SUBJECT TO CHANGES) <br>
+> (WARNING | INFORMATION SUBJECT TO CHANGES) <br><br>
 > A web application that helps users locate nearby public services such as clinics, libraries, shelters, and more using an interactive map.
 
 ---

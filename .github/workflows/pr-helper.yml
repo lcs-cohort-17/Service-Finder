@@ -24,7 +24,6 @@ jobs:
             
             console.log(`🚀 PR Helper started for: ${author}`);
             
-            // 🚨 CHECK IF AUTHOR IS A PRODUCT OWNER (via team membership)
             let isPO = false;
             
             try {
@@ -33,18 +32,17 @@ jobs:
                 team_slug: 'product-owners',
                 username: author
               });
-              
               isPO = membership.state === 'active';
               console.log(`✅ Author: ${author}`);
               console.log(`✅ Is PO: ${isPO}`);
-              console.log(`✅ Membership state: ${membership.state}`);
-              
             } catch (error) {
               console.log(`❌ Error checking PO status: ${error.message}`);
               isPO = false;
             }
             
-            // 🚨 SKIP FOR PRODUCT OWNERS
+            // ============================================================
+            // 🚨 1. ALWAYS SKIP FOR PRODUCT OWNERS
+            // ============================================================
             if (isPO) {
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
@@ -72,11 +70,13 @@ jobs:
                 labels: ['release-pr']
               });
               
-              console.log(`✅ PO check complete - skipping template checks`);
+              console.log(`✅ PO detected - skipping all checks`);
               return;
             }
             
-            // 🚨 SKIP RELEASE PRS (dev → main)
+            // ============================================================
+            // 🚨 2. SKIP RELEASE PRS (dev → main)
+            // ============================================================
             if (baseRef === 'main' && headRef === 'dev') {
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
@@ -108,29 +108,26 @@ jobs:
               return;
             }
             
-            // ✅ CHECKS FOR DEVELOPERS AND SMS
+            // ============================================================
+            // ✅ 3. CHECKS FOR DEVELOPERS ONLY
+            // ============================================================
             const issues = [];
             
             if (!prBody.includes('Developer') && !prBody.includes('👤')) {
               issues.push('- [ ] Add your **Developer** name');
             }
-            
             if (!prBody.includes('Ticket') && !prBody.includes('LS-') && !prBody.includes('ticket')) {
               issues.push('- [ ] Add your **Ticket** number (e.g., LS-123)');
             }
-            
             if (!prBody.includes('Sprint') && !prBody.includes('sprint')) {
               issues.push('- [ ] Add your **Sprint** number (e.g., Sprint 3)');
             }
-            
             if (!prBody.includes('## Summary') && !prBody.includes('## 📝 Summary')) {
               issues.push('- [ ] Add a **Summary** of what you changed');
             }
-            
             if (!prBody.includes('## Screenshots') && !prBody.includes('## 📸 Screenshots')) {
               issues.push('- [ ] Add a **Screenshots** section (write "N/A" if no UI changes)');
             }
-            
             if (!prBody.includes('## How to Test') && !prBody.includes('## 🧪 How to Test')) {
               issues.push('- [ ] Add **Test Steps** so reviewers know how to test');
             }
@@ -165,7 +162,6 @@ jobs:
               });
               
               console.log(`⚠️ Missing information - added comment`);
-              
             } else {
               await github.rest.issues.addLabels({
                 owner: context.repo.owner,

@@ -22,11 +22,12 @@ jobs:
             const baseRef = context.payload.pull_request.base.ref;
             const headRef = context.payload.pull_request.head.ref;
             
-            // 🚨 CHECK IF AUTHOR IS A PRODUCT OWNER
+            console.log(`🚀 PR Helper started for: ${author}`);
+            
+            // 🚨 CHECK IF AUTHOR IS A PRODUCT OWNER (via team membership)
             let isPO = false;
             
             try {
-              // Check if the PR AUTHOR is a member of the product-owners team
               const { data: membership } = await github.rest.teams.getMembershipForUserInOrg({
                 org: 'lcs-cohort-17',
                 team_slug: 'product-owners',
@@ -39,8 +40,7 @@ jobs:
               console.log(`✅ Membership state: ${membership.state}`);
               
             } catch (error) {
-              // User is not in the team (API returns 404) or other error
-              console.log(`❌ User ${author} is not a PO or API error: ${error.message}`);
+              console.log(`❌ Error checking PO status: ${error.message}`);
               isPO = false;
             }
             
@@ -72,10 +72,11 @@ jobs:
                 labels: ['release-pr']
               });
               
-              return; // Skip all checks
+              console.log(`✅ PO check complete - skipping template checks`);
+              return;
             }
             
-            // 🚨 SKIP RELEASE PRS (dev → main) - even if not PO
+            // 🚨 SKIP RELEASE PRS (dev → main)
             if (baseRef === 'main' && headRef === 'dev') {
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
@@ -103,38 +104,33 @@ jobs:
                 labels: ['release-pr']
               });
               
-              return; // Skip all checks
+              console.log(`✅ Release PR detected - skipping checks`);
+              return;
             }
             
             // ✅ CHECKS FOR DEVELOPERS AND SMS
             const issues = [];
             
-            // Check for Developer name
             if (!prBody.includes('Developer') && !prBody.includes('👤')) {
               issues.push('- [ ] Add your **Developer** name');
             }
             
-            // Check for Ticket number
             if (!prBody.includes('Ticket') && !prBody.includes('LS-') && !prBody.includes('ticket')) {
               issues.push('- [ ] Add your **Ticket** number (e.g., LS-123)');
             }
             
-            // Check for Sprint
             if (!prBody.includes('Sprint') && !prBody.includes('sprint')) {
               issues.push('- [ ] Add your **Sprint** number (e.g., Sprint 3)');
             }
             
-            // Check for Summary
             if (!prBody.includes('## Summary') && !prBody.includes('## 📝 Summary')) {
               issues.push('- [ ] Add a **Summary** of what you changed');
             }
             
-            // Check for Screenshots
             if (!prBody.includes('## Screenshots') && !prBody.includes('## 📸 Screenshots')) {
               issues.push('- [ ] Add a **Screenshots** section (write "N/A" if no UI changes)');
             }
             
-            // Check for Test Steps
             if (!prBody.includes('## How to Test') && !prBody.includes('## 🧪 How to Test')) {
               issues.push('- [ ] Add **Test Steps** so reviewers know how to test');
             }
@@ -168,6 +164,8 @@ jobs:
                 labels: ['needs-more-info']
               });
               
+              console.log(`⚠️ Missing information - added comment`);
+              
             } else {
               await github.rest.issues.addLabels({
                 owner: context.repo.owner,
@@ -194,4 +192,6 @@ jobs:
             Thanks for following the process! 🚀
             `
               });
+              
+              console.log(`✅ PR is complete!`);
             }

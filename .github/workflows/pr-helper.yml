@@ -24,21 +24,45 @@ jobs:
             
             console.log(`🚀 PR Helper started for: ${author}`);
             
-            let isPO = false;
+            // ============================================================
+            // 🚨 CHECK IF AUTHOR IS A PRODUCT OWNER
+            // ============================================================
             
+            // PRIMARY: Check by username (fastest, most reliable)
+            const poUsernames = [
+              'danielwatterson',
+              'tylormentor-dev',
+              'toufeeq1',
+              'fernandezmische',
+              'bungcwalisa',
+              'magxalasinaye00-max',
+              'ninalewis-coder',
+              'asiphelange',
+              'imaancummings',
+              'ccphok'
+            ];
+            
+            const isPOByUsername = poUsernames.includes(author.toLowerCase());
+            console.log(`✅ Username check: ${isPOByUsername}`);
+            
+            // SECONDARY: Check by team membership (fallback)
+            let isPOByTeam = false;
             try {
               const { data: membership } = await github.rest.teams.getMembershipForUserInOrg({
                 org: 'lcs-cohort-17',
                 team_slug: 'product-owners',
                 username: author
               });
-              isPO = membership.state === 'active';
-              console.log(`✅ Author: ${author}`);
-              console.log(`✅ Is PO: ${isPO}`);
+              isPOByTeam = membership.state === 'active';
+              console.log(`✅ Team check: ${isPOByTeam}`);
             } catch (error) {
-              console.log(`❌ Error checking PO status: ${error.message}`);
-              isPO = false;
+              console.log(`⚠️ Team check skipped: ${error.message}`);
+              isPOByTeam = false;
             }
+            
+            // Combine both
+            const isPO = isPOByUsername || isPOByTeam;
+            console.log(`✅ Is PO: ${isPO}`);
             
             // ============================================================
             // 🚨 1. ALWAYS SKIP FOR PRODUCT OWNERS

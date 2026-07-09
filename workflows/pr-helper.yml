@@ -22,21 +22,19 @@ jobs:
             // Get the user's teams
             const { data: userTeams } = await github.rest.teams.listForAuthenticatedUser();
             
+            // Check by username (fallback)
+            const poUsernames = ['DanielWatterson', 'tylormentor-dev', 'Toufeeq1', 'FernandezMische'];
+            const isPOByUsername = poUsernames.includes(author.toLowerCase());
+            
             // Check if user is in the product-owners team
-            const isPO = userTeams.some(team => 
+            const isPOByTeam = userTeams.some(team => 
               team.slug === 'product-owners' || 
               team.name === 'Product Owners' ||
               team.slug === 'product_owners'
             );
             
-            // Also check by username (fallback)
-            const poUsernames = ['DanielWatterson', 'tylormentor-dev', 'Toufeeq1', 'FernandezMische'];
-            const isPOByUsername = poUsernames.includes(author.toLowerCase());
-            
-            const isPO = isPOByUsername || userTeams.some(team => 
-              team.slug === 'product-owners' || 
-              team.name === 'Product Owners'
-            );
+            // Combine both checks
+            const isPO = isPOByUsername || isPOByTeam;
             
             // 🚨 SKIP FOR PRODUCT OWNERS
             if (isPO) {

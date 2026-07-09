@@ -2,7 +2,7 @@ name: PR Helper
 
 on:
   pull_request:
-    types: [opened]
+    types: [opened, synchronize, edited]
 
 jobs:
   check-pr:
@@ -14,44 +14,96 @@ jobs:
           script: |
             const prBody = context.payload.pull_request.body || '';
             const prNumber = context.payload.pull_request.number;
+            const author = context.payload.pull_request.user.login;
             
             const issues = [];
             
-            // Check for summary
+            // Check for Developer name
+            if (!prBody.includes('Developer') && !prBody.includes('👤')) {
+              issues.push('- [ ] Add your **Developer** name');
+            }
+            
+            // Check for Ticket number
+            if (!prBody.includes('Ticket') && !prBody.includes('LS-') && !prBody.includes('ticket')) {
+              issues.push('- [ ] Add your **Ticket** number (e.g., LS-123)');
+            }
+            
+            // Check for Sprint
+            if (!prBody.includes('Sprint') && !prBody.includes('sprint')) {
+              issues.push('- [ ] Add your **Sprint** number (e.g., Sprint 3)');
+            }
+            
+            // Check for Summary
             if (!prBody.includes('## Summary') && !prBody.includes('## 📝 Summary')) {
               issues.push('- [ ] Add a **Summary** of what you changed');
             }
             
-            // Check for test steps
+            // Check for Screenshots section
+            if (!prBody.includes('## Screenshots') && !prBody.includes('## 📸 Screenshots')) {
+              issues.push('- [ ] Add a **Screenshots** section (write "N/A" if no UI changes)');
+            }
+            
+            // Check for Test Steps
             if (!prBody.includes('## How to Test') && !prBody.includes('## 🧪 How to Test')) {
               issues.push('- [ ] Add **Test Steps** so reviewers know how to test');
             }
             
-            // Check for ticket link
-            if (!prBody.includes('LS-') && !prBody.includes('Ticket')) {
-              issues.push('- [ ] Link to your **Ticket**');
-            }
-            
-            // Check for screenshots (if UI changed)
-            if (prBody.includes('UI changed') && !prBody.includes('![') && !prBody.includes('screenshot')) {
-              issues.push('- [ ] Add **Screenshots** if you changed the UI');
-            }
-            
+            // If there are missing items, comment on the PR
             if (issues.length > 0) {
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: prNumber,
                 body: `
-## 👋 Hey there!
+          ## 👋 Hey @${author}!
 
-Before we review your PR, please make sure you've completed these items:
+          Before we review your PR, please make sure you've completed these items:
 
-${issues.join('\n')}
+          ${issues.join('\n')}
 
-**Need help?** Check the [PR Example](link-to-example) or ask your SM.
+          ---
 
-Thanks! 🚀
-`
+          **📖 Need help?** Check out the [PR Example](.github/PULL_REQUEST_EXAMPLE.md) or ask your SM.
+
+          **✏️ Edit your PR description:** Click the "..." button at the top of this PR and select "Edit".
+
+          Thanks! 🚀
+          `
+              });
+              
+              // Add a label so reviewers know it's not ready
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                labels: ['needs-more-info']
+              });
+              
+            } else {
+              // PR is complete! Add ready label
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                labels: ['ready-for-review']
+              });
+              
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: `
+          ## ✅ Thanks @${author}!
+
+          Your PR looks complete!
+
+          **Next steps:**
+          1. Request review from your SM
+          2. SM will review and test
+          3. PO will review and test
+          4. PO will merge to \`dev\`
+
+          Thanks for following the process! 🚀
+          `
               });
             }

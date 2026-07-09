@@ -4,7 +4,7 @@
 
 ## 👤 Developer
 
-**Developer:** <!-- Your GitHub username -->
+**Developer:** <!-- Your name here -->
 **Ticket:** <!-- LS-XXX - Ticket title -->
 **Sprint:** <!-- Sprint X -->
 
@@ -13,6 +13,17 @@
 ## 📝 Summary
 
 <!-- Briefly describe what you changed (1-2 sentences) -->
+
+---
+
+## 📸 Screenshots (if UI changed)
+
+<!-- Drag and drop screenshots here -->
+<!-- Write "N/A" if no UI changes -->
+
+| Before | After |
+|--------|-------|
+| *Paste screenshot* | *Paste screenshot* |
 
 ---
 
@@ -29,7 +40,6 @@
 ## 📎 Links
 
 - **Ticket:** <!-- Slack thread link -->
-- **Figma:** <!-- Figma link (if UI changed) -->
 - **Previous PR:** <!-- Link (if polishing/bugfix) -->
 
 ---
@@ -40,10 +50,6 @@
 - [ ] My code passes tests locally
 - [ ] My branch is up-to-date with `dev`
 - [ ] I have NOT committed any secrets
-
-**If UI changed:**
-- [ ] Added Figma screenshot
-- [ ] Added Before/After screenshots
 
 **If Polishing/Bugfix:**
 - [ ] Linked to previous PR

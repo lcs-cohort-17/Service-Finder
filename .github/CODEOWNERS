@@ -1,0 +1,10 @@
+# CODEOWNERS — Service-Finder
+
+# ─────────────────────────────────────────────
+# 🛡️ ADMINISTRATIVE SETTINGS
+# Product Owners control repository health.
+# ─────────────────────────────────────────────
+.github/                        @lcs-cohort-17/product-owners
+.gitignore                      @lcs-cohort-17/product-owners
+README.md                       @lcs-cohort-17/product-owners
+LICENSE                         @lcs-cohort-17/product-owners

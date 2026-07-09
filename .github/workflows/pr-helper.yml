@@ -16,53 +16,35 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
+            console.log("🚀 PR Helper is running!");
+            
             const prBody = context.payload.pull_request.body || '';
             const prNumber = context.payload.pull_request.number;
             const author = context.payload.pull_request.user.login;
-            const baseRef = context.payload.pull_request.base.ref;
-            const headRef = context.payload.pull_request.head.ref;
             
-            // 🚨 CHECK IF AUTHOR IS A PRODUCT OWNER
+            console.log(`👤 Author: ${author}`);
+            
             let isPO = false;
             
             try {
-              // Check if the PR AUTHOR is a member of the product-owners team
               const { data: membership } = await github.rest.teams.getMembershipForUserInOrg({
                 org: 'lcs-cohort-17',
                 team_slug: 'product-owners',
                 username: author
               });
-              
               isPO = membership.state === 'active';
-              console.log(`✅ Author: ${author}`);
               console.log(`✅ Is PO: ${isPO}`);
-              console.log(`✅ Membership state: ${membership.state}`);
-              
             } catch (error) {
-              // User is not in the team (API returns 404) or other error
-              console.log(`❌ User ${author} is not a PO or API error: ${error.message}`);
+              console.log(`❌ Not a PO: ${error.message}`);
               isPO = false;
             }
             
-            // 🚨 SKIP FOR PRODUCT OWNERS
             if (isPO) {
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: prNumber,
-                body: `
-            ## 👋 Hey @${author}!
-
-            **PO PR Detected.** No template needed—just merge when ready! 🚀
-
-            **Quick Check:**
-            - [ ] All PRs for this sprint are merged to \`dev\`
-            - [ ] CI is green
-            - [ ] SM has approved
-            - [ ] QA has signed off
-
-            Thanks! 🎉
-            `
+                body: `## 👋 Hey @${author}!\n\n**PO PR Detected.** No template needed! 🚀`
               });
               
               await github.rest.issues.addLabels({
@@ -72,71 +54,19 @@ jobs:
                 labels: ['release-pr']
               });
               
-              return; // Skip all checks
+              return;
             }
             
-            // 🚨 SKIP RELEASE PRS (dev → main) - even if not PO
-            if (baseRef === 'main' && headRef === 'dev') {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: prNumber,
-                body: `
-            ## 🚀 Release PR Detected!
-
-            @${author} this is a release PR from \`dev\` → \`main\`. 
-            
-            **Before merging, confirm:**
-            - [ ] All PRs for this sprint are merged to \`dev\`
-            - [ ] CI is green
-            - [ ] SM has approved
-            - [ ] QA has signed off
-            
-            Then merge! 🎉
-            `
-              });
-              
-              await github.rest.issues.addLabels({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: prNumber,
-                labels: ['release-pr']
-              });
-              
-              return; // Skip all checks
-            }
-            
-            // ✅ CHECKS FOR DEVELOPERS AND SMS
             const issues = [];
             
-            // Check for Developer name
-            if (!prBody.includes('Developer') && !prBody.includes('👤')) {
-              issues.push('- [ ] Add your **Developer** name');
+            if (!prBody.includes('Developer')) {
+              issues.push('- [ ] Add your Developer name');
             }
-            
-            // Check for Ticket number
-            if (!prBody.includes('Ticket') && !prBody.includes('LS-') && !prBody.includes('ticket')) {
-              issues.push('- [ ] Add your **Ticket** number (e.g., LS-123)');
+            if (!prBody.includes('Ticket')) {
+              issues.push('- [ ] Add your Ticket number');
             }
-            
-            // Check for Sprint
-            if (!prBody.includes('Sprint') && !prBody.includes('sprint')) {
-              issues.push('- [ ] Add your **Sprint** number (e.g., Sprint 3)');
-            }
-            
-            // Check for Summary
-            if (!prBody.includes('## Summary') && !prBody.includes('## 📝 Summary')) {
-              issues.push('- [ ] Add a **Summary** of what you changed');
-            }
-            
-            // Check for Screenshots
-            if (!prBody.includes('## Screenshots') && !prBody.includes('## 📸 Screenshots')) {
-              issues.push('- [ ] Add a **Screenshots** section (write "N/A" if no UI changes)');
-            }
-            
-            // Check for Test Steps
-            if (!prBody.includes('## How to Test') && !prBody.includes('## 🧪 How to Test')) {
-              issues.push('- [ ] Add **Test Steps** so reviewers know how to test');
+            if (!prBody.includes('Summary')) {
+              issues.push('- [ ] Add a Summary');
             }
             
             if (issues.length > 0) {
@@ -144,54 +74,6 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: prNumber,
-                body: `
-            ## 👋 Hey @${author}!
-
-            Before we review your PR, please make sure you've completed these items:
-
-            ${issues.join('\n')}
-
-            ---
-
-            **📖 Need help?** Check out the [PR Example](.github/PULL_REQUEST_EXAMPLE.md) or ask your SM.
-
-            **✏️ Edit your PR description:** Click the "..." button at the top of this PR and select "Edit".
-
-            Thanks! 🚀
-            `
-              });
-              
-              await github.rest.issues.addLabels({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: prNumber,
-                labels: ['needs-more-info']
-              });
-              
-            } else {
-              await github.rest.issues.addLabels({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: prNumber,
-                labels: ['ready-for-review']
-              });
-              
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: prNumber,
-                body: `
-            ## ✅ Thanks @${author}!
-
-            Your PR looks complete!
-
-            **Next steps:**
-            1. Request review from your SM
-            2. SM will review and test
-            3. PO will review and test
-            4. PO will merge to \`dev\`
-
-            Thanks for following the process! 🚀
-            `
+                body: `## 👋 Hey @${author}!\n\nPlease complete these items:\n${issues.join('\n')}`
               });
             }

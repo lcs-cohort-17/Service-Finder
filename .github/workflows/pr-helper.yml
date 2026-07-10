@@ -28,7 +28,6 @@ jobs:
             // 🚨 CHECK IF AUTHOR IS A PRODUCT OWNER
             // ============================================================
             
-            // PRIMARY: Check by username (fastest, most reliable)
             const poUsernames = [
               'danielwatterson',
               'tylormentor-dev',
@@ -45,7 +44,6 @@ jobs:
             const isPOByUsername = poUsernames.includes(author.toLowerCase());
             console.log(`✅ Username check: ${isPOByUsername}`);
             
-            // SECONDARY: Check by team membership (fallback)
             let isPOByTeam = false;
             try {
               const { data: membership } = await github.rest.teams.getMembershipForUserInOrg({
@@ -60,7 +58,6 @@ jobs:
               isPOByTeam = false;
             }
             
-            // Combine both
             const isPO = isPOByUsername || isPOByTeam;
             console.log(`✅ Is PO: ${isPO}`);
             
@@ -133,29 +130,56 @@ jobs:
             }
             
             // ============================================================
-            // ✅ 3. CHECKS FOR DEVELOPERS ONLY
+            // ✅ 3. CHECKS FOR DEVELOPERS ONLY - WITH CONTENT VALIDATION
             // ============================================================
             const issues = [];
             
-            if (!prBody.includes('Developer') && !prBody.includes('👤')) {
-              issues.push('- [ ] Add your **Developer** name');
+            // Check if Developer name is filled
+            const developerMatch = prBody.match(/\*\*Developer:\*\* <!-- (.+?) -->/);
+            if (developerMatch && developerMatch[1].trim() === 'Your name here') {
+              issues.push('- [ ] Replace `Your name here` with your actual **Developer** name');
             }
-            if (!prBody.includes('Ticket') && !prBody.includes('LS-') && !prBody.includes('ticket')) {
-              issues.push('- [ ] Add your **Ticket** number (e.g., LS-123)');
+
+            // Check if Ticket is filled
+            const ticketMatch = prBody.match(/\*\*Ticket:\*\* <!-- (.+?) -->/);
+            if (ticketMatch && ticketMatch[1].trim() === 'LS-XXX - Ticket title') {
+              issues.push('- [ ] Replace `LS-XXX - Ticket title` with your actual **Ticket** number');
             }
-            if (!prBody.includes('Sprint') && !prBody.includes('sprint')) {
-              issues.push('- [ ] Add your **Sprint** number (e.g., Sprint 3)');
+
+            // Check if Sprint is filled
+            const sprintMatch = prBody.match(/\*\*Sprint:\*\* <!-- (.+?) -->/);
+            if (sprintMatch && sprintMatch[1].trim() === 'Sprint X') {
+              issues.push('- [ ] Replace `Sprint X` with your actual **Sprint** number');
             }
-            if (!prBody.includes('## Summary') && !prBody.includes('## 📝 Summary')) {
+
+            // Check if Summary is filled
+            if (prBody.includes('<!-- Briefly describe what you changed')) {
               issues.push('- [ ] Add a **Summary** of what you changed');
             }
-            if (!prBody.includes('## Screenshots') && !prBody.includes('## 📸 Screenshots')) {
-              issues.push('- [ ] Add a **Screenshots** section (write "N/A" if no UI changes)');
+
+            // Check if Screenshots are handled
+            if (prBody.includes('*Paste screenshot*')) {
+              issues.push('- [ ] Add **Screenshots** (or write "N/A" if no UI changes)');
             }
-            if (!prBody.includes('## How to Test') && !prBody.includes('## 🧪 How to Test')) {
-              issues.push('- [ ] Add **Test Steps** so reviewers know how to test');
+
+            // Check if Test Steps are filled
+            if (prBody.includes('<!-- Step-by-step instructions for reviewers -->')) {
+              issues.push('- [ ] Replace the template **Test Steps** with your own instructions');
+            }
+
+            // Check if Links are filled
+            if (prBody.includes('<!-- Slack thread link -->')) {
+              issues.push('- [ ] Add a link to your **Ticket** (Slack thread)');
+            }
+
+            // Check if Checklist is completed
+            if (prBody.includes('- [ ] My commit messages are clear')) {
+              issues.push('- [ ] Complete the **Checklist** (replace `[ ]` with `[x]`)');
             }
             
+            // ============================================================
+            // 📝 ADD COMMENT BASED ON CHECKS
+            // ============================================================
             if (issues.length > 0) {
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
@@ -186,6 +210,7 @@ jobs:
               });
               
               console.log(`⚠️ Missing information - added comment`);
+              
             } else {
               await github.rest.issues.addLabels({
                 owner: context.repo.owner,

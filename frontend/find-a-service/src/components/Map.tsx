@@ -1,6 +1,5 @@
 import React from 'react';
 
-// 1. Define the TypeScript data structure for a public service item
 interface Service {
   id: string;
   name: string;
@@ -9,12 +8,10 @@ interface Service {
   lng: number;
 }
 
-// 2. Define the explicit shape of props this map component expects
 interface MapProps {
   services: Service[];
 }
 
-// 3. Type the functional component with React.FC<MapProps>
 export const Map: React.FC<MapProps> = ({ services }) => {
   return (
     <div style={{ 
@@ -27,29 +24,33 @@ export const Map: React.FC<MapProps> = ({ services }) => {
       flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
-      color: '#aaa'
+      color: '#aaa',
+      textAlign: 'center'
     }}>
       <h3 style={{ color: '#fff', marginBottom: '10px' }}>🗺️ Interactive Map View</h3>
       <p>Pins visible on map: <strong style={{ color: '#ffcc00' }}>{services.length}</strong></p>
       
-      {/* Loop through and display the filtered active service pins */}
-      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '15px' }}>
-        {services.map((service) => (
-          <div 
-            key={service.id} 
-            style={{ 
-              backgroundColor: '#ffcc00', 
-              color: '#000', 
-              padding: '5px 10px', 
-              borderRadius: '20px',
-              fontSize: '12px',
-              fontWeight: 'bold'
-            }}
-          >
-            📍 {service.name}
-          </div>
-        ))}
-      </div>
+      {services.length === 0 ? (
+        <p style={{ marginTop: '12px', color: '#ffcc00' }}>No locations match the current filters.</p>
+      ) : (
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '15px', justifyContent: 'center' }}>
+          {services.map((service) => (
+            <div 
+              key={service.id} 
+              style={{ 
+                backgroundColor: '#ffcc00', 
+                color: '#000', 
+                padding: '5px 10px', 
+                borderRadius: '20px',
+                fontSize: '12px',
+                fontWeight: 'bold'
+              }}
+            >
+              📍 {service.name}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

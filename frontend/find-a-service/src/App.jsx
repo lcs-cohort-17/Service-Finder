@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Map } from './components/Map';
 import { AVAILABLE_CATEGORIES } from './components/ServiceMapFilter';
+import { filterServicesByCategories } from './utils/serviceFilters';
 import './App.css';
 
-// Define the shape of our data locally for JavaScript state matching
 function App() {
   // 1. Core data state for all public service records
   const [services, setServices] = useState([]);
   
-  // 2. State for tracking multiple selected filter checkboxes
-  const [selectedCategories, setSelectedCategories] = useState([]);
+  // FIX: Initialize state with AVAILABLE_CATEGORIES so all checkboxes are checked by default!
+  const [selectedCategories, setSelectedCategories] = useState(AVAILABLE_CATEGORIES);
   const [loading, setLoading] = useState(true);
 
   // Simulation: Fetching from Firestore collection / external API endpoints
@@ -17,14 +17,24 @@ function App() {
     const fetchServiceData = async () => {
       try {
         setLoading(true);
-        // Mocking localized public service infrastructure data for testing
         const incomingData = [
-          { id: '1', name: 'Cape Town Central Clinic', category: 'Clinics', lat: -33.9249, lng: 18.4241 },
-          { id: '2', name: 'Central Library', category: 'Libraries', lat: -33.9255, lng: 18.4280 },
-          { id: '3', name: 'Groote Schuur Hospital', category: 'Hospitals', lat: -33.9310, lng: 18.4500 },
-          { id: '4', name: 'SAPS Station', category: 'Police Stations', lat: -33.9220, lng: 18.4210 },
-          { id: '5', name: 'Night Haven Shelter', category: 'Shelters', lat: -33.9335, lng: 18.4250 },
-        ];
+  { id: '1', name: 'Cape Town Central Clinic', category: 'Clinics', lat: -33.9249, lng: 18.4241 },
+  { id: '2', name: 'Central Library', category: 'Libraries', lat: -33.9255, lng: 18.4280 },
+  { id: '3', name: 'Groote Schuur Hospital', category: 'Hospitals', lat: -33.9310, lng: 18.4500 },
+  { id: '4', name: 'SAPS Station', category: 'Police Stations', lat: -33.9220, lng: 18.4210 },
+  { id: '5', name: 'Night Haven Shelter', category: 'Shelters', lat: -33.9335, lng: 18.4250 },
+  { id: '6', name: 'Clicks Pharmacy', category: 'Pharmacies', lat: -33.9240, lng: 18.4230 },
+  { id: '7', name: 'Cape Town Dental Care', category: 'Dentists', lat: -33.9260, lng: 18.4270 },
+  { id: '8', name: 'Epping Street Fire Station', category: 'Fire Stations', lat: -33.9295, lng: 18.4310 },
+  { id: '9', name: 'Langa Community Center', category: 'Community Centers', lat: -33.9445, lng: 18.5320 },
+  { id: '10', name: 'Cape Town Home Affairs Office', category: 'Home Affairs', lat: -33.9250, lng: 18.4225 },
+  { id: '11', name: 'V&A Waterfront Mall', category: 'Malls', lat: -33.9062, lng: 18.4181 },
+  { id: '12', name: 'Cape Town Bus Station', category: 'Bus Stations', lat: -33.9180, lng: 18.4215 },
+  { id: '13', name: 'Cape Town Taxi Rank', category: 'Taxi Ranks', lat: -33.9285, lng: 18.4170 },
+  { id: '14', name: 'Cape Town Train Station', category: 'Train Stations', lat: -33.9240, lng: 18.4185 },
+  { id: '15', name: 'University of Cape Town', category: 'Schools/Universities', lat: -33.9580, lng: 18.4600 }
+  
+];
         setServices(incomingData);
       } catch (err) {
         console.error("Failed to sync service data:", err);
@@ -45,11 +55,8 @@ function App() {
     );
   };
 
-  // 3. Filter services array based on selected checkboxes before rendering
-  const filteredServices = services.filter((service) => {
-    if (selectedCategories.length === 0) return true; // Show everything if none checked
-    return selectedCategories.includes(service.category);
-  });
+  // Filter services array directly based on checked categories
+  const filteredServices = filterServicesByCategories(services, selectedCategories);
 
   if (loading) {
     return <div style={{ color: 'white', padding: '20px' }}>Syncing layout services...</div>;
@@ -85,13 +92,16 @@ function App() {
 
         {/* Right Side: Map view section receiving the filtered array data */}
         <section style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          {/* We pass the array down to our typed Map component */}
           <Map services={filteredServices} />
           
           {/* Text Summary list underneath map view */}
           <div style={{ backgroundColor: '#1e1e1e', padding: '20px', borderRadius: '8px', border: '1px solid #333' }}>
             <h4>Results Found ({filteredServices.length})</h4>
-            <small style={{ color: '#aaa' }}>Matching selected filters</small>
+            <small style={{ color: '#aaa' }}>
+              {filteredServices.length === 0
+                ? 'No services match the active filters. Try selecting a different category.'
+                : 'Matching selected filters'}
+            </small>
           </div>
         </section>
       </main>

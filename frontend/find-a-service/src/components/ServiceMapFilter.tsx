@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 
-// 1. Define the TypeScript interface for a service
 export interface Service {
   id: string;
   name: string;
@@ -9,7 +8,6 @@ export interface Service {
   lng: number;
 }
 
-// 2. Define your public service categories list
 export const AVAILABLE_CATEGORIES: string[] = [
   'Clinics',
   'Libraries',
@@ -20,30 +18,41 @@ export const AVAILABLE_CATEGORIES: string[] = [
   'Dentists',
   'Fire Stations',
   'Community Centers',
+  'Home Affairs',
+  'Malls',
+  'Bus Stations',
+  'Taxi Ranks',
+  'Train Stations',
+  'Schools/Universities',
 ];
 
 export const ServiceMapFilter: React.FC = () => {
-  // State to hold data retrieved from Firestore / API
   const [services, setServices] = useState<Service[]>([]);
   
-  // State to support multiple selected categories
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Simulation: Fetching data from Firestore / External API
   useEffect(() => {
     const fetchServices = async () => {
       try {
         setLoading(true);
         
-        // This is a placeholder structure. You will replace this with your 
-        // real Firestore getDocs() or fetch() data array later.
         const mockData: Service[] = [
           { id: '1', name: 'Community Clinic', category: 'Clinics', lat: -33.9249, lng: 18.4241 },
           { id: '2', name: 'Central Library', category: 'Libraries', lat: -33.9255, lng: 18.4280 },
           { id: '3', name: 'City Hospital', category: 'Hospitals', lat: -33.9310, lng: 18.4500 },
           { id: '4', name: 'Main Fire Station', category: 'Fire Stations', lat: -33.9220, lng: 18.4210 },
           { id: '5', name: 'Community Center', category: 'Community Centers', lat: -33.9280, lng: 18.4320 },
+          { id: '6', name: 'Clicks Pharmacy', category: 'Pharmacies', lat: -33.9240, lng: 18.4230 },
+          { id: '7', name: 'Cape Town Dental Care', category: 'Dentists', lat: -33.9260, lng: 18.4270 },
+          { id: '8', name: 'Epping Street Fire Station', category: 'Fire Stations', lat: -33.9295, lng: 18.4310 },
+          { id: '9', name: 'Langa Community Center', category: 'Community Centers', lat: -33.9445, lng: 18.5320 },
+          { id: '10', name: 'Cape Town Home Affairs Office', category: 'Home Affairs', lat: -33.9250, lng: 18.4225 },
+          { id: '11', name: 'V&A Waterfront Mall', category: 'Malls', lat: -33.9062, lng: 18.4181 },
+          { id: '12', name: 'Cape Town Bus Station', category: 'Bus Stations', lat: -33.9180, lng: 18.4215 },
+          { id: '13', name: 'Cape Town Taxi Rank', category: 'Taxi Ranks', lat: -33.9285, lng: 18.4170 },
+          { id: '14', name: 'Cape Town Train Station', category: 'Train Stations', lat: -33.9240, lng: 18.4185 },
+          { id: '15', name: 'University of Cape Town', category: 'Schools/Universities', lat: -33.9580, lng: 18.4600 }
         ];
         
         setServices(mockData);
@@ -57,20 +66,16 @@ export const ServiceMapFilter: React.FC = () => {
     fetchServices();
   }, []);
 
-  // Handle toggling multiple categories in state
   const handleCategoryChange = (category: string) => {
     setSelectedCategories((prevSelected) =>
       prevSelected.includes(category)
-        ? prevSelected.filter((c) => c !== category) // Uncheck: remove from state
-        : [...prevSelected, category]               // Check: add to state
+        ? prevSelected.filter((c) => c !== category) 
+        : [...prevSelected, category]               
     );
   };
 
-  // 3. Filter service data before rendering markers
   const filteredServices = services.filter((service: Service) => {
-    // If no categories are ticked, show all markers by default
     if (selectedCategories.length === 0) return true;
-    // Otherwise, check if the service's category is included in the selection
     return selectedCategories.includes(service.category);
   });
 
@@ -80,7 +85,7 @@ export const ServiceMapFilter: React.FC = () => {
     <div style={{ padding: '20px', backgroundColor: '#1e1e1e', color: 'white', borderRadius: '8px' }}>
       <h3 style={{ marginBottom: '15px' }}>Filter Public Services</h3>
       
-      {/* Category Checkboxes Layout */}
+      {}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '15px', marginBottom: '25px' }}>
         {AVAILABLE_CATEGORIES.map((category) => (
           <label key={category} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
@@ -95,7 +100,7 @@ export const ServiceMapFilter: React.FC = () => {
         ))}
       </div>
 
-      {/* Active Results Display */}
+      {}
       <div>
         <h4 style={{ borderBottom: '1px solid #444', paddingBottom: '5px' }}>
           Active Service Markers ({filteredServices.length})

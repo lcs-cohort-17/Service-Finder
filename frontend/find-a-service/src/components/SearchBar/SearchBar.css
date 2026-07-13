@@ -1,0 +1,74 @@
+.cwu-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #1a2c3d; /* Precise dark slate/navy background from the design */
+  border: 1px solid #2b4257; /* The subtle blue-gray outline */
+  border-radius: 6px; /* Slightly sharper rounded corners from the mockup */
+  padding: 6px 14px;
+  width: 100%;
+  max-width: 460px; /* Matching the relative length in the header */
+  height: 38px;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease;
+
+  /* --- Responsive Additions --- */
+  margin: 0 auto;           /* Centers the search bar horizontally if its parent is wider */
+  margin-inline: 16px;      /* Ensures a minimum 16px gap from screen edges on small mobile devices */
+}
+
+.cwu-search:focus-within {
+  border-color: #00e7c8; /* Highlights using your design's bright teal when active */
+}
+
+.cwu-search__icon {
+  flex-shrink: 0;
+  color: #7fa4c0; /* The light blue-gray tone of the mockup icon */
+  display: flex;
+  align-items: center;
+}
+
+.cwu-search__input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #ffffff; /* Crisp white text when typing */
+  font-size: 15px;
+  width: 100%;
+  min-width: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.cwu-search__input::placeholder {
+  color: #94a9bc; /* The exact muted gray-blue placeholder text color */
+}
+
+.cwu-search__clear {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.cwu-search__clear--visible {
+  display: flex;
+}
+
+.cwu-search__clear:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Responsive configurations matching the design spec */
+@media (max-width: 820px) {
+  .cwu-search {
+    max-width: 100%;
+  }
+}

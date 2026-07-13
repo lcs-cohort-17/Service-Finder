@@ -1,122 +1,71 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+// src/App.jsx
+import { useState } from 'react';
+import { useAuth } from './context/AuthContext';
+import Login from './views/Login';
+import SignUp from './views/SignUp';
+import { signOut } from 'firebase/auth';
+import { auth } from './firebase';
+import './App.css';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const { user } = useAuth();
+  const [showSignUp, setShowSignUp] = useState(false);
+
+  const handleLogout = async () => {
+    await signOut(auth);
+  };
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+    <div className="app">
+      <div className="auth-card">
+        <div className="card-header">
+          <i className="fas fa-map-pin"></i>
+          <span>ConnectWithUs</span>
         </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+        {user ? (
+          // Logged in – show user info & logout
+          <div className="user-badge">
+            <div className="avatar">{user.displayName?.[0] || user.email?.[0] || 'U'}</div>
+            <div className="user-info">
+              <div className="name">{user.displayName || user.email}</div>
+              <div className="email">{user.email}</div>
+            </div>
+            <button className="logout-btn" onClick={handleLogout}>
+              <i className="fas fa-sign-out-alt"></i>
+            </button>
+          </div>
+        ) : (
+          // Not logged in – show login/signup forms
+          <>
+            <div className="auth-title">
+              {showSignUp ? 'Create your account' : 'Sign in'}
+            </div>
+            {showSignUp ? (
+              <>
+                <SignUp />
+                <div className="auth-toggle">
+                  Already have an account?{' '}
+                  <a onClick={() => setShowSignUp(false)}>Sign in</a>
+                </div>
+              </>
+            ) : (
+              <>
+                <Login />
+                <div className="auth-toggle">
+                  Don't have an account?{' '}
+                  <a onClick={() => setShowSignUp(true)}>Sign up</a>
+                </div>
+              </>
+            )}
+            <div className="auth-demo-note">
+              <i className="fas fa-info-circle"></i> Demo account only — stored in browser, not sent anywhere.
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
 }
 
-export default App
+export default App;

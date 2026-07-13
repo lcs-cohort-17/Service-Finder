@@ -26,17 +26,34 @@ export const AVAILABLE_CATEGORIES: string[] = [
   'Schools/Universities',
 ];
 
+const CATEGORY_COLOR_MAP: Record<string, string> = {
+  'Hospitals': '#ef4444',
+  'Clinics': '#14b8a6',
+  'Libraries': '#6366f1',
+  'Shelters': '#a855f7',
+  'Police Stations': '#1e3a8a',
+  'Taxi Ranks': '#f59e0b',
+  'Bus Stations': '#2563eb',
+  'Train Stations': '#ec4899',
+  'Pharmacies': '#10b981',
+  'Dentists': '#06b6d4',
+  'Fire Stations': '#f97316',
+  'Community Centers': '#f43f5e',
+  'Malls': '#8b5cf6',
+  'Home Affairs': '#64748b',
+  'Schools/Universities': '#0ea5e9',
+};
+
 export const ServiceMapFilter: React.FC = () => {
   const [services, setServices] = useState<Service[]>([]);
-  
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([...AVAILABLE_CATEGORIES]);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchServices = async () => {
       try {
         setLoading(true);
-        
+
         const mockData: Service[] = [
           { id: '1', name: 'Community Clinic', category: 'Clinics', lat: -33.9249, lng: 18.4241 },
           { id: '2', name: 'Central Library', category: 'Libraries', lat: -33.9255, lng: 18.4280 },
@@ -54,7 +71,7 @@ export const ServiceMapFilter: React.FC = () => {
           { id: '14', name: 'Cape Town Train Station', category: 'Train Stations', lat: -33.9240, lng: 18.4185 },
           { id: '15', name: 'University of Cape Town', category: 'Schools/Universities', lat: -33.9580, lng: 18.4600 }
         ];
-        
+
         setServices(mockData);
       } catch (error) {
         console.error("Error fetching services:", error);
@@ -69,8 +86,8 @@ export const ServiceMapFilter: React.FC = () => {
   const handleCategoryChange = (category: string) => {
     setSelectedCategories((prevSelected) =>
       prevSelected.includes(category)
-        ? prevSelected.filter((c) => c !== category) 
-        : [...prevSelected, category]               
+        ? prevSelected.filter((c) => c !== category)
+        : [...prevSelected, category]
     );
   };
 
@@ -83,36 +100,67 @@ export const ServiceMapFilter: React.FC = () => {
 
   return (
     <div style={{ padding: '20px', backgroundColor: '#1e1e1e', color: 'white', borderRadius: '8px' }}>
-      <h3 style={{ marginBottom: '15px' }}>Filter Public Services</h3>
-      
-      {}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '15px', marginBottom: '25px' }}>
-        {AVAILABLE_CATEGORIES.map((category) => (
-          <label key={category} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-            <input
-              type="checkbox"
-              checked={selectedCategories.includes(category)}
-              onChange={() => handleCategoryChange(category)}
-              style={{ width: '16px', height: '16px' }}
-            />
-            {category}
-          </label>
-        ))}
+      <div style={{ marginBottom: '15px' }}>
+        <span style={{ display: 'inline-block', fontSize: '12px', fontWeight: 700, color: '#9ca3af', letterSpacing: '0.12em' }}>
+          SHOW ON MAP
+        </span>
       </div>
 
-      {}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '25px' }}>
+        {AVAILABLE_CATEGORIES.map((category) => {
+          const isActive = selectedCategories.includes(category);
+          const accentColor = CATEGORY_COLOR_MAP[category] ?? '#9ca3af';
+          const buttonStyle: React.CSSProperties = {
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '10px 14px',
+            borderRadius: '20px',
+            border: `1px solid ${isActive ? '#0f172a' : '#4b5563'}`,
+            backgroundColor: isActive ? '#0f172a' : 'transparent',
+            color: isActive ? '#f8fafc' : '#d1d5db',
+            cursor: 'pointer',
+            transition: 'background-color 0.2s ease, border-color 0.2s ease',
+            minWidth: 'fit-content',
+            whiteSpace: 'nowrap',
+          };
+
+          return (
+            <button
+              key={category}
+              type="button"
+              onClick={() => handleCategoryChange(category)}
+              style={buttonStyle}
+            >
+              <span
+                style={{
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  backgroundColor: accentColor,
+                  display: 'inline-block',
+                  flexShrink: 0,
+                }}
+              />
+              <span style={{ fontSize: '13px', fontWeight: 600 }}>{category}</span>
+            </button>
+          );
+        })}
+      </div>
+
       <div>
         <h4 style={{ borderBottom: '1px solid #444', paddingBottom: '5px' }}>
           Active Service Markers ({filteredServices.length})
         </h4>
-        <ul style={{ listStyleType: 'none', paddingLeft: 0 }}>
+        <ul style={{ listStyleType: 'none', paddingLeft: 0, marginTop: '12px' }}>
           {filteredServices.map((service) => (
-            <li key={service.id} style={{ padding: '8px 0', borderBottom: '1px solid #333' }}>
+            <li key={service.id} style={{ padding: '10px 0', borderBottom: '1px solid #333' }}>
               <strong>{service.name}</strong> — <span style={{ color: '#ffcc00' }}>{service.category}</span>
               <div style={{ fontSize: '12px', color: '#aaa' }}>GPS: {service.lat}, {service.lng}</div>
             </li>
           ))}
         </ul>
+
       </div>
     </div>
   );

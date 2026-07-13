@@ -10,7 +10,7 @@ export const getAuthErrorMessage = (errorCode: string, errorMessage?: string): s
   }
 
   if (combined.includes('auth/invalid-credential') || combined.includes('invalid email or password') || combined.includes('invalid credential')) {
-    return 'Invalid email or password. Please try again.';
+    return 'Invalid email or password..';
   }
 
   if (combined.includes('auth/user-not-found') || combined.includes('user not found') || combined.includes('no user record')) {

@@ -1,6 +1,6 @@
 // src/components/SignUp.jsx
-import { useState } from 'react';
-import { auth } from '../firebase';
+import { useState, type FormEvent } from 'react';
+import { auth } from '../firebase.js'; // Adjust the import path as needed
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 
 const SignUp = () => {
@@ -11,7 +11,7 @@ const SignUp = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSignUp = async (e) => {
+  const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -20,10 +20,11 @@ const SignUp = () => {
       await updateProfile(userCred.user, { displayName: name || 'User' });
       if (home) localStorage.setItem('cw_homeArea', home);
     } catch (err) {
-      let msg = err.message;
-      if (err.code === 'auth/email-already-in-use') msg = 'Email already registered.';
-      else if (err.code === 'auth/weak-password') msg = 'Password must be at least 6 characters.';
-      else if (err.code === 'auth/invalid-email') msg = 'Invalid email address.';
+      const e: any = err;
+      let msg = e?.message || String(err);
+      if (e?.code === 'auth/email-already-in-use') msg = 'Email already registered.';
+      else if (e?.code === 'auth/weak-password') msg = 'Password must be at least 6 characters.';
+      else if (e?.code === 'auth/invalid-email') msg = 'Invalid email address.';
       setError(msg);
     } finally {
       setLoading(false);

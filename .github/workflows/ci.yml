@@ -1,0 +1,256 @@
+name: PR Helper
+
+on:
+  pull_request:
+    types: [opened, synchronize, edited]
+
+jobs:
+  check-pr:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+      issues: write
+    steps:
+      - name: Check PR completeness
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prBody = context.payload.pull_request.body || '';
+            const prNumber = context.payload.pull_request.number;
+            const author = context.payload.pull_request.user.login;
+            const baseRef = context.payload.pull_request.base.ref;
+            const headRef = context.payload.pull_request.head.ref;
+            
+            console.log(`🚀 PR Helper started for: ${author}`);
+            
+            // ============================================================
+            // 🚨 CHECK IF AUTHOR IS A PRODUCT OWNER
+            // ============================================================
+            
+            const poUsernames = [
+              'danielwatterson',
+              'tylormentor-dev',
+              'toufeeq1',
+              'fernandezmische',
+              'bungcwalisa',
+              'magxalasinaye00-max',
+              'ninalewis-coder',
+              'asiphelange',
+              'imaancummings',
+              'ccphok'
+            ];
+            
+            const isPOByUsername = poUsernames.includes(author.toLowerCase());
+            console.log(`✅ Username check: ${isPOByUsername}`);
+            
+            let isPOByTeam = false;
+            try {
+              const { data: membership } = await github.rest.teams.getMembershipForUserInOrg({
+                org: 'lcs-cohort-17',
+                team_slug: 'product-owners',
+                username: author
+              });
+              isPOByTeam = membership.state === 'active';
+              console.log(`✅ Team check: ${isPOByTeam}`);
+            } catch (error) {
+              console.log(`⚠️ Team check skipped: ${error.message}`);
+              isPOByTeam = false;
+            }
+            
+            const isPO = isPOByUsername || isPOByTeam;
+            console.log(`✅ Is PO: ${isPO}`);
+            
+            // ============================================================
+            // 🚨 1. ALWAYS SKIP FOR PRODUCT OWNERS
+            // ============================================================
+            if (isPO) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: `
+            ## 👋 Hey @${author}!
+
+            **PO PR Detected.** No template needed—just merge when ready! 🚀
+
+            **Quick Check:**
+            - [ ] All PRs for this sprint are merged to \`dev\`
+            - [ ] CI is green
+            - [ ] SM has approved
+            - [ ] QA has signed off
+
+            Thanks! 🎉
+            `
+              });
+              
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                labels: ['release-pr']
+              });
+              
+              console.log(`✅ PO detected - skipping all checks`);
+              return;
+            }
+            
+            // ============================================================
+            // 🚨 2. SKIP RELEASE PRS (dev → main)
+            // ============================================================
+            if (baseRef === 'main' && headRef === 'dev') {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: `
+            ## 🚀 Release PR Detected!
+
+            @${author} this is a release PR from \`dev\` → \`main\`. 
+            
+            **Before merging, confirm:**
+            - [ ] All PRs for this sprint are merged to \`dev\`
+            - [ ] CI is green
+            - [ ] SM has approved
+            - [ ] QA has signed off
+            
+            Then merge! 🎉
+            `
+              });
+              
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                labels: ['release-pr']
+              });
+              
+              console.log(`✅ Release PR detected - skipping checks`);
+              return;
+            }
+            
+            // ============================================================
+            // ✅ 3. CHECKS FOR DEVELOPERS AND SMS
+            // ============================================================
+            const issues = [];
+            
+            // ------------------------------------------------------------------
+            // 1. CHECK: Developer name (replaced the placeholder)
+            // ------------------------------------------------------------------
+            if (prBody.includes('<!-- Your name here -->')) {
+              issues.push('- [ ] Replace `<!-- Your name here -->` with your **GitHub username** (e.g., @jake)');
+            }
+
+            // ------------------------------------------------------------------
+            // 2. CHECK: Ticket number (replaced the placeholder)
+            // ------------------------------------------------------------------
+            if (prBody.includes('<!-- LS-XXX - Ticket title -->')) {
+              issues.push('- [ ] Replace `<!-- LS-XXX - Ticket title -->` with your **Ticket number** (e.g., LS-123)');
+            }
+
+            // ------------------------------------------------------------------
+            // 3. CHECK: Sprint number (replaced the placeholder)
+            // ------------------------------------------------------------------
+            if (prBody.includes('<!-- Sprint X -->')) {
+              issues.push('- [ ] Replace `<!-- Sprint X -->` with your **Sprint number** (e.g., Sprint 3)');
+            }
+
+            // ------------------------------------------------------------------
+            // 4. CHECK: Summary (has content, not just comment)
+            // ------------------------------------------------------------------
+            const summaryMatch = prBody.match(/## 📝 Summary\s+<!-- Briefly describe what you changed/);
+            if (summaryMatch) {
+              issues.push('- [ ] Replace the **Summary** comment with a description of what you changed');
+            }
+
+            // ------------------------------------------------------------------
+            // 5. CHECK: Screenshots (has N/A or actual image)
+            // ------------------------------------------------------------------
+            if (prBody.includes('| *Paste screenshot* | *Paste screenshot* |')) {
+              issues.push('- [ ] Add **Screenshots** (or write "N/A" if no UI changes)');
+            }
+
+            // ------------------------------------------------------------------
+            // 6. CHECK: Test Steps (replaced the placeholders)
+            // ------------------------------------------------------------------
+            if (prBody.includes('<!-- Step-by-step instructions for reviewers -->')) {
+              issues.push('- [ ] Replace the **Test Steps** with actual step-by-step instructions');
+            }
+
+            // ------------------------------------------------------------------
+            // 7. CHECK: Ticket link (replaced the placeholder)
+            // ------------------------------------------------------------------
+            if (prBody.includes('<!-- Slack thread link -->')) {
+              issues.push('- [ ] Add a link to your **Ticket** (Slack thread)');
+            }
+
+            // ------------------------------------------------------------------
+            // 8. CHECK: Checklist is completed (at least one box checked)
+            // ------------------------------------------------------------------
+            if (!prBody.includes('[x]') && !prBody.includes('[X]')) {
+              issues.push('- [ ] Complete the **Checklist** by ticking the boxes (replace `[ ]` with `[x]`)');
+            }
+            
+            // ============================================================
+            // 📝 ADD COMMENT BASED ON CHECKS
+            // ============================================================
+            if (issues.length > 0) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: `
+            ## 👋 Hey @${author}!
+
+            Before we review your PR, please complete these items:
+
+            ${issues.join('\n')}
+
+            ---
+
+            **📖 Need help?** Check out the [PR Example](.github/PULL_REQUEST_EXAMPLE.md) or ask your SM.
+
+            **✏️ Edit your PR description:** Click the "..." button at the top of this PR and select "Edit".
+
+            Thanks! 🚀
+            `
+              });
+              
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                labels: ['needs-more-info']
+              });
+              
+              console.log(`⚠️ Missing information - added comment`);
+              
+            } else {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                labels: ['ready-for-review']
+              });
+              
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: `
+            ## ✅ Thanks @${author}!
+
+            Your PR looks complete!
+
+            **Next steps:**
+            1. Request review from your SM
+            2. SM will review and test
+            3. PO will review and test
+            4. PO will merge to \`dev\`
+
+            Thanks for following the process! 🚀
+            `
+              });
+              
+              console.log(`✅ PR is complete!`);
+            }

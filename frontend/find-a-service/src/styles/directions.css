@@ -16,8 +16,6 @@
   color: #142d40;
 }
 
-/* LEFT SIDEBAR */
-
 .directions-panel {
   width: 100%;
   min-height: 100vh;
@@ -31,8 +29,6 @@
   display: none;
 }
 
-/* FORM */
-
 .route-form {
   width: 100%;
 }
@@ -45,8 +41,6 @@
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
-
-/* LOCATION INPUTS */
 
 .route-input-row {
   width: 100%;
@@ -107,8 +101,6 @@
   opacity: 1;
 }
 
-/* INLINE ICON BUTTONS */
-
 .location-icon-button,
 .swap-icon-button,
 .route-icon-button {
@@ -149,8 +141,6 @@
   opacity: 0.35;
 }
 
-/* TRANSPORT MODES */
-
 .transport-mode-selector {
   display: flex;
   gap: 7px;
@@ -189,8 +179,6 @@
   color: #ffffff;
   box-shadow: 0 4px 10px rgba(20, 139, 146, 0.2);
 }
-
-/* ACTION BUTTONS */
 
 .route-actions {
   display: grid;
@@ -256,6 +244,28 @@
 
 .clear-route-button:active {
   transform: translateY(0);
+}
+
+.map-placeholder {
+  min-height: 100vh;
+  background: #f4f7f8;
+  overflow: hidden;
+}
+
+@media (max-width: 900px) {
+  .directions-page {
+    grid-template-columns: 1fr;
+  }
+
+  .directions-panel {
+    min-height: auto;
+    border-right: 0;
+    border-bottom: 1px solid #d6dfe3;
+  }
+
+  .map-placeholder {
+    min-height: 60vh;
+  }
 }
 
 /* ERROR MESSAGE */

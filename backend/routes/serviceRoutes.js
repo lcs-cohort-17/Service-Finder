@@ -2,11 +2,12 @@
 // API Routes for services
 
 import express from 'express';
-import { seedFromOverpassCon } from '../controllers/serviceController.js';
+import { moderateService, seedFromOverpassCon } from '../controllers/serviceController.js';
 
 const router = express.Router();
 
 // POST /api/services/seed - Import from Overpass
 router.post('/seed', seedFromOverpassCon);
+router.patch('/moderate/:id', moderateService);
 
 export default router;

@@ -1,4 +1,4 @@
-import { seedFromOverpassDb } from "../models/serviceModel.js";
+import { seedFromOverpassDb, updateServiceStatusDb } from "../models/serviceModel.js";
 
 
 const mapServiceType = (tags) => {
@@ -42,7 +42,7 @@ const mapServiceType = (tags) => {
 export const seedFromOverpassCon = async (req, res, next) => {
   try {
     // Cape Town bounding box (you can keep or expand this)
-    const bbox = '-34.05,18.35,-33.85,18.60';
+    const bbox = '-34.05,18.35,-33.85,18.60'; 
 
     // Expanded query — covers ALL services from your screenshot
     const overpassQuery = `
@@ -124,3 +124,28 @@ export const seedFromOverpassCon = async (req, res, next) => {
     next(error);
   }
 };
+
+export const moderateService = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!['approved', 'declined'].includes(status)) {
+      return res.status(400).json({ error: "Status must be 'approved' or 'declined'." });
+    }
+
+    const updated = await updateServiceStatusDb(id, status, new Date().toISOString());
+
+    res.status(200).json({
+      success: true,
+      message: `Service status updated to ${status}.`,
+      data: updated
+    });
+  } catch (error) {
+    if (error.code === "NOT_FOUND") {
+      return res.status(404).json({ error: "Service not found." });
+    }
+    next(error);
+  }
+};
+

@@ -24,3 +24,18 @@ export const seedFromOverpassDb = async (servicesData) => {
 
   return savedCount;
 };
+
+export const updateServiceStatusDb = async (id, status, reviewedAt) => {
+  const docRef = db.collection('services').doc(id);
+  const doc = await docRef.get();
+
+  if (!doc.exists) {
+    const error = new Error("Service not found");
+    error.code = "NOT_FOUND";
+    throw error;
+  }
+
+  await docRef.update({ status, reviewedAt });
+  return { id, status };
+};
+

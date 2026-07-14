@@ -1,0 +1,339 @@
+/* ============================================================
+   ADMIN-011
+   Google Maps Verification Modal
+   ============================================================ */
+
+/*
+===============================================================
+MODAL OVERLAY
+===============================================================
+*/
+
+.maps-modal-overlay {
+    position: fixed;
+    inset: 0;
+
+    background: rgba(0, 0, 0, 0.55);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    z-index: 9999;
+
+    padding: 20px;
+}
+
+/*
+===============================================================
+MODAL CONTAINER
+
+Want a larger popup?
+
+Increase:
+width
+height
+
+Want a smaller popup?
+
+Decrease:
+width
+height
+===============================================================
+*/
+
+.maps-modal {
+    background: white;
+
+    width: 900px;      /* ← Change width here */
+    max-width: 95%;
+
+    height: 700px;     /* ← Change height here */
+    max-height: 92vh;
+
+    border-radius: 16px;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 12px 35px rgba(0,0,0,.25);
+
+    position: relative;
+}
+
+/*
+===============================================================
+HEADER
+===============================================================
+*/
+
+.maps-modal-header {
+
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    padding: 20px 24px;
+
+    border-bottom: 1px solid #ececec;
+}
+
+.maps-modal-header h2 {
+
+    margin: 0 0 8px;
+
+    font-size: 1.5rem;
+}
+
+.maps-modal-header p {
+
+    margin: 0;
+
+    color: #666;
+
+    line-height: 1.5;
+}
+
+.close-button {
+
+    border: none;
+
+    background: transparent;
+
+    font-size: 24px;
+
+    cursor: pointer;
+}
+
+/*
+===============================================================
+GOOGLE MAP
+===============================================================
+*/
+
+.maps-frame {
+
+    flex: 1;
+
+    width: 100%;
+
+    border: none;
+}
+
+/*
+===============================================================
+LOADING OVERLAY
+===============================================================
+*/
+
+.loading-overlay {
+
+    position: absolute;
+
+    top: 90px;
+    left: 0;
+    right: 0;
+    bottom: 80px;
+
+    background: rgba(255,255,255,.94);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    gap: 18px;
+
+    z-index: 100;
+}
+
+/*
+===============================================================
+SPINNER
+===============================================================
+*/
+
+.spinner {
+
+    width: 58px;
+    height: 58px;
+
+    border-radius: 50%;
+
+    border: 6px solid #dddddd;
+
+    border-top: 6px solid #4285F4;
+
+    animation: spinner .8s linear infinite;
+}
+
+@keyframes spinner {
+
+    from {
+
+        transform: rotate(0deg);
+
+    }
+
+    to {
+
+        transform: rotate(360deg);
+
+    }
+}
+
+/*
+===============================================================
+EMPTY + ERROR STATE
+===============================================================
+*/
+
+.empty-state,
+.error-state {
+
+    flex: 1;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    text-align: center;
+
+    padding: 50px;
+
+    gap: 12px;
+}
+
+.empty-state h3,
+.error-state h3 {
+
+    margin: 0;
+
+    color: #d32f2f;
+}
+
+.empty-state p,
+.error-state p {
+
+    margin: 0;
+
+    color: #555;
+
+    max-width: 500px;
+
+    line-height: 1.6;
+}
+
+/*
+===============================================================
+FOOTER
+===============================================================
+*/
+
+.maps-footer {
+
+    display: flex;
+
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 20px 24px;
+
+    border-top: 1px solid #ececec;
+}
+
+/*
+===============================================================
+BUTTONS
+===============================================================
+*/
+
+.google-button {
+
+    background: #4285F4;
+
+    color: white;
+
+    text-decoration: none;
+
+    padding: 12px 18px;
+
+    border-radius: 8px;
+
+    font-weight: 600;
+
+    transition: .25s;
+}
+
+.google-button:hover {
+
+    background: #2d6cdf;
+}
+
+.close-modal-button {
+
+    background: #444;
+
+    color: white;
+
+    border: none;
+
+    padding: 12px 22px;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    transition: .25s;
+}
+
+.close-modal-button:hover {
+
+    background: #222;
+}
+
+/*
+===============================================================
+RESPONSIVE
+
+Adjust the modal for phones and tablets.
+
+You can also change:
+
+width
+height
+
+below if you want the popup
+larger or smaller on mobile.
+===============================================================
+*/
+
+@media (max-width: 768px) {
+
+    .maps-modal {
+
+        width: 95%;
+
+        height: 80vh;
+    }
+
+    .maps-footer {
+
+        flex-direction: column;
+
+        gap: 15px;
+    }
+
+    .google-button,
+    .close-modal-button {
+
+        width: 100%;
+
+        text-align: center;
+    }
+
+}

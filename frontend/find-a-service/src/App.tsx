@@ -1,62 +1,41 @@
-import { MapContainer, MapControls, MapMarkers } from './components/Map/index';
-import type { ServiceMarker } from './types/map';
-import './App.css';
-
+import React from "react";
+import Map from "./components/Map/Map";
+import { useServiceStore } from "./store/useServiceStore";
+// uncomment the lines below when testing backend logic
+// it is commented out to avoid errors when the backend is not running
 function App() {
-  // Sample markers (would come from API in real app)
-  const sampleMarkers: ServiceMarker[] = [
-    {
-      id: '1',
-      name: 'Plumber Pro',
-      category: 'Plumbing',
-      lat: -33.9249,
-      lng: 18.4241,
-      description: 'Expert plumbing services',
-    },
-    {
-      id: '2',
-      name: 'Electrician Elite',
-      category: 'Electrical',
-      lat: -33.9259,
-      lng: 18.4251,
-      description: 'Licensed electrician',
-    },
-    {
-      id: '3',
-      name: 'Clean Co',
-      category: 'Cleaning',
-      lat: -33.9239,
-      lng: 18.4231,
-      description: 'Professional cleaning',
-    },
-  ];
+  const projectLocation: [number, number] = [-33.9249, 18.4241];
+  const { markers, loading, error } = useServiceStore();
 
-  const handleMarkerClick = (marker: ServiceMarker) => {
-    console.log('Clicked marker:', marker);
-    alert(`Marker clicked: ${marker.name} (${marker.category})`);
-  };
+  if (loading) {
+    return <h2>Loading services...</h2>;
+  }
+
+  if (error) {
+    return <h2>{error}</h2>;
+  }
 
   return (
-    <div className="App">
-      <h1>Service Finder - Map Demo</h1>
-      <MapContainer 
-        center={[-33.9249, 18.4241]} 
-        zoom={13}
-        markers={sampleMarkers}
-        onMarkerClick={handleMarkerClick}
-      >
-        <MapControls 
-          onZoomIn={() => console.log('Zoom in')}
-          onZoomOut={() => console.log('Zoom out')}
-          onReset={() => console.log('Reset view')}
-        />
-        <MapMarkers 
-          markers={sampleMarkers}
-          onMarkerClick={handleMarkerClick}
-        />
-      </MapContainer>
+    <div className="min-h-screen h-screen overflow-hidden bg-gray-100 flex flex-col">
+      <header className="bg-white shadow-sm px-4 py-3 flex-shrink-0">
+        <div className="mx-auto max-w-7xl">
+          <h1 className="text-xl font-semibold text-gray-800">
+            Service Finder
+          </h1>
+        </div>
+      </header>
+
+      <main className="flex-1 min-h-0 p-3 sm:p-4 md:p-5">
+        <div className="mx-auto flex h-full max-w-7xl flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg">
+          <div className="flex-1 min-h-0 w-full">
+            <Map center={projectLocation} zoom={13} markers={markers}/> 
+          </div>
+        </div>
+      </main>
     </div>
   );
 }
 
 export default App;
+// This goes in the map function
+//markers={markers} 

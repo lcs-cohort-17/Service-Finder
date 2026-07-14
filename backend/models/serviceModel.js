@@ -6,38 +6,55 @@ import Service from "./Service.js";
 const cacheTtlMs = Number(process.env.SERVICE_CACHE_TTL_MS || 5 * 60 * 1000);
 const serviceLimit = Number(process.env.SERVICE_LIMIT || 0);
 
-let approvedServicesCache = null;
-let approvedServicesCacheExpiresAt = 0;
+// Cache different map areas separately
+const cache = new Map();
 
 /**
- * Fetch all approved services.
+ * Fetch approved services within the requested map bounds.
  */
-export const getApprovedServices = async () => {
+export const getApprovedServices = async ({
+    minLat,
+    maxLat,
+    minLng,
+    maxLng,
+}) => {
     try {
-        if (approvedServicesCache && Date.now() < approvedServicesCacheExpiresAt) {
-            return approvedServicesCache;
+        const cacheKey = `${minLat}-${maxLat}-${minLng}-${maxLng}`;
+
+        const cached = cache.get(cacheKey);
+
+        if (cached && Date.now() < cached.expiresAt) {
+            return cached.data;
         }
 
-        let servicesQuery = db
+        const servicesQuery = db
             .collection("services")
             .where("status", "==", "approved");
 
-        if (serviceLimit > 0) {
-            servicesQuery = servicesQuery.limit(serviceLimit);
-        }
-
         const snapshot = await servicesQuery.get();
 
-        const services = snapshot.docs.map(
-            (doc) =>
-                new Service({
-                    id: doc.id,
-                    ...doc.data(),
-                })
-        );
+        // Filter location bounds locally so Firestore does not require a composite index.
+        const services = snapshot.docs
+            .map(
+                (doc) =>
+                    new Service({
+                        id: doc.id,
+                        ...doc.data(),
+                    })
+            )
+            .filter(
+                (service) =>
+                    service.latitude >= minLat &&
+                    service.latitude <= maxLat &&
+                    service.longitude >= minLng &&
+                    service.longitude <= maxLng
+            )
+            .slice(0, serviceLimit > 0 ? serviceLimit : undefined);
 
-        approvedServicesCache = services;
-        approvedServicesCacheExpiresAt = Date.now() + cacheTtlMs;
+        cache.set(cacheKey, {
+            data: services,
+            expiresAt: Date.now() + cacheTtlMs,
+        });
 
         return services;
     } catch (error) {
@@ -54,19 +71,19 @@ export const subscribeToApprovedServices = (callback) => {
         .collection("services")
         .where("status", "==", "approved")
         .onSnapshot(
-        (snapshot) => {
-            const services = snapshot.docs.map(
-                (doc) =>
-                    new Service({
-                        id: doc.id,
-                        ...doc.data(),
-                    })
-            );
+            (snapshot) => {
+                const services = snapshot.docs.map(
+                    (doc) =>
+                        new Service({
+                            id: doc.id,
+                            ...doc.data(),
+                        })
+                );
 
-            callback(services);
-        },
-        (error) => {
-            console.error("Realtime listener error:", error);
-        }
-    );
+                callback(services);
+            },
+            (error) => {
+                console.error("Realtime listener error:", error);
+            }
+        );
 };

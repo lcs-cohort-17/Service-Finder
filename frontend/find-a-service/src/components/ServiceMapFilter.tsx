@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
+// 1. Strict Type Definitions (No 'any' used)
 export interface Service {
   id: string;
   name: string;
@@ -46,6 +47,7 @@ const CATEGORY_COLOR_MAP: Record<string, string> = {
 
 export const ServiceMapFilter: React.FC = () => {
   const [services, setServices] = useState<Service[]>([]);
+  // Start with all categories selected by default
   const [selectedCategories, setSelectedCategories] = useState<string[]>([...AVAILABLE_CATEGORIES]);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -53,7 +55,7 @@ export const ServiceMapFilter: React.FC = () => {
     const fetchServices = async () => {
       try {
         setLoading(true);
-
+        // Mock data loading
         const mockData: Service[] = [
           { id: '1', name: 'Community Clinic', category: 'Clinics', lat: -33.9249, lng: 18.4241 },
           { id: '2', name: 'Central Library', category: 'Libraries', lat: -33.9255, lng: 18.4280 },
@@ -71,7 +73,6 @@ export const ServiceMapFilter: React.FC = () => {
           { id: '14', name: 'Cape Town Train Station', category: 'Train Stations', lat: -33.9240, lng: 18.4185 },
           { id: '15', name: 'University of Cape Town', category: 'Schools/Universities', lat: -33.9580, lng: 18.4600 }
         ];
-
         setServices(mockData);
       } catch (error) {
         console.error("Error fetching services:", error);
@@ -83,6 +84,7 @@ export const ServiceMapFilter: React.FC = () => {
     fetchServices();
   }, []);
 
+  // 2. Toggle Handler (Handles multiple selections/deselections)
   const handleCategoryChange = (category: string) => {
     setSelectedCategories((prevSelected) =>
       prevSelected.includes(category)
@@ -91,10 +93,10 @@ export const ServiceMapFilter: React.FC = () => {
     );
   };
 
-  const filteredServices = services.filter((service: Service) => {
-    if (selectedCategories.length === 0) return true;
-    return selectedCategories.includes(service.category);
-  });
+  // 3. Strict Filter Logic (Empty selection = empty map)
+  const filteredServices = services.filter((service: Service) => 
+    selectedCategories.includes(service.category)
+  );
 
   if (loading) return <div style={{ color: 'white', padding: '10px' }}>Loading services...</div>;
 
@@ -106,10 +108,12 @@ export const ServiceMapFilter: React.FC = () => {
         </span>
       </div>
 
+      {/* 4. Responsive Pill Container (flexWrap enables grid wrapping on mobile and desktop) */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '25px' }}>
         {AVAILABLE_CATEGORIES.map((category) => {
           const isActive = selectedCategories.includes(category);
           const accentColor = CATEGORY_COLOR_MAP[category] ?? '#9ca3af';
+          
           const buttonStyle: React.CSSProperties = {
             display: 'inline-flex',
             alignItems: 'center',
@@ -132,6 +136,7 @@ export const ServiceMapFilter: React.FC = () => {
               onClick={() => handleCategoryChange(category)}
               style={buttonStyle}
             >
+              {/* Colored Status Circle */}
               <span
                 style={{
                   width: '8px',
@@ -148,19 +153,25 @@ export const ServiceMapFilter: React.FC = () => {
         })}
       </div>
 
+      {/* 5. Output List */}
       <div>
         <h4 style={{ borderBottom: '1px solid #444', paddingBottom: '5px' }}>
           Active Service Markers ({filteredServices.length})
         </h4>
         <ul style={{ listStyleType: 'none', paddingLeft: 0, marginTop: '12px' }}>
-          {filteredServices.map((service) => (
-            <li key={service.id} style={{ padding: '10px 0', borderBottom: '1px solid #333' }}>
-              <strong>{service.name}</strong> — <span style={{ color: '#ffcc00' }}>{service.category}</span>
-              <div style={{ fontSize: '12px', color: '#aaa' }}>GPS: {service.lat}, {service.lng}</div>
+          {filteredServices.length === 0 ? (
+            <li style={{ padding: '10px 0', color: '#aaa', fontSize: '14px' }}>
+              No services match the active filters. Try selecting a category above.
             </li>
-          ))}
+          ) : (
+            filteredServices.map((service) => (
+              <li key={service.id} style={{ padding: '10px 0', borderBottom: '1px solid #333' }}>
+                <strong>{service.name}</strong> — <span style={{ color: '#ffcc00' }}>{service.category}</span>
+                <div style={{ fontSize: '12px', color: '#aaa' }}>GPS: {service.lat}, {service.lng}</div>
+              </li>
+            ))
+          )}
         </ul>
-
       </div>
     </div>
   );

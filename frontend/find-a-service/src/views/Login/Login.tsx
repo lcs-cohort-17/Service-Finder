@@ -14,14 +14,38 @@ const Login: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [notification, setNotification] = useState<null | { message: string; type: 'success' | 'error' }>(null);
+// lutfeeya - Auth-002
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
+// lutfeeya - Auth-002 
+const validateForm = () => {
+  let isValid = true;
+  setEmailError(''); 
+  setPasswordError('');
+
+  if (!email.trim()) {
+    setEmailError('Email is required');
+    isValid = false;
+  }
+
+  if (!password.trim()) {
+    setPasswordError('Password is required');
+    isValid = false;
+  }
+
+  return isValid;
+};
+// lutfeeya - Auth-002
+
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
+    setNotification(null);
 
-    if (!email || !password) {
-      setError('Please fill in all fields');
+    if (!validateForm()) {
       setIsLoading(false);
       return;
     }
@@ -30,14 +54,12 @@ const Login: React.FC = () => {
       console.log('Login attempt:', { email, password });
       await new Promise(resolve => setTimeout(resolve, 600));
 
-      // check demo users stored in localStorage
       const raw = localStorage.getItem('demoUsers');
       const users = raw ? JSON.parse(raw) : [];
       const match = users.find((u: any) => u.email === email && u.password === password);
 
       if (match) {
         setNotification({ message: 'Logged in successfully', type: 'success' });
-        setIsLoading(false);
         setTimeout(() => navigate('/'), 900);
       } else {
         throw new Error('Invalid credentials');
@@ -69,10 +91,14 @@ const Login: React.FC = () => {
             label="Email"
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setEmailError('');
+            }}
             placeholder="you@example.com"
             required
             disabled={isLoading}
+            error={emailError}
           />
 
           <Input
@@ -80,11 +106,15 @@ const Login: React.FC = () => {
             label="Password"
             type="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              setPasswordError('');
+            }}
             placeholder="**********"
             required
             disabled={isLoading}
             showPasswordToggle
+            error={passwordError}
           />
 
           <Button

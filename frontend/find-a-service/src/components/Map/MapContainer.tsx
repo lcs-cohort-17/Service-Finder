@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapContainerProps } from '../../types/map.ts';
+import { MapContainerProps } from '../../types/map';
 
 /**
  * Main map container component
@@ -9,7 +9,6 @@ const MapContainer: React.FC<MapContainerProps> = ({
   center,
   zoom,
   markers = [],
-  onMarkerClick,
   className = '',
   children,
 }) => {

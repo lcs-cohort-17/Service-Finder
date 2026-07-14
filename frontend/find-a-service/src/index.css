@@ -1,4 +1,13 @@
 :root {
+  --ink: #12283c;
+  --teal: #0e7c86;
+  --teal-dark: #0a5c63;
+  --amber: #e8a33d;
+  --coral: #e85d4e;
+  --charcoal: #1b1f23;
+  --muted: #5d6b72;
+  --line: #dce3e1;
+  --radius: 14px;
   --text: #6b6375;
   --text-h: #08060d;
   --bg: #fff;
@@ -11,8 +20,8 @@
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --sans: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --heading: 'Space Grotesk', system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
   font: 18px/145% var(--sans);
@@ -67,7 +76,9 @@ body {
 }
 
 h1,
-h2 {
+h2,
+h3,
+.display {
   font-family: var(--heading);
   font-weight: 500;
   color: var(--text-h);
@@ -128,14 +139,14 @@ code {
 }
 
 .settings-row label {
-  color: var(--text-h);
+  color: var(--ink);
   font-size: 0.95rem;
 }
 
 .settings-row select {
   padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
   background: var(--bg);
   color: var(--text-h);
   font: inherit;
@@ -144,21 +155,39 @@ code {
 .settings-row input[type="checkbox"] {
   width: 18px;
   height: 18px;
-  accent-color: var(--accent);
+  accent-color: var(--teal);
 }
 
+.save-settings-btn,
 .logout-btn {
   margin-top: 24px;
   align-self: flex-start;
   padding: 10px 20px;
   border: none;
-  border-radius: 8px;
-  background: #1a1a1a;
+  border-radius: var(--radius);
   color: #fff;
   font-weight: 600;
   cursor: pointer;
 }
 
+.save-settings-btn {
+  background: var(--teal);
+}
+
+.save-settings-btn:hover {
+  background: var(--teal-dark);
+}
+
 .logout-btn:hover {
   opacity: 0.9;
+}
+
+.logout-btn {
+  margin-top: 8px;
+  background: var(--coral);
+}
+
+.settings-saved-msg {
+  color: var(--teal-dark);
+  font-size: 0.85rem;
 }

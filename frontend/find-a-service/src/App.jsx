@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Login from "./views/Login";
@@ -7,39 +6,29 @@ import Overview from "./views/profile/Overview";
 import SavedRoutes from "./views/profile/SavedRoutes";
 import ReportHistory from "./views/profile/ReportHistory";
 import Settings from "./views/profile/Settings";
-import useAuthStore from "./store/useAuthStore";
 import "./App.css";
 
 function Home() {
   // Placeholder landing page — replace with your real homepage content.
   return (
     <section id="center">
-      <h1>find-a-service</h1>
-    </section>
+    <h1>find-a-service</h1>
+  </section>
   );
 }
 
 function App() {
-  const initAuthListener = useAuthStore((state) => state.initAuthListener);
-
-  // Subscribe to Firebase auth state once, on app mount.
-  // This is what keeps a user logged in across a page refresh.
-  useEffect(() => {
-    const unsubscribe = initAuthListener();
-    return unsubscribe;
-  }, [initAuthListener]);
-
   return (
-    <>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/profile" element={<Profile />}>
-          <Route index element={<Overview />} />
-          <Route path="saved-routes" element={<SavedRoutes />} />
-          <Route path="report-history" element={<ReportHistory />} />
-          <Route path="settings" element={<Settings />} />
+   <>
+    <Navbar />
+   <Routes>
+   <Route path="/" element={<Home />} />
+    <Route path="/login" element={<Login />} />
+    <Route path="/profile" element={<Profile />}>
+      <Route index element={<Overview />} />
+      <Route path="saved-routes" element={<SavedRoutes />} />
+        <Route path="report-history" element={<ReportHistory />} />
+        <Route path="settings" element={<Settings />} />
         </Route>
       </Routes>
     </>

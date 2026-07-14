@@ -1,5 +1,5 @@
 import { useState } from "react";
-import useAuthStore from "../../store/useAuthStore";
+import { useAuth } from "../../../context/AuthContext";
 
 const styles = {
   form: {
@@ -12,43 +12,36 @@ const styles = {
     fontSize: "0.85rem",
     fontWeight: 600,
     marginTop: 10,
+    color: "var(--charcoal)",
   },
   input: {
     padding: "10px 12px",
-    border: "1px solid #ccc",
-    borderRadius: 8,
+    border: "1px solid var(--line)",
+    borderRadius: "var(--radius)",
     fontSize: "1rem",
   },
-  button: {
-    marginTop: 18,
-    padding: "10px 20px",
-    border: "none",
-    borderRadius: 8,
-    background: "#1a1a1a",
-    color: "#fff",
-    fontWeight: 600,
-    cursor: "pointer",
-    width: "fit-content",
-  },
   savedMsg: {
-    color: "#2e7d32",
+    color: "#2E7D32",
     fontSize: "0.85rem",
     marginTop: 8,
   },
 };
 
 function Overview() {
-  const user = useAuthStore((state) => state.user);
-  const [name, setName] = useState(user?.name || "");
+  const { currentUser } = useAuth();
+  const [name, setName] = useState(currentUser?.displayName || "");
+
   // Mock data for now — no "home area" field exists on the Firebase user
   // object yet, so this is local state until a real user-profile backend
-  // (AUTH-003 / AUTH-007) is wired up.
+  // is wired up.
   const [homeArea, setHomeArea] = useState("");
+
   const [saved, setSaved] = useState(false);
 
   const handleSave = (e) => {
     e.preventDefault();
-    // TODO: persist to backend once AUTH-003 / AUTH-007 land.
+
+    // TODO: persist to backend once a user-profile data store exists.
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
@@ -78,9 +71,10 @@ function Overview() {
         onChange={(e) => setHomeArea(e.target.value)}
       />
 
-      <button type="submit" style={styles.button}>
+      <button type="submit" className="save-settings-btn">
         Save changes
       </button>
+
       {saved && <span style={styles.savedMsg}>Saved.</span>}
     </form>
   );

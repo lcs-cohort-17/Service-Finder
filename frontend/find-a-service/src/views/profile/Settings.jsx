@@ -1,17 +1,25 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import useAuthStore from "../../store/useAuthStore";
+import { useAuth } from "../../../context/AuthContext";
 
 export default function Settings() {
   const [travelMode, setTravelMode] = useState("walking");
   const [weatherAlerts, setWeatherAlerts] = useState(true);
   const [voiceGuidance, setVoiceGuidance] = useState(false);
-  const logout = useAuthStore((s) => s.logout);
+  const [saved, setSaved] = useState(false);
+
+  const { logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
     await logout();
     navigate("/");
+  };
+
+  const handleSave = () => {
+    // Settings are local until a profile settings backend is available.
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
   };
 
   return (
@@ -49,7 +57,21 @@ export default function Settings() {
         />
       </div>
 
-      <button className="logout-btn" onClick={handleLogout}>
+      <button
+        type="button"
+        className="save-settings-btn"
+        onClick={handleSave}
+      >
+        Save settings
+      </button>
+
+      {saved && <span className="settings-saved-msg">Saved.</span>}
+
+      <button
+        type="button"
+        className="logout-btn"
+        onClick={handleLogout}
+      >
         Log out
       </button>
     </div>

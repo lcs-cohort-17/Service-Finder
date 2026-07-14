@@ -1,8 +1,8 @@
-//if log in page required, could be done here
+// if log in page required, could be done here
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import useAuthStore from "../store/useAuthStore";
+import { useAuth } from "../../context/AuthContext";
 
 const styles = {
   page: {
@@ -24,7 +24,7 @@ const styles = {
   },
   subtitle: {
     margin: "0 0 16px",
-    color: "#666",
+    color: "var(--muted)",
     fontSize: "0.9rem",
   },
   label: {
@@ -34,23 +34,23 @@ const styles = {
   },
   input: {
     padding: "10px 12px",
-    border: "1px solid #ccc",
-    borderRadius: 8,
+    border: "1px solid var(--line)",
+    borderRadius: "var(--radius)",
     fontSize: "1rem",
   },
   button: (disabled) => ({
     marginTop: 20,
     padding: 12,
     border: "none",
-    borderRadius: 8,
-    background: "#1a1a1a",
+    borderRadius: "var(--radius)",
+    background: "var(--teal)",
     color: "#fff",
     fontWeight: 600,
     cursor: disabled ? "default" : "pointer",
     opacity: disabled ? 0.6 : 1,
   }),
   error: {
-    color: "#c0392b",
+    color: "var(--coral)",
     fontSize: "0.85rem",
     margin: "4px 0 0",
   },
@@ -60,17 +60,23 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const login = useAuthStore((state) => state.login);
-  const error = useAuthStore((state) => state.error);
+  const [error, setError] = useState(null);
+
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
-    const result = await login(email, password);
-    setSubmitting(false);
-    if (result.success) {
+    setError(null);
+
+    try {
+      await login(email, password);
       navigate("/");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -78,7 +84,9 @@ function Login() {
     <section style={styles.page}>
       <form style={styles.card} onSubmit={handleSubmit}>
         <h1 style={styles.title}>Sign in</h1>
-        <p style={styles.subtitle}>Access your saved routes and reports.</p>
+        <p style={styles.subtitle}>
+          Access your saved routes and reports.
+        </p>
 
         <label htmlFor="email" style={styles.label}>
           Email
@@ -106,7 +114,11 @@ function Login() {
 
         {error && <p style={styles.error}>{error}</p>}
 
-        <button type="submit" style={styles.button(submitting)} disabled={submitting}>
+        <button
+          type="submit"
+          style={styles.button(submitting)}
+          disabled={submitting}
+        >
           {submitting ? "Signing in…" : "Sign in"}
         </button>
       </form>

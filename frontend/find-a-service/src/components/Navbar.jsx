@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import useAuthStore from "../store/useAuthStore";
+import { useAuth } from "../../context/AuthContext";
 
 const styles = {
   navbar: {
@@ -7,40 +7,42 @@ const styles = {
     alignItems: "center",
     justifyContent: "space-between",
     padding: "16px 24px",
-    borderBottom: "1px solid #eee",
+    background: "var(--ink)",
+    borderBottom: "1px solid var(--teal-dark)",
   },
   brand: {
     fontWeight: 700,
     textDecoration: "none",
-    color: "inherit",
+    color: "#fff",
   },
   signInBtn: {
     padding: "8px 18px",
-    borderRadius: 999,
+    borderRadius: "var(--radius)",
     border: "none",
     cursor: "pointer",
     fontWeight: 600,
-    background: "#1a1a1a",
+    background: "var(--teal)",
     color: "#fff",
   },
   userBtn: {
     padding: "8px 18px",
-    borderRadius: 999,
+    borderRadius: "var(--radius)",
     border: "none",
     cursor: "pointer",
     fontWeight: 600,
-    background: "#f0f0f0",
-    color: "#1a1a1a",
+    background: "var(--amber)",
+    color: "var(--ink)",
   },
 };
 
 function Navbar() {
-  const user = useAuthStore((state) => state.user);
-  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+  const { currentUser } = useAuth();
   const navigate = useNavigate();
 
   // Ticket asks for the user's first name specifically.
-  const firstName = user?.name ? user.name.split(" ")[0] : "";
+  const firstName = currentUser?.displayName
+    ? currentUser.displayName.split(" ")[0]
+    : "";
 
   return (
     <nav style={styles.navbar}>
@@ -49,7 +51,7 @@ function Navbar() {
       </Link>
 
       <div>
-        {isLoggedIn ? (
+        {currentUser ? (
           <button
             type="button"
             style={styles.userBtn}

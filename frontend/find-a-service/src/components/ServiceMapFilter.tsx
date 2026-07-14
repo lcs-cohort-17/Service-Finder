@@ -1,6 +1,5 @@
 import React from 'react';
 
-// 1. Strict Type Definitions
 export interface Service {
   id: string;
   name: string;
@@ -45,7 +44,6 @@ export const CATEGORY_COLOR_MAP: Record<string, string> = {
   'Schools/Universities': '#0ea5e9',
 };
 
-// Props to connect this component directly to the parent Map View state
 interface ServiceMapFilterProps {
   selectedCategories: string[];
   onCategoryToggle: (category: string) => void;
@@ -63,7 +61,6 @@ export const ServiceMapFilter: React.FC<ServiceMapFilterProps> = ({
         </span>
       </div>
 
-      {/* Responsive Pill Buttons Container */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
         {AVAILABLE_CATEGORIES.map((category) => {
           const isActive = selectedCategories.includes(category);

@@ -1,0 +1,35 @@
+import type { CSSProperties } from "react";
+
+const styles: Record<string, CSSProperties> = {
+  emptyState: {
+    color: "#666",
+    lineHeight: 1.5,
+  },
+  list: {
+    paddingLeft: 20,
+  },
+};
+
+function ReportHistory(): React.JSX.Element {
+  // TODO: replace with real report-history data once that store/API exists.
+  const reports: { id: string; title: string }[] = [];
+
+  if (reports.length === 0) {
+    return (
+      <p style={styles.emptyState}>
+        No reports yet. Drop a hazard pin, post in Community reports, or
+        suggest a place on the map.
+      </p>
+    );
+  }
+
+  return (
+    <ul style={styles.list}>
+      {reports.map((report) => (
+        <li key={report.id}>{report.title}</li>
+      ))}
+    </ul>
+  );
+}
+
+export default ReportHistory;

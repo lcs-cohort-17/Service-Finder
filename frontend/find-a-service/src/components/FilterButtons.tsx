@@ -20,13 +20,22 @@ const serviceCategories: Category[] = [
   { id: "taxi", label: "Taxi Ranks", color: "#f59e0b" },
   { id: "bus", label: "Bus Stops", color: "#fb923c" },
   { id: "train", label: "Train Stations", color: "#ec4899" },
+
+  // Additional Categories
+  { id: "mall", label: "Malls", color: "#0ea5e9" },
+  { id: "home-affairs", label: "Home Affairs", color: "#2563eb" },
+  { id: "fire-station", label: "Fire Stations", color: "#dc2626" },
+  { id: "dentist", label: "Dentists", color: "#06b6d4" },
+  { id: "pharmacy", label: "Pharmacies", color: "#22c55e" },
+  { id: "school", label: "Schools", color: "#facc15" },
+  { id: "university", label: "Universities", color: "#7c3aed" },
+  { id: "spca", label: "SPCA", color: "#16a34a" },
 ];
 
 export default function FilterButtons({
   selectedCategories,
   onSelectionChange,
 }: FilterButtonsProps) {
-
   const toggleCategory = (categoryId: string) => {
     if (selectedCategories.includes(categoryId)) {
       onSelectionChange(
@@ -39,17 +48,13 @@ export default function FilterButtons({
 
   return (
     <section className="filter-container">
-
       <h2 className="filter-title">SHOW ON MAP</h2>
 
       <div className="filter-grid">
-
         {serviceCategories.map((category) => {
-
           const active = selectedCategories.includes(category.id);
 
           return (
-
             <button
               key={category.id}
               type="button"
@@ -63,15 +68,10 @@ export default function FilterButtons({
               />
 
               {category.label}
-
             </button>
-
           );
-
         })}
-
       </div>
-
     </section>
   );
 }

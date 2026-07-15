@@ -1,122 +1,113 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useState } from "react";
+import { useAuth } from "./context/AuthContext.jsx";
+import LocationButton from "./components/LocationButton.jsx";
+import TransportModeSelector from "./components/TransportModeSelector.jsx";
+import useDirectionsStore from "./store/useDirectionsStore.js";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const { currentUser, login, logout } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [mode, setMode] = useState("driving");
+  const { route, loading, error, getRoute, retry } = useDirectionsStore();
+
+  const handleLogin = async () => {
+    try {
+      await login(email, password);
+      alert("Login successful!");
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      alert("Logged out!");
+    } catch (error) {
+      alert(error.message);
+    }
+  };
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
+    <div style={{ padding: "20px" }}>
+      <h1>Firebase Auth Test</h1>
+
+      <LocationButton onLocationFound={(coords) => console.log("Got location:", coords)} />
+
+      <TransportModeSelector value={mode} onChange={setMode} />
+
+      <button
+        onClick={() =>
+          getRoute(
+            { lat: -29.8587, lng: 31.0218 },
+            { lat: -29.7864, lng: 30.9948 },
+            mode
+          )
+        }
+      >
+        Test Route
+      </button>
+
+      <button
+        onClick={() =>
+          getRoute(
+            { lat: 999, lng: 999 },
+            { lat: -29.7864, lng: 30.9948 },
+            mode
+          )
+        }
+      >
+        Test Invalid Coordinates
+      </button>
+
+      {loading && <p>Calculating route...</p>}
+
+      {error && (
         <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
+          <p style={{ color: "red" }}>{error}</p>
+          <button onClick={retry}>Retry</button>
         </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+      )}
 
-      <div className="ticks"></div>
+      {route && (
+        <p>
+          Distance: {(route.distance / 1000).toFixed(1)} km — ETA: {Math.round(route.duration / 60)} min
+        </p>
+      )}
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      {currentUser ? (
+        <>
+          <p>UID: {currentUser.uid}</p>
+          <p>Email: {currentUser.email}</p>
+          <button onClick={handleLogout}>
+            Logout
+          </button>
+        </>
+      ) : (
+        <>
+          <p>Not Logged In</p>
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <br /><br />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <br /><br />
+          <button onClick={handleLogin}>
+            Login
+          </button>
+        </>
+      )}
+    </div>
+  );
 }
 
-export default App
+export default App;

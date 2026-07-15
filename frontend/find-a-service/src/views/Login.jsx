@@ -1,8 +1,8 @@
 // if log in page required, could be done here
-
+// lina login.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../context/AuthContext";
 
 const styles = {
   page: {

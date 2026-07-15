@@ -1,0 +1,30 @@
+.demoNotice {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 2px solid #f0f0f0;
+  font-size: 13px;
+  color: #999;
+  text-align: center;
+  line-height: 1.8;
+}
+
+.demoNotice p {
+  margin: 0;
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .demoNotice {
+    font-size: 12px;
+    margin-top: 24px;
+    padding-top: 20px;
+  }
+}
+
+/* Dark Mode */
+@media (prefers-color-scheme: dark) {
+  .demoNotice {
+    border-top-color: #3d3d3d;
+    color: #777;
+  }
+}

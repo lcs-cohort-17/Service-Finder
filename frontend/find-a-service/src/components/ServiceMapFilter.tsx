@@ -1,65 +1,39 @@
 import React from 'react';
-
-
-export interface Service {
-  id: string;
-  name: string;
-  category: string;
-  lat: number;
-  lng: number;
-}
-
-export const AVAILABLE_CATEGORIES: string[] = [
-  'Hospitals',
-  'Clinics',
-  'Libraries',
-  'Shelters',
-  'Police',
-  'Pharmacies',
-  'Dentists',
-  'Fire Stations',
-  'Community Centers',
-  'Home Affairs',
-  'Malls',
-  'Bus Stops',
-  'Taxi Ranks',
-  'Train Stations',
-  'Schools/Universities',
-  'SPCA',
-];
-
-export const CATEGORY_COLOR_MAP: Record<string, string> = {
-  'Hospitals': '#ef4444',
-  'Clinics': '#14b8a6',
-  'Libraries': '#6366f1',
-  'Shelters': '#8b5cf6',
-  'Police': '#111827',
-  'Taxi Ranks': '#f59e0b',
-  'Bus Stops': '#fb923c',
-  'Train Stations': '#ec4899',
-  'Pharmacies': '#10b981',
-  'Dentists': '#06b6d4',
-  'Fire Stations': '#f97316',
-  'Community Centers': '#f43f5e',
-  'Malls': '#0ea5e9',
-  'Home Affairs': '#64748b',
-  'Schools/Universities': '#0ea5e9',
-  'SPCA': '#a855f7',
-};
+import {
+  AVAILABLE_CATEGORIES,
+  CATEGORY_COLOR_MAP,
+  CATEGORY_LABEL_MAP,
+} from './ServiceMapFilter.constants';
+import type { CategoryId } from '../types/categories';
 
 interface ServiceMapFilterProps {
-  selectedCategories: string[];
-  onCategoryToggle: (category: string) => void;
+  selectedCategories: CategoryId[];
+  onCategoryToggle: (category: CategoryId) => void;
 }
 
 export const ServiceMapFilter: React.FC<ServiceMapFilterProps> = ({
   selectedCategories,
-  onCategoryToggle, 
+  onCategoryToggle,
 }) => {
   return (
-    <div style={{ padding: '20px', backgroundColor: '#1e1e1e', color: 'white', borderRadius: '8px' }}>
+    <div
+      style={{
+        padding: '20px',
+        backgroundColor: '#1e1e1e',
+        color: 'white',
+        borderRadius: '8px',
+      }}
+    >
       <div style={{ marginBottom: '15px' }}>
-        <span style={{ display: 'inline-block', fontSize: '12px', fontWeight: 700, color: '#9ca3af', letterSpacing: '0.12em' }}>
+        <span
+          style={{
+            display: 'inline-block',
+            fontSize: '12px',
+            fontWeight: 700,
+            color: '#9ca3af',
+            letterSpacing: '0.12em',
+          }}
+        >
           SHOW ON MAP
         </span>
       </div>
@@ -68,7 +42,7 @@ export const ServiceMapFilter: React.FC<ServiceMapFilterProps> = ({
         {AVAILABLE_CATEGORIES.map((category) => {
           const isActive = selectedCategories.includes(category);
           const accentColor = CATEGORY_COLOR_MAP[category] ?? '#9ca3af';
-          
+
           const buttonStyle: React.CSSProperties = {
             display: 'inline-flex',
             alignItems: 'center',
@@ -91,7 +65,6 @@ export const ServiceMapFilter: React.FC<ServiceMapFilterProps> = ({
               onClick={() => onCategoryToggle(category)}
               style={buttonStyle}
             >
-              {/* Colored Status Circle */}
               <span
                 style={{
                   width: '8px',
@@ -102,7 +75,9 @@ export const ServiceMapFilter: React.FC<ServiceMapFilterProps> = ({
                   flexShrink: 0,
                 }}
               />
-              <span style={{ fontSize: '13px', fontWeight: 600 }}>{category}</span>
+              <span style={{ fontSize: '13px', fontWeight: 600 }}>
+                {CATEGORY_LABEL_MAP[category]}
+              </span>
             </button>
           );
         })}
@@ -110,3 +85,4 @@ export const ServiceMapFilter: React.FC<ServiceMapFilterProps> = ({
     </div>
   );
 };
+

@@ -1,6 +1,5 @@
 /* =========================================
-   Directions-001
-   Matches the shared mockup using CSS only
+   Directions and map shared styles
    ========================================= */
 
 * {
@@ -23,10 +22,6 @@
   background: #ffffff;
   border-right: 1px solid #d6dfe3;
   overflow-y: auto;
-}
-
-.directions-heading {
-  display: none;
 }
 
 .route-form {
@@ -54,10 +49,7 @@
   border: 1px solid #d6dfe2;
   border-radius: 10px;
   background: #eef3f3;
-  transition:
-    border-color 0.2s ease,
-    background 0.2s ease,
-    box-shadow 0.2s ease;
+  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
 }
 
 .route-input-row:hover {
@@ -114,10 +106,7 @@
   background: transparent;
   color: #5e6f7b;
   cursor: pointer;
-  transition:
-    background 0.2s ease,
-    color 0.2s ease,
-    transform 0.15s ease;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
 }
 
 .location-icon-button:hover:not(:disabled),
@@ -158,12 +147,7 @@
   background: #edf2f3;
   color: #526774;
   cursor: pointer;
-  transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease,
-    transform 0.15s ease,
-    box-shadow 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
 }
 
 .mode-button:hover {
@@ -197,12 +181,7 @@
   font-size: 0.86rem;
   font-weight: 700;
   cursor: pointer;
-  transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease,
-    transform 0.15s ease,
-    box-shadow 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
 }
 
 .get-directions-button {
@@ -246,37 +225,11 @@
   transform: translateY(0);
 }
 
-.map-placeholder {
-  min-height: 100vh;
-  background: #f4f7f8;
-  overflow: hidden;
-}
-
-@media (max-width: 900px) {
-  .directions-page {
-    grid-template-columns: 1fr;
-  }
-
-  .directions-panel {
-    min-height: auto;
-    border-right: 0;
-    border-bottom: 1px solid #d6dfe3;
-  }
-
-  .map-placeholder {
-    min-height: 60vh;
-  }
-}
-
-/* ERROR MESSAGE */
-
 .route-error {
   margin: 8px 0;
   color: #b42318;
   font-size: 0.85rem;
 }
-
-/* MAP AREA */
 
 .map-placeholder {
   min-width: 0;
@@ -287,18 +240,7 @@
   overflow: hidden;
   color: #526875;
   text-align: center;
-  background:
-    linear-gradient(
-      rgba(223, 240, 235, 0.2),
-      rgba(223, 240, 235, 0.2)
-    ),
-    repeating-linear-gradient(
-      45deg,
-      #e5efec,
-      #e5efec 24px,
-      #f0f5f3 24px,
-      #f0f5f3 48px
-    );
+  background: linear-gradient(rgba(223, 240, 235, 0.2), rgba(223, 240, 235, 0.2)), repeating-linear-gradient(45deg, #e5efec, #e5efec 24px, #f0f5f3 24px, #f0f5f3 48px);
 }
 
 .map-placeholder p {
@@ -308,23 +250,35 @@
   background: rgba(255, 255, 255, 0.82);
 }
 
-/* TABLET */
-
 @media (max-width: 900px) {
   .directions-page {
     grid-template-columns: 320px minmax(0, 1fr);
   }
 
   .directions-panel {
+    min-height: auto;
+    border-right: 0;
+    border-bottom: 1px solid #d6dfe3;
     padding: 16px 10px;
   }
 
-  .route-input {
-    font-size: 0.86rem;
+  .map-placeholder {
+    min-height: 60vh;
+  }
+}
+
+@media (max-width: 640px) {
+  .directions-page {
+    grid-template-columns: 1fr;
   }
 
-  .mode-button {
-    width: 42px;
+  .directions-panel {
+    border-bottom: 1px solid #d6dfe3;
+  }
+
+  .map-placeholder {
+    min-height: 50vh;
+    padding: 16px;
   }
 }
 

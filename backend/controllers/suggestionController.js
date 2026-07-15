@@ -4,22 +4,11 @@ import { Timestamp } from "firebase-admin/firestore";
 
 export const createSuggestion = async (req, res) => {
     try {
-        const {
-            serviceName,
-            category,
-            description,
-            coordinates
-        } = req.body;
+        const {serviceName,category,description,coordinates} = req.body;
 
         // Required field validation
-        if (
-            !serviceName ||
-            !category ||
-            !description ||
-            !coordinates ||
-            coordinates.latitude === undefined ||
-            coordinates.longitude === undefined
-        ) {
+        if (!serviceName ||!category ||!description ||!coordinates ||coordinates.latitude === undefined ||coordinates.longitude === undefined)
+        {
             return res.status(400).json({
                 success: false,
                 message: "All required fields must be provided."
@@ -29,10 +18,7 @@ export const createSuggestion = async (req, res) => {
         const { latitude, longitude } = coordinates;
 
         // Coordinate validation
-        if (
-            typeof latitude !== "number" ||
-            typeof longitude !== "number" ||
-            latitude < -90 ||
+        if (typeof latitude !== "number" ||typeof longitude !== "number" ||latitude < -90 ||
             latitude > 90 ||
             longitude < -180 ||
             longitude > 180

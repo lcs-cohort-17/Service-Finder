@@ -1,41 +1,28 @@
-// where you generate tokens
-import { getAuth } from "firebase-admin/auth";
+import jwt from "jsonwebtoken";
 
-export const authMiddleware = async (req, res, next) => {
-    try {
+export const verifyToken = (req, res, next) => {
+  const authHeader = req.headers.authorization;
 
-        // Get Authorization header
-        const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "Access denied" });
+  }
 
-        // Check if token exists
-        if (!authHeader || !authHeader.startsWith("Bearer ")) {
-            return res.status(401).json({
-                success: false,
-                message: "Authorization token missing."
-            });
-        }
+  const token = authHeader.split(" ")[1];
 
-        // Remove "Bearer "
-        const idToken = authHeader.split("Bearer ")[1];
+  try {
+    const verified = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = verified;
+    next();
+  } catch (error) {
+    res.status(403).json({ message: "Invalid token" });
+  }
+};
 
-        // Verify Firebase token
-        const decodedToken = await getAuth().verifyIdToken(idToken);
-
-        // Attach user to request
-        req.user = {
-            user_id: decodedToken.uid,
-            email: decodedToken.email
-        };
-
-        next();
-
-    } catch (error) {
-
-        return res.status(401).json({
-            success: false,
-            message: "Unauthorized.",
-            error: error.message
-        });
-
-    }
+export const requireRole = (allowedRoles) => {
+  return (req, res, next) => {
+    if (!req.user || !allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({ message: `${allowedRoles.join(" or ")} access required` });
+    }
+    next();
+  };
 };

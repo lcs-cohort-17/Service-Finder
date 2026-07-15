@@ -3,7 +3,7 @@ import {
     subscribeToApprovedServices,
 } from "../models/serviceModel.js";
 
-/**
+/***
  * GET /api/services
  * Returns approved services within the current map bounds.
  */

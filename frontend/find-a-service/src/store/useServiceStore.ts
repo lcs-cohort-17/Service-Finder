@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { MapMarker } from "../types/map.types";
 import { serviceRepository } from "../database/serviceRepository";
-
+// updated
 const API_BASE =
     import.meta.env.VITE_API_BASE_URL ??
     "http://localhost:8769/api/services";

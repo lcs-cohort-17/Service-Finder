@@ -1,4 +1,4 @@
-// backend/models/serviceModel.js
+// - backend/models/serviceModel.js
 
 import { db } from "../config/firebase.js";
 import Service from "./Service.js";

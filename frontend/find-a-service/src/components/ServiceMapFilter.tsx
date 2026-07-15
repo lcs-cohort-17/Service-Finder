@@ -1,5 +1,6 @@
 import React from 'react';
 
+
 export interface Service {
   id: string;
   name: string;
@@ -9,39 +10,41 @@ export interface Service {
 }
 
 export const AVAILABLE_CATEGORIES: string[] = [
+  'Hospitals',
   'Clinics',
   'Libraries',
   'Shelters',
-  'Hospitals',
-  'Police Stations',
+  'Police',
   'Pharmacies',
   'Dentists',
   'Fire Stations',
   'Community Centers',
   'Home Affairs',
   'Malls',
-  'Bus Stations',
+  'Bus Stops',
   'Taxi Ranks',
   'Train Stations',
   'Schools/Universities',
+  'SPCA',
 ];
 
 export const CATEGORY_COLOR_MAP: Record<string, string> = {
   'Hospitals': '#ef4444',
   'Clinics': '#14b8a6',
   'Libraries': '#6366f1',
-  'Shelters': '#a855f7',
-  'Police Stations': '#1e3a8a',
+  'Shelters': '#8b5cf6',
+  'Police': '#111827',
   'Taxi Ranks': '#f59e0b',
-  'Bus Stations': '#2563eb',
+  'Bus Stops': '#fb923c',
   'Train Stations': '#ec4899',
   'Pharmacies': '#10b981',
   'Dentists': '#06b6d4',
   'Fire Stations': '#f97316',
   'Community Centers': '#f43f5e',
-  'Malls': '#8b5cf6',
+  'Malls': '#0ea5e9',
   'Home Affairs': '#64748b',
   'Schools/Universities': '#0ea5e9',
+  'SPCA': '#a855f7',
 };
 
 interface ServiceMapFilterProps {
@@ -51,7 +54,7 @@ interface ServiceMapFilterProps {
 
 export const ServiceMapFilter: React.FC<ServiceMapFilterProps> = ({
   selectedCategories,
-  onCategoryToggle,
+  onCategoryToggle, 
 }) => {
   return (
     <div style={{ padding: '20px', backgroundColor: '#1e1e1e', color: 'white', borderRadius: '8px' }}>

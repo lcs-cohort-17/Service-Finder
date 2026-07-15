@@ -16,10 +16,14 @@ const serviceCategories: Category[] = [
   { id: "clinic", label: "Clinics", color: "#14b8a6" },
   { id: "library", label: "Libraries", color: "#6366f1" },
   { id: "shelter", label: "Shelters", color: "#8b5cf6" },
-  { id: "police", label: "Police", color: "#111827" },
+  { id: "police", label: "Police", color: "#0346cb" },
   { id: "taxi", label: "Taxi Ranks", color: "#f59e0b" },
   { id: "bus", label: "Bus Stops", color: "#fb923c" },
   { id: "train", label: "Train Stations", color: "#ec4899" },
+
+  
+
+
 ];
 
 export default function FilterButtons({

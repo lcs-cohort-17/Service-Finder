@@ -53,4 +53,19 @@ export const serviceRepository = {
 
         return Date.now() - metadata.lastUpdated;
     },
+
+    async hasCache(): Promise<boolean> {
+    const metadata = await db.metadata.get(CACHE_KEY);
+    return !!metadata;
+},
+
+async isCacheExpired(): Promise<boolean> {
+    const metadata = await db.metadata.get(CACHE_KEY);
+
+    if (!metadata) {
+        return true;
+    }
+
+    return Date.now() - metadata.lastUpdated > CACHE_DURATION;
+},
 };

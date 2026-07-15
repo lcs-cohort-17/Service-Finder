@@ -23,10 +23,13 @@ interface ServiceResponse {
 
 export const useServiceStore = () => {
     const [markers, setMarkers] = useState<MapMarker[]>([]);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [offline, setOffline] = useState(!navigator.onLine);
 
-    const convertToMarkers = (services: ServiceResponse[]): MapMarker[] =>
+    const convertToMarkers = (
+        services: ServiceResponse[]
+    ): MapMarker[] =>
         services
             .filter(
                 (service) =>
@@ -53,23 +56,37 @@ export const useServiceStore = () => {
     const fetchServices = async () => {
         try {
             setLoading(true);
+            setError("");
 
-            // 1. Check IndexedDB first
-            const cached =
-                await serviceRepository.getCachedServices();
+            // 1. Load cached services first
+            const cached = await serviceRepository.getCachedServices();
 
-            if (cached) {
+            if (cached && cached.length > 0) {
                 console.log("Loaded services from IndexedDB.");
 
                 setMarkers(convertToMarkers(cached));
 
-                setLoading(false);
-                return;
+                // If offline, use cache only
+                if (!navigator.onLine) {
+                    console.log("Offline mode. Using cached services.");
+                    return;
+                }
+
+                // If cache is still valid, stop here
+                const expired =
+                    await serviceRepository.isCacheExpired();
+
+                if (!expired) {
+                    console.log("Cache still valid.");
+                    return;
+                }
+
+                console.log("Cache expired. Refreshing...");
             }
 
+            // 2. Fetch latest data from backend
             console.log("Fetching services from backend...");
 
-            // 2. Fetch from backend
             const response = await fetch(buildServicesUrl());
 
             if (!response.ok) {
@@ -77,32 +94,66 @@ export const useServiceStore = () => {
             }
 
             const result = await response.json();
-            const services = Array.isArray(result.data) ? result.data : [];
 
-            // 3. Cache locally
+            const services: ServiceResponse[] = Array.isArray(result.data)
+                ? result.data
+                : [];
+
+            // 3. Save latest data to IndexedDB
             await serviceRepository.cacheServices(services);
 
-            // 4. Display markers
+            console.log("IndexedDB cache updated.");
+
+            // 4. Update map markers
             setMarkers(convertToMarkers(services));
         } catch (err) {
-            setError(
-                err instanceof Error
-                    ? err.message
-                    : "Failed to load services."
-            );
+            console.error(err);
+
+            const cached = await serviceRepository.getCachedServices();
+
+            // Only show an error if we have no cached data
+            if (!cached || cached.length === 0) {
+                setError(
+                    err instanceof Error
+                        ? err.message
+                        : "Failed to load services."
+                );
+            }
         } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
+        const handleOnline = () => {
+            console.log("Back online.");
+            setOffline(false);
+
+            // Refresh when connection returns
+            fetchServices();
+        };
+
+        const handleOffline = () => {
+            console.log("Offline.");
+            setOffline(true);
+        };
+
+        window.addEventListener("online", handleOnline);
+        window.addEventListener("offline", handleOffline);
+
         fetchServices();
+
+        return () => {
+            window.removeEventListener("online", handleOnline);
+            window.removeEventListener("offline", handleOffline);
+        };
     }, []);
 
     return {
         markers,
         loading,
         error,
+        offline,
         fetchServices,
     };
 };

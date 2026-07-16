@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapControlsProps } from '../../types/map.ts';
+import type { MapControlsProps } from '../../types/map.ts';
 
 /**
  * Map controls component

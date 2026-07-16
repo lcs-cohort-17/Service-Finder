@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapMarkersProps, ServiceMarker } from '../../types/map.ts';
+import type { MapMarkersProps, ServiceMarker } from '../../types/map.ts';
 
 /**
  * Map markers component

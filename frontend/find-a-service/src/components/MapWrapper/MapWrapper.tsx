@@ -5,7 +5,7 @@
 // src/components/MapWrapper/MapWrapper.tsx
 import React from 'react';
 import Map from '../Map/Map';
-import { MapComponentProps } from '../../types/map.types';
+import type { MapComponentProps } from '../../types/map.types';
 
 interface MapWrapperProps extends MapComponentProps {
   height?: string | number;

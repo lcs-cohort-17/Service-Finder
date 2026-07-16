@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { MapMarker } from "../types/map.types";
+import type { MapMarker } from "../types/map.types";
 import { serviceRepository } from "../database/serviceRepository";
 import type { CategoryId } from "../types/categories";
 
@@ -104,7 +104,8 @@ export const useServiceMarkers = (selectedCategories: CategoryId[]) => {
 
       setAllServices(services);
 
-      await serviceRepository.cacheServices(services as any);
+      await serviceRepository.cacheServices(services as unknown as any);
+
     } catch (err) {
       console.error(err);
       const cached = await serviceRepository.getCachedServices();

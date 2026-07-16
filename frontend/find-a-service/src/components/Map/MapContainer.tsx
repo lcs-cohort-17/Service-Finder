@@ -1,5 +1,6 @@
 import React from 'react';
-import { MapContainerProps } from '../../types/map.ts';
+import type { MapContainerProps } from '../../types/map.ts';
+
 
 /**
  * Main map container component

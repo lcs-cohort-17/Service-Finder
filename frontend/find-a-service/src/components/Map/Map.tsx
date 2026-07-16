@@ -7,7 +7,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { MapContainer, TileLayer, ZoomControl, Marker, Popup, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import { MapComponentProps } from '../../types/map.types';
+import type { MapComponentProps } from '../../types/map.types';
 import { fixLeafletIcons, createCustomIcon, createLocationPinIcon } from '../../utils/mapHelpers';
 import { MAP_CONFIG } from '../../config/map.config';
 

@@ -23,11 +23,63 @@ jobs:
             const headRef = context.payload.pull_request.head.ref;
             
             console.log(`🚀 PR Helper started for: ${author}`);
+            console.log(`📂 Source branch: ${headRef}`);
+            console.log(`🎯 Target branch: ${baseRef}`);
             
             // ============================================================
-            // 🚨 CHECK IF AUTHOR IS A PRODUCT OWNER
+            // 🚨 CHECK IF SOURCE BRANCH HAS THE WORKFLOW FILE
+            // ============================================================
+            let workflowExists = true;
+            try {
+              await github.rest.repos.getContent({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                path: '.github/workflows/pr-helper.yml',
+                ref: headRef
+              });
+              console.log(`✅ Workflow file exists on source branch`);
+            } catch (error) {
+              workflowExists = false;
+              console.log(`❌ Workflow file MISSING on source branch`);
+            }
+            
+            if (!workflowExists) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: `
+            ## ⚠️ Workflow Missing on Source Branch
+
+            @${author} your branch (\`${headRef}\`) is missing the PR Helper workflow.
+
+            **Please run:**
+            \`\`\`bash
+            git checkout ${headRef}
+            git merge dev
+            git push origin ${headRef}
+            \`\`\`
+
+            This will bring the latest workflows to your branch. 🚀
+            `
+              });
+              
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                labels: ['needs-more-info']
+              });
+              
+              console.log(`⚠️ Added comment about missing workflow`);
+              return;
+            }
+            
+            // ============================================================
+            // 🚨 CHECK AUTHOR ROLE: PO, SM, or Developer
             // ============================================================
             
+            // 1. PO list (10 members)
             const poUsernames = [
               'danielwatterson',
               'tylormentor-dev',
@@ -42,7 +94,7 @@ jobs:
             ];
             
             const isPOByUsername = poUsernames.includes(author.toLowerCase());
-            console.log(`✅ Username check: ${isPOByUsername}`);
+            console.log(`✅ PO username check: ${isPOByUsername}`);
             
             let isPOByTeam = false;
             try {
@@ -52,17 +104,46 @@ jobs:
                 username: author
               });
               isPOByTeam = membership.state === 'active';
-              console.log(`✅ Team check: ${isPOByTeam}`);
+              console.log(`✅ PO team check: ${isPOByTeam}`);
             } catch (error) {
-              console.log(`⚠️ Team check skipped: ${error.message}`);
+              console.log(`⚠️ PO team check skipped: ${error.message}`);
               isPOByTeam = false;
             }
             
             const isPO = isPOByUsername || isPOByTeam;
+            
+            // 2. SM list (4 members)
+            const smUsernames = [
+              'zusiphe74',
+              'zahraathompson871-art',
+              'topsoldier1aj-max',
+              'sizampafa'
+            ];
+            
+            const isSMByUsername = smUsernames.includes(author.toLowerCase());
+            console.log(`✅ SM username check: ${isSMByUsername}`);
+            
+            let isSMByTeam = false;
+            try {
+              const { data: membership } = await github.rest.teams.getMembershipForUserInOrg({
+                org: 'lcs-cohort-17',
+                team_slug: 'scrum_masters',
+                username: author
+              });
+              isSMByTeam = membership.state === 'active';
+              console.log(`✅ SM team check: ${isSMByTeam}`);
+            } catch (error) {
+              console.log(`⚠️ SM team check skipped: ${error.message}`);
+              isSMByTeam = false;
+            }
+            
+            const isSM = isSMByUsername || isSMByTeam;
+            
             console.log(`✅ Is PO: ${isPO}`);
+            console.log(`✅ Is SM: ${isSM}`);
             
             // ============================================================
-            // 🚨 1. ALWAYS SKIP FOR PRODUCT OWNERS
+            // 🚨 1. SKIP FOR PRODUCT OWNERS (Complete skip)
             // ============================================================
             if (isPO) {
               await github.rest.issues.createComment({
@@ -130,56 +211,190 @@ jobs:
             }
             
             // ============================================================
-            // ✅ 3. CHECKS FOR DEVELOPERS ONLY - WITH CONTENT VALIDATION
+            // 🟡 3. LIGHT CHECKS FOR SCRUM MASTERS
+            // ============================================================
+            if (isSM) {
+              const smIssues = [];
+              
+              // Check if Summary exists
+              const summarySection = prBody.match(/##\s*📝\s*Summary\s*([\s\S]*?)(?=##|$)/);
+              const summaryContent = summarySection ? summarySection[1].trim() : '';
+              
+              if (!summaryContent || summaryContent.length < 5 || summaryContent.includes('Briefly describe')) {
+                smIssues.push('- [ ] Add a **Summary** of what changed');
+              }
+              
+              // Check if Test Steps exist
+              const testSection = prBody.match(/##\s*🧪\s*How to Test\s*([\s\S]*?)(?=##|$)/);
+              const testContent = testSection ? testSection[1].trim() : '';
+              
+              if (!testContent || testContent.includes('Step-by-step')) {
+                smIssues.push('- [ ] Add **Test Steps** for reviewers');
+              }
+              
+              // Check if Checklist has at least some boxes checked
+              const checklistSection = prBody.match(/##\s*✅\s*Checklist\s*([\s\S]*?)(?=##|$)/);
+              const checklistContent = checklistSection ? checklistSection[1] : '';
+              
+              const hasCheckedBoxes = /\[[xX]\s*\]/.test(checklistContent) || 
+                                      /\[\s*[xX]\s*\]/.test(checklistContent) ||
+                                      /\[x\]/.test(checklistContent) ||
+                                      /\[X\]/.test(checklistContent);
+              
+              if (!hasCheckedBoxes) {
+                smIssues.push('- [ ] Complete the **Checklist** by ticking the boxes');
+              }
+              
+              if (smIssues.length > 0) {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: prNumber,
+                  body: `
+            ## 👋 Hey @${author}!
+
+            **SM PR Detected.** Please complete these process items:
+
+            ${smIssues.join('\n')}
+
+            ---
+
+            **📖 Need help?** Check out the [PR Example](.github/PULL_REQUEST_EXAMPLE.md) or ask your PO.
+
+            Thanks! 🚀
+            `
+                });
+                
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: prNumber,
+                  labels: ['needs-more-info']
+                });
+                
+                console.log(`⚠️ SM - missing process items`);
+                
+              } else {
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: prNumber,
+                  labels: ['ready-for-review']
+                });
+                
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: prNumber,
+                  body: `
+            ## ✅ Thanks @${author}!
+
+            **SM PR looks good!** Ready for PO review.
+
+            **Next steps:**
+            1. PO will review and test
+            2. PO will merge to \`dev\`
+
+            Thanks for following the process! 🚀
+            `
+                });
+                
+                console.log(`✅ SM - PR is complete`);
+              }
+              
+              return;
+            }
+            
+            // ============================================================
+            // ✅ 4. FULL CHECKS FOR DEVELOPERS
             // ============================================================
             const issues = [];
             
-            // Check if Developer name is filled
-            const developerMatch = prBody.match(/\*\*Developer:\*\* <!-- (.+?) -->/);
-            if (developerMatch && developerMatch[1].trim() === 'Your name here') {
-              issues.push('- [ ] Replace `Your name here` with your actual **Developer** name');
-            }
-
-            // Check if Ticket is filled
-            const ticketMatch = prBody.match(/\*\*Ticket:\*\* <!-- (.+?) -->/);
-            if (ticketMatch && ticketMatch[1].trim() === 'LS-XXX - Ticket title') {
-              issues.push('- [ ] Replace `LS-XXX - Ticket title` with your actual **Ticket** number');
-            }
-
-            // Check if Sprint is filled
-            const sprintMatch = prBody.match(/\*\*Sprint:\*\* <!-- (.+?) -->/);
-            if (sprintMatch && sprintMatch[1].trim() === 'Sprint X') {
-              issues.push('- [ ] Replace `Sprint X` with your actual **Sprint** number');
-            }
-
-            // Check if Summary is filled
-            if (prBody.includes('<!-- Briefly describe what you changed')) {
-              issues.push('- [ ] Add a **Summary** of what you changed');
-            }
-
-            // Check if Screenshots are handled
-            if (prBody.includes('*Paste screenshot*')) {
-              issues.push('- [ ] Add **Screenshots** (or write "N/A" if no UI changes)');
-            }
-
-            // Check if Test Steps are filled
-            if (prBody.includes('<!-- Step-by-step instructions for reviewers -->')) {
-              issues.push('- [ ] Replace the template **Test Steps** with your own instructions');
-            }
-
-            // Check if Links are filled
-            if (prBody.includes('<!-- Slack thread link -->')) {
-              issues.push('- [ ] Add a link to your **Ticket** (Slack thread)');
-            }
-
-            // Check if Checklist is completed
-            if (prBody.includes('- [ ] My commit messages are clear')) {
-              issues.push('- [ ] Complete the **Checklist** (replace `[ ]` with `[x]`)');
+            // Helper functions
+            function cleanText(text) {
+              return text.replace(/\*\*/g, '').replace(/<!--.*?-->/g, '').trim();
             }
             
-            // ============================================================
-            // 📝 ADD COMMENT BASED ON CHECKS
-            // ============================================================
+            function hasContent(section) {
+              const cleaned = cleanText(section);
+              return cleaned.length > 3 && 
+                     !cleaned.includes('Your name here') &&
+                     !cleaned.includes('LS-XXX') &&
+                     !cleaned.includes('Sprint X') &&
+                     !cleaned.includes('Paste screenshot') &&
+                     !cleaned.includes('Step-by-step');
+            }
+            
+            function hasNA(section) {
+              return /[Nn]\/[Aa]/.test(section) || section.includes('N/A');
+            }
+            
+            function hasCheckedBoxes(section) {
+              return /\[[xX]\s*\]/.test(section) || 
+                     /\[\s*[xX]\s*\]/.test(section) ||
+                     /\[x\]/.test(section) ||
+                     /\[X\]/.test(section);
+            }
+            
+            // Extract sections
+            const devSection = prBody.match(/##\s*👤\s*Developer\s*([\s\S]*?)(?=##|$)/);
+            const summarySection = prBody.match(/##\s*📝\s*Summary\s*([\s\S]*?)(?=##|$)/);
+            const screenshotSection = prBody.match(/##\s*📸\s*Screenshots\s*([\s\S]*?)(?=##|$)/);
+            const testSection = prBody.match(/##\s*🧪\s*How to Test\s*([\s\S]*?)(?=##|$)/);
+            const linkSection = prBody.match(/##\s*📎\s*Links\s*([\s\S]*?)(?=##|$)/);
+            const checklistSection = prBody.match(/##\s*✅\s*Checklist\s*([\s\S]*?)(?=##|$)/);
+            
+            const devContent = devSection ? devSection[1] : '';
+            const summaryContent = summarySection ? summarySection[1] : '';
+            const screenshotContent = screenshotSection ? screenshotSection[1] : '';
+            const testContent = testSection ? testSection[1] : '';
+            const linkContent = linkSection ? linkSection[1] : '';
+            const checklistContent = checklistSection ? checklistSection[1] : '';
+            
+            // Developer checks
+            if (!hasContent(devContent)) {
+              issues.push('- [ ] Add your **Developer** name (e.g., @username)');
+            }
+            
+            if (!hasContent(summaryContent) || cleanText(summaryContent).length < 10) {
+              issues.push('- [ ] Add a **Summary** describing what you changed (at least 10 characters)');
+            }
+            
+            const hasImage = /!\[/.test(screenshotContent) || /\.(png|jpg|jpeg|gif|webp)/i.test(screenshotContent);
+            const hasNAValue = hasNA(screenshotContent);
+            
+            if (!hasImage && !hasNAValue) {
+              issues.push('- [ ] Add **Screenshots** (or write "N/A" if no UI changes)');
+            }
+            
+            const hasNumberedSteps = /^\s*1\./.test(testContent) || /Step \d/.test(testContent);
+            const hasContentInTest = hasContent(testContent) && testContent.length > 10;
+            
+            if (!hasNumberedSteps && !hasContentInTest) {
+              issues.push('- [ ] Add **Test Steps** with step-by-step instructions (e.g., 1. Do this, 2. Do that)');
+            }
+            
+            const hasLink = /http/.test(linkContent) || /slack/.test(linkContent) || /ticket/.test(linkContent);
+            if (!hasLink && !linkContent.includes('N/A')) {
+              issues.push('- [ ] Add a link to your **Ticket** (Slack thread or Jira link)');
+            }
+            
+            if (!hasCheckedBoxes(checklistContent)) {
+              issues.push('- [ ] Complete the **Checklist** by ticking the boxes (replace `[ ]` with `[x]`)');
+            }
+            
+            const isPolishing = prBody.includes('Polishing') || prBody.includes('polishing');
+            if (isPolishing) {
+              const previousPRMatch = prBody.match(/\*\*Previous PR:\*\*\s*([^\n]+)/);
+              const previousPR = previousPRMatch ? previousPRMatch[1].trim() : '';
+              
+              if (!previousPR || 
+                  previousPR === '<!-- Link (if polishing/bugfix) -->' ||
+                  previousPR === 'Link (if polishing/bugfix)') {
+                issues.push('- [ ] Add a link to your **Previous PR** (since this is a polishing PR)');
+              }
+            }
+            
             if (issues.length > 0) {
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
@@ -188,7 +403,7 @@ jobs:
                 body: `
             ## 👋 Hey @${author}!
 
-            Before we review your PR, please make sure you've completed these items:
+            Before we review your PR, please complete these items:
 
             ${issues.join('\n')}
 
@@ -209,7 +424,7 @@ jobs:
                 labels: ['needs-more-info']
               });
               
-              console.log(`⚠️ Missing information - added comment`);
+              console.log(`⚠️ Developer - missing information`);
               
             } else {
               await github.rest.issues.addLabels({
@@ -238,5 +453,5 @@ jobs:
             `
               });
               
-              console.log(`✅ PR is complete!`);
+              console.log(`✅ Developer - PR is complete`);
             }

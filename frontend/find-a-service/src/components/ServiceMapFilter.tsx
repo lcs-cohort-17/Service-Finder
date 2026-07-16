@@ -42,10 +42,7 @@ export const ServiceMapFilter: React.FC<ServiceMapFilterProps> = ({
     [markers, selectedCategories]
   );
 
-  // Filtering is completed for SEARCH-002.
-  // If this component is only the filter UI, `filteredMarkers` can be used by
-  // the parent through props/callback in a future refactor.
-  // For now, we keep it here to satisfy the task requirement.
+
   void filteredMarkers;
 
   return (

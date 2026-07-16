@@ -38,21 +38,21 @@ export const getDeclinedServicesDb = async (limitAmount) => {
   return services;
 };
 
-export const getApprovedServicesDb = async (limitAmount) => {
-  const snapshot = await db
-    .collection("services")
-    .where("status", "==", "approved")
-    .limit(limitAmount)
-    .get();
+// export const getApprovedServicesDb = async (limitAmount) => {
+//   const snapshot = await db
+//     .collection("services")
+//     .where("status", "==", "approved")
+//     .limit(limitAmount)
+//     .get();
 
-  const services = [];
+//   const services = [];
 
-  snapshot.forEach(doc => {
-    services.push({
-      id: doc.id,
-      ...doc.data(),
-    });
-  });
+//   snapshot.forEach(doc => {
+//     services.push({
+//       id: doc.id,
+//       ...doc.data(),
+//     });
+//   });
 
-  return services;
-};
+//   return services;
+// };

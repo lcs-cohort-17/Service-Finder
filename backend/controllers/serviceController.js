@@ -1,4 +1,8 @@
-import { getDeclinedServicesDb, getPendingServicesDb,getApprovedServicesDb, saveUserServiceDb } from "../models/serviceModel.js";
+import { getDeclinedServicesDb, 
+        getPendingServicesDb, 
+    // getApprovedServicesDb, 
+        saveUserServiceDb } 
+    from "../models/serviceModel.js";
 
 export const submitService = async (req, res, next) => {
   try {
@@ -63,22 +67,22 @@ export const getDeclinedServices = async (req, res, next) => {
   }
 };
 
-// ✅ Get approved services (Admin only)
-export const getApprovedServices = async (req, res, next) => {
-  try {
-    const limitAmount = parseInt(req.query.limit, 10) || 20;
+// // ✅ Get approved services (Admin only)
+// export const getApprovedServices = async (req, res, next) => {
+//   try {
+//     const limitAmount = parseInt(req.query.limit, 10) || 20;
 
-    console.log("Limit received:", limitAmount);
+//     console.log("Limit received:", limitAmount);
 
-    const services = await getApprovedServicesDb(limitAmount);
+//     const services = await getApprovedServicesDb(limitAmount);
 
-    res.status(200).json({
-      success: true,
-      count: services.length,
-      services
-    });
+//     res.status(200).json({
+//       success: true,
+//       count: services.length,
+//       services
+//     });
 
-  } catch (error) {
-    next(error);
-  }
-};
+//   } catch (error) {
+//     next(error);
+//   }
+// };

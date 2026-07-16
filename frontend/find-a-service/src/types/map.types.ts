@@ -51,15 +51,17 @@ export const mockServices: Service[] = [
   {
     id: "mock-clinic-1",
     name: "Chapel Street Clinic",
-    category: "Clinics",
+    category: "clinic",
     address: "Chapel St, District Six, Cape Town, 8001",
     latitude: -33.9262,
     longitude: 18.4312,
   },
+
   {
     id: "mock-clinic-2",
     name: "Sea Point Community Health Centre",
-    category: "Clinics",
+    category: "clinic",
+
     address: "Kloof Rd, Sea Point, Cape Town, 8005",
     latitude: -33.9219,
     longitude: 18.3812,
@@ -67,32 +69,36 @@ export const mockServices: Service[] = [
   {
     id: "mock-library-1",
     name: "Central Library Cape Town",
-    category: "Libraries",
+    category: "library",
     address: "Drilling Rd, Cape Town City Centre, Cape Town, 8000",
+
     latitude: -33.9249,
     longitude: 18.4241,
   },
   {
     id: "mock-library-2",
     name: "Rondebosch Public Library",
-    category: "Libraries",
+    category: "library",
     address: "Town Hall, Camp Ground Rd, Rondebosch, Cape Town, 7700",
+
     latitude: -33.9654,
     longitude: 18.4721,
   },
   {
     id: "mock-shelter-1",
     name: "The Haven Night Shelter (District Six)",
-    category: "Shelters",
+    category: "shelter",
     address: "Selkirk St, District Six, Cape Town, 8001",
+
     latitude: -33.9295,
     longitude: 18.4328,
   },
   {
     id: "mock-shelter-2",
     name: "The Haven Night Shelter (Napier Street)",
-    category: "Shelters",
+    category: "shelter",
     address: "Napier St, Green Point, Cape Town, 8051",
+
     latitude: -33.9168,
     longitude: 18.4172,
   },

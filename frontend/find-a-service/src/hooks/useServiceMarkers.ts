@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import type { MapMarker } from "../types/map.types";
+import type { MapMarker, Service } from "../types/map.types";
 import { serviceRepository } from "../database/serviceRepository";
 import type { CategoryId } from "../types/categories";
+import { mockServices } from "../types/map.types";
+
 
 const API_BASE =
   import.meta.env.VITE_API_BASE_URL ??
@@ -48,6 +50,10 @@ const buildServicesUrl = () => {
 const normalizeSelectedCategories = (selectedCategories: CategoryId[]) =>
   selectedCategories?.length ? new Set(selectedCategories) : null;
 
+const normalizeCategoryId = (category: string): CategoryId =>
+  category.toLowerCase() as CategoryId;
+
+
 export const useServiceMarkers = (selectedCategories: CategoryId[]) => {
   const [allServices, setAllServices] = useState<ServiceResponse[]>([]);
   const [markers, setMarkers] = useState<MapMarker[]>([]);
@@ -63,7 +69,7 @@ export const useServiceMarkers = (selectedCategories: CategoryId[]) => {
   // Filter in-memory whenever selection changes
   useEffect(() => {
     const filtered = selectedSet
-      ? allServices.filter((s) => selectedSet.has(s.category as CategoryId))
+      ? allServices.filter((s) => selectedSet.has(normalizeCategoryId(s.category)))
       : allServices;
 
     setMarkers(convertToMarkers(filtered));
@@ -108,12 +114,31 @@ export const useServiceMarkers = (selectedCategories: CategoryId[]) => {
 
     } catch (err) {
       console.error(err);
-      const cached = await serviceRepository.getCachedServices();
-      if (!cached || cached.length === 0) {
-        setError(
-          err instanceof Error ? err.message : "Failed to load services."
-        );
+
+      // SEARCH-003: on any backend failure (e.g. missing Firestore creds),
+      // ensure we still render mock services.
+      try {
+        const cached = await serviceRepository.getCachedServices();
+        if (cached && cached.length > 0) {
+          setAllServices(cached as unknown as ServiceResponse[]);
+          return;
+        }
+      } catch (cacheErr) {
+        console.warn("Cache read failed, using mockServices:", cacheErr);
       }
+
+      const servicesFromMock: ServiceResponse[] = mockServices.map(
+        (s: Service) => ({
+          id: s.id,
+          name: s.name,
+          category: s.category,
+          latitude: s.latitude,
+          longitude: s.longitude,
+        })
+      );
+
+      setAllServices(servicesFromMock);
+      setError("");
     } finally {
       setLoading(false);
     }

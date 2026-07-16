@@ -1,9 +1,15 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ServiceMapFilter, AVAILABLE_CATEGORIES } from './components/ServiceMapFilter';
 import { Map } from './components/Map'; // Or your map import
+import { ServiceDetailsPanel } from './components/ServiceDetailsPanel';
+import { useSelectedService } from './hooks/useSelectedService';
 
-// 1. Mock services or data pulled from your Store/Firestore API
-const mockServices = [
+// 1. Mock services or data pulled from your Store/Firestore API.
+// Only the fields needed to render a pin are listed per-entry; the
+// remaining full-record fields (address, phone, website, hours) are
+// filled in below via categoryDefaults so every service still resolves
+// to a complete record when its marker is clicked.
+const rawServices = [
   { id: '1', name: 'Community Clinic', category: 'Clinics', lat: -33.9249, lng: 18.4241 },
   { id: '2', name: 'Central Library', category: 'Libraries', lat: -33.9255, lng: 18.4280 },
   { id: '3', name: 'City Hospital', category: 'Hospitals', lat: -33.9310, lng: 18.4500 },
@@ -37,6 +43,40 @@ const mockServices = [
   // ... rest of your mock data
 ];
 
+// Per-category defaults used to fill out the "full service data object"
+// (phone, website, hours) that the details panel needs. In a real
+// integration this whole dataset is replaced by the Firestore-backed
+// /services API response, which already returns these fields per record.
+const categoryDefaults = {
+  Clinics: {
+    phone: '021 555 0110',
+    website: 'https://example-clinics.co.za',
+    hours: 'Mon–Fri 07:00–17:00, Sat 08:00–13:00',
+  },
+  Libraries: {
+    phone: '021 555 0120',
+    website: 'https://example-libraries.co.za',
+    hours: 'Mon–Fri 09:00–18:00, Sat 09:00–13:00',
+  },
+  Hospitals: {
+    phone: '021 555 0130',
+    website: 'https://example-hospitals.co.za',
+    hours: 'Open 24 hours',
+  },
+  Pharmacies: {
+    phone: '021 555 0140',
+    website: 'https://example-pharmacies.co.za',
+    hours: 'Mon–Sat 08:00–20:00, Sun 09:00–13:00',
+  },
+};
+
+const mockServices = rawServices.map((service) => ({
+  ...service,
+  type: service.category,
+  address: `${100 + Number(service.id)} Main Road, Cape Town`,
+  ...(categoryDefaults[service.category] ?? {}),
+}));
+
 function App() {
   // 2. State to track selected categories
   const [selectedCategories, setSelectedCategories] = useState([...AVAILABLE_CATEGORIES]);
@@ -51,16 +91,40 @@ function App() {
   };
 
   // 4. Filter the services dynamically
-  const filteredServices = mockServices.filter((service) =>
-    selectedCategories.includes(service.category)
+  const filteredServices = useMemo(
+    () => mockServices.filter((service) => selectedCategories.includes(service.category)),
+    [selectedCategories]
   );
 
+  // 5. Marker click -> selected service state, navigation URLs, and dismiss handling
+  const {
+    selectedService,
+    navigationUrls,
+    isServiceSelected,
+    selectServiceFromDataset,
+    clearSelectedService,
+  } = useSelectedService();
+
+  const handleMarkerClick = (serviceId) => {
+    // Look up the clicked marker's full record in the complete dataset
+    // (not just the filtered subset) so the panel always has every field.
+    selectServiceFromDataset(serviceId, mockServices);
+  };
+
   return (
-    <div style={{ padding: '20px', display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '20px' }}>
+    <div
+      style={{
+        padding: '20px',
+        display: 'grid',
+        gridTemplateColumns: isServiceSelected ? '1fr 2fr 1fr' : '1fr 2fr',
+        gap: '20px',
+        alignItems: 'start',
+      }}
+    >
       {/* SEARCH-001 UI Sidebar Controls */}
-      <ServiceMapFilter 
-        selectedCategories={selectedCategories} 
-        onCategoryToggle={handleCategoryToggle} 
+      <ServiceMapFilter
+        selectedCategories={selectedCategories}
+        onCategoryToggle={handleCategoryToggle}
       />
 
       {/* SEARCH-002 Interactive Map View */}
@@ -69,8 +133,21 @@ function App() {
           Interactive Map View (Pins visible: {filteredServices.length})
         </h3>
         {/* Pass the dynamic filtered array down to your Map component */}
-        <Map services={filteredServices} /> 
+        <Map
+          services={filteredServices}
+          onMarkerClick={handleMarkerClick}
+          selectedServiceId={selectedService?.id ?? null}
+        />
       </div>
+
+      {/* MARKER-002 Service details panel, driven by the clicked marker */}
+      {isServiceSelected && (
+        <ServiceDetailsPanel
+          service={selectedService}
+          navigationUrls={navigationUrls}
+          onClose={clearSelectedService}
+        />
+      )}
     </div>
   );
 }

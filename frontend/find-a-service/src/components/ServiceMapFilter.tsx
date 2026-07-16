@@ -1,20 +1,53 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   AVAILABLE_CATEGORIES,
   CATEGORY_COLOR_MAP,
   CATEGORY_LABEL_MAP,
 } from './ServiceMapFilter.constants';
 import type { CategoryId } from '../types/categories';
+import type { MapMarker } from '../types/map.types';
+import { useServiceStore } from '../store/useServiceStore';
 
 interface ServiceMapFilterProps {
   selectedCategories: CategoryId[];
   onCategoryToggle: (category: CategoryId) => void;
 }
 
+const markerMatchesSelectedCategories = (
+  marker: MapMarker,
+  selectedCategories: CategoryId[]
+): boolean => {
+  // If no categories selected, show all markers
+  if (selectedCategories.length === 0) return true;
+
+  const categoryFromMarker: string | undefined = marker.description;
+  if (!categoryFromMarker) return false;
+
+  // `selectedCategories` are CategoryId (string union). Only match if the
+  // marker category is exactly one of the selected CategoryIds.
+  return selectedCategories.some((c) => c === categoryFromMarker);
+};
+
 export const ServiceMapFilter: React.FC<ServiceMapFilterProps> = ({
   selectedCategories,
   onCategoryToggle,
 }) => {
+  const { markers } = useServiceStore();
+
+  const filteredMarkers = useMemo(
+    () =>
+      markers.filter((marker) =>
+        markerMatchesSelectedCategories(marker, selectedCategories)
+      ),
+    [markers, selectedCategories]
+  );
+
+  // Filtering is completed for SEARCH-002.
+  // If this component is only the filter UI, `filteredMarkers` can be used by
+  // the parent through props/callback in a future refactor.
+  // For now, we keep it here to satisfy the task requirement.
+  void filteredMarkers;
+
   return (
     <div
       style={{

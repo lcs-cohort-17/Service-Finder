@@ -1,4 +1,4 @@
-/** @addsuggestions-005-author Onke Mbingeleli. */
+/** @addsuggestions-005-author Onke Mbingeleli.. */
 import PropTypes from 'prop-types';
 
 export function LoginPromptModal({ isOpen, onClose, onLoginRedirect }) {

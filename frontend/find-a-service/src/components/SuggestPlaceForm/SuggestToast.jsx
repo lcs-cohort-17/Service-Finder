@@ -1,4 +1,4 @@
-/** @addsuggestions-005-author Onke Mbingeleli. */
+/** @addsuggestions-005-author Onke Mbingeleli.. */
 import { useEffect } from 'react';
 import PropTypes from 'prop-types';
 

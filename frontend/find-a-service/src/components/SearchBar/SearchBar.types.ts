@@ -12,12 +12,14 @@ export interface SearchBarProps {
   /** Placeholder text. Default: "Search services…" */
   placeholder?: string;
 
+  // Event handlers
   /** Fired on every keystroke with the current input value. */
   onSearchChange?: (value: string) => void;
 
   /** Fired when the clear button is pressed (value is always '' at this point). */
   onClear?: (event?: React.MouseEvent<HTMLButtonElement>) => void;
 
+  // UI Behavior
   /** Optional extra class name for layout overrides from a parent. */
   className?: string;
 

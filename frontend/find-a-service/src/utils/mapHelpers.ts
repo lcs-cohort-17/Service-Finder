@@ -33,10 +33,21 @@ export const createCustomIcon = (
   });
 };
 
-export const createLocationPinIcon = (): L.DivIcon => {
+export const createLocationPinIcon = (selected: boolean = false): L.DivIcon => {
   return L.divIcon({
-    html: '<div class="text-red-600 text-3xl">📍</div>',
-    iconSize: [28, 28],
+    html: selected
+      ? '<div class="text-orange-500 text-4xl" style="filter: drop-shadow(0 0 4px rgba(255,140,0,0.85));">📍</div>'
+      : '<div class="text-red-600 text-3xl">📍</div>',
+    iconSize: selected ? [34, 34] : [28, 28],
+    className: 'border-none bg-transparent',
+  });
+};
+
+// Simple circular marker used to show the user's current location on the map.
+export const createUserLocationIcon = (): L.DivIcon => {
+  return L.divIcon({
+    html: '<div style="width:14px;height:14px;border-radius:50%;background:#2563eb;border:3px solid #fff;box-shadow:0 0 0 2px #2563eb;"></div>',
+    iconSize: [14, 14],
     className: 'border-none bg-transparent',
   });
 };

@@ -1,8 +1,10 @@
 import React, { useMemo, useState } from 'react';
 import { ServiceMapFilter, AVAILABLE_CATEGORIES } from './components/ServiceMapFilter';
-import { Map } from './components/Map'; // Or your map import
+import Map from './components/Map/Map';
 import { ServiceDetailsPanel } from './components/ServiceDetailsPanel';
 import { useSelectedService } from './hooks/useSelectedService';
+import { useMapActions } from './hooks/useMapActions';
+import { MAP_CONFIG } from './config/map.config';
 
 // 1. Mock services or data pulled from your Store/Firestore API.
 // Only the fields needed to render a pin are listed per-entry; the
@@ -96,19 +98,49 @@ function App() {
     [selectedCategories]
   );
 
-  // 5. Marker click -> selected service state, navigation URLs, and dismiss handling
+  // Leaflet markers derived from the filtered services
+  const mapMarkers = useMemo(
+    () =>
+      filteredServices.map((service) => ({
+        id: service.id,
+        position: [service.lat, service.lng],
+        title: service.name,
+        description: service.address,
+      })),
+    [filteredServices]
+  );
+
+  // 5. Marker click -> selected service state and dismiss handling
   const {
     selectedService,
-    navigationUrls,
     isServiceSelected,
     selectServiceFromDataset,
     clearSelectedService,
   } = useSelectedService();
 
+  // MARKER-002: Directions/Locate act on our own map instead of opening Google Maps
+  const {
+    handleMapReady,
+    route,
+    userLocation,
+    focusedServiceId,
+    isRouting,
+    routeError,
+    routeSummary,
+    showDirectionsTo,
+    locateService,
+    clearRoute,
+  } = useMapActions();
+
   const handleMarkerClick = (serviceId) => {
     // Look up the clicked marker's full record in the complete dataset
     // (not just the filtered subset) so the panel always has every field.
     selectServiceFromDataset(serviceId, mockServices);
+  };
+
+  const handleClosePanel = () => {
+    clearSelectedService();
+    clearRoute();
   };
 
   return (
@@ -132,20 +164,32 @@ function App() {
         <h3 style={{ color: 'white' }}>
           Interactive Map View (Pins visible: {filteredServices.length})
         </h3>
-        {/* Pass the dynamic filtered array down to your Map component */}
-        <Map
-          services={filteredServices}
-          onMarkerClick={handleMarkerClick}
-          selectedServiceId={selectedService?.id ?? null}
-        />
+        <div style={{ height: '480px', borderRadius: '8px', overflow: 'hidden' }}>
+          <Map
+            center={MAP_CONFIG.defaultCenter}
+            zoom={MAP_CONFIG.defaultZoom}
+            markers={mapMarkers}
+            onMarkerClick={handleMarkerClick}
+            onReady={handleMapReady}
+            focusedMarkerId={focusedServiceId ?? selectedService?.id ?? null}
+            route={route}
+            userLocation={userLocation}
+          />
+        </div>
       </div>
 
-      {/* MARKER-002 Service details panel, driven by the clicked marker */}
+      {/* MARKER-002 Service details panel, driven by the clicked marker.
+          Directions/Locate now act on our own map above instead of opening
+          Google Maps in a new tab. */}
       {isServiceSelected && (
         <ServiceDetailsPanel
           service={selectedService}
-          navigationUrls={navigationUrls}
-          onClose={clearSelectedService}
+          onClose={handleClosePanel}
+          onDirections={() => showDirectionsTo(selectedService)}
+          onLocate={() => locateService(selectedService)}
+          isRouting={isRouting}
+          routeError={routeError}
+          routeSummary={routeSummary}
         />
       )}
     </div>

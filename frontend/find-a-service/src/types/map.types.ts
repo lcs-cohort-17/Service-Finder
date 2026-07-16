@@ -45,6 +45,14 @@ export interface MapComponentProps extends MapEvents {
   showZoomControl?: boolean;
   showAttribution?: boolean;
   interactive?: boolean;
+  /** Called with a marker's id when its pin is clicked. */
+  onMarkerClick?: (id: string) => void;
+  /** Id of the marker to visually highlight and auto-open the popup for. */
+  focusedMarkerId?: string | null;
+  /** Route path (e.g. from OSRM) drawn as a line on the map. */
+  route?: LatLngExpression[] | null;
+  /** The user's current position, shown as a distinct dot marker. */
+  userLocation?: LatLngExpression | null;
 }
 // ===========================
 // Lutfeeya - MAP-001 //

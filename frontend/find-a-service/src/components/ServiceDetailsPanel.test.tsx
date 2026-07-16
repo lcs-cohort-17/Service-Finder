@@ -16,22 +16,29 @@ const service: Service = {
   lng: 18.4241,
 };
 
-const navigationUrls = {
-  directionsUrl: 'https://www.google.com/maps/dir/?api=1&destination=-33.9249,18.4241',
-  streetViewUrl: 'https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=-33.9249,18.4241',
-};
-
 describe('ServiceDetailsPanel', () => {
   it('renders nothing when no service is selected', () => {
     const { container } = render(
-      <ServiceDetailsPanel service={null} navigationUrls={null} onClose={() => {}} />
+      <ServiceDetailsPanel
+        service={null}
+        onClose={() => {}}
+        onDirections={() => {}}
+        onLocate={() => {}}
+      />
     );
 
     expect(container).toBeEmptyDOMElement();
   });
 
   it('renders the full service data', () => {
-    render(<ServiceDetailsPanel service={service} navigationUrls={navigationUrls} onClose={() => {}} />);
+    render(
+      <ServiceDetailsPanel
+        service={service}
+        onClose={() => {}}
+        onDirections={() => {}}
+        onLocate={() => {}}
+      />
+    );
 
     expect(screen.getByText('Community Clinic')).toBeInTheDocument();
     expect(screen.getByText(/101 Main Road/)).toBeInTheDocument();
@@ -39,16 +46,64 @@ describe('ServiceDetailsPanel', () => {
     expect(screen.getByText(/Mon-Fri 07:00-17:00/)).toBeInTheDocument();
   });
 
-  it('renders Directions and Street View links pointing at the generated URLs', () => {
-    render(<ServiceDetailsPanel service={service} navigationUrls={navigationUrls} onClose={() => {}} />);
+  it('calls onDirections and onLocate when their buttons are clicked, acting on our own map', () => {
+    const onDirections = vi.fn();
+    const onLocate = vi.fn();
+    render(
+      <ServiceDetailsPanel
+        service={service}
+        onClose={() => {}}
+        onDirections={onDirections}
+        onLocate={onLocate}
+      />
+    );
 
-    expect(screen.getByText('Directions')).toHaveAttribute('href', navigationUrls.directionsUrl);
-    expect(screen.getByText('Street View')).toHaveAttribute('href', navigationUrls.streetViewUrl);
+    fireEvent.click(screen.getByText('Directions'));
+    fireEvent.click(screen.getByText('Locate'));
+
+    expect(onDirections).toHaveBeenCalledTimes(1);
+    expect(onLocate).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows a route summary when provided', () => {
+    render(
+      <ServiceDetailsPanel
+        service={service}
+        onClose={() => {}}
+        onDirections={() => {}}
+        onLocate={() => {}}
+        routeSummary={{ distanceKm: 3.4, durationMin: 9 }}
+      />
+    );
+
+    expect(screen.getByText(/3.4 km/)).toBeInTheDocument();
+    expect(screen.getByText(/9 min/)).toBeInTheDocument();
+  });
+
+  it('shows a routing error when provided', () => {
+    render(
+      <ServiceDetailsPanel
+        service={service}
+        onClose={() => {}}
+        onDirections={() => {}}
+        onLocate={() => {}}
+        routeError="Could not calculate directions. Please try again."
+      />
+    );
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Could not calculate directions');
   });
 
   it('calls onClose when the dismiss button is clicked', () => {
     const onClose = vi.fn();
-    render(<ServiceDetailsPanel service={service} navigationUrls={navigationUrls} onClose={onClose} />);
+    render(
+      <ServiceDetailsPanel
+        service={service}
+        onClose={onClose}
+        onDirections={() => {}}
+        onLocate={() => {}}
+      />
+    );
 
     fireEvent.click(screen.getByLabelText('Close details panel'));
 

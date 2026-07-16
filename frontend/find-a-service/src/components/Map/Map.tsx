@@ -4,11 +4,16 @@
 
 // src/components/Map/Map.tsx
 import React, { useEffect, useRef, useState } from 'react';
-import { MapContainer, TileLayer, ZoomControl, Marker, Popup, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, ZoomControl, Marker, Popup, Polyline, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { MapComponentProps } from '../../types/map.types';
-import { fixLeafletIcons, createCustomIcon, createLocationPinIcon } from '../../utils/mapHelpers';
+import {
+  fixLeafletIcons,
+  createCustomIcon,
+  createLocationPinIcon,
+  createUserLocationIcon,
+} from '../../utils/mapHelpers';
 import { MAP_CONFIG } from '../../config/map.config';
 
 // Fix Leaflet icons
@@ -53,8 +58,13 @@ const Map: React.FC<MapComponentProps> = ({
   onZoom,
   onReady,
   onClick,
+  onMarkerClick,
+  focusedMarkerId = null,
+  route = null,
+  userLocation = null,
 }) => {
   const mapRef = useRef<L.Map | null>(null);
+  const markerRefs = useRef<Record<string, L.Marker | null>>({});
   const [isMapReady, setIsMapReady] = useState(false);
 
   // Handle map initialization
@@ -66,6 +76,14 @@ const Map: React.FC<MapComponentProps> = ({
       }
     }
   }, [onReady, isMapReady]);
+
+  // Open the popup for whichever marker was just clicked/selected
+  // (e.g. via the "Locate" action in the service details panel).
+  useEffect(() => {
+    if (!focusedMarkerId) return;
+    const markerInstance = markerRefs.current[focusedMarkerId];
+    markerInstance?.openPopup();
+  }, [focusedMarkerId, isMapReady]);
 
   return (
     <div className={`relative w-full h-full ${className}`}>
@@ -108,25 +126,46 @@ const Map: React.FC<MapComponentProps> = ({
         />
 
         {/* Render Markers */}
-        {markers.map((marker) => (
-          <Marker
-            key={marker.id}
-            position={marker.position}
-            icon={marker.icon ? createCustomIcon(marker.icon) : createLocationPinIcon()}
-            title={marker.title}
-          >
-            {marker.description && (
-              <Popup>
-                <div className="p-2 max-w-xs">
-                  {marker.title && (
-                    <h3 className="font-bold text-lg mb-1">{marker.title}</h3>
-                  )}
-                  <p className="text-sm text-gray-600">{marker.description}</p>
-                </div>
-              </Popup>
-            )}
+        {markers.map((marker) => {
+          const isFocused = marker.id === focusedMarkerId;
+          return (
+            <Marker
+              key={marker.id}
+              position={marker.position}
+              icon={marker.icon ? createCustomIcon(marker.icon) : createLocationPinIcon(isFocused)}
+              title={marker.title}
+              ref={(instance) => {
+                markerRefs.current[marker.id] = instance;
+              }}
+              eventHandlers={{
+                click: () => onMarkerClick?.(marker.id),
+              }}
+            >
+              {marker.description && (
+                <Popup>
+                  <div className="p-2 max-w-xs">
+                    {marker.title && (
+                      <h3 className="font-bold text-lg mb-1">{marker.title}</h3>
+                    )}
+                    <p className="text-sm text-gray-600">{marker.description}</p>
+                  </div>
+                </Popup>
+              )}
+            </Marker>
+          );
+        })}
+
+        {/* Route line drawn on our own map instead of redirecting to Google Maps */}
+        {route && route.length > 1 && (
+          <Polyline positions={route} pathOptions={{ color: '#148b92', weight: 5, opacity: 0.85 }} />
+        )}
+
+        {/* User's current location, shown when a route has been requested */}
+        {userLocation && (
+          <Marker position={userLocation} icon={createUserLocationIcon()}>
+            <Popup>Your location</Popup>
           </Marker>
-        ))}
+        )}
       </MapContainer>
 
       {/* Loading State */}

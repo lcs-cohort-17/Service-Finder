@@ -1,18 +1,10 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import type { Service } from '../types/service';
 import { getServiceById, normalizeService } from '../utils/serviceDataset';
-import { getDirectionsUrl, getStreetViewUrl } from '../utils/navigation';
-
-export interface NavigationUrls {
-  directionsUrl: string;
-  streetViewUrl: string;
-}
 
 export interface UseSelectedServiceResult {
   /** Full service data for the currently clicked marker, or null when none is selected. */
   selectedService: Service | null;
-  /** Directions / Street View URLs derived from the selected service's coordinates. */
-  navigationUrls: NavigationUrls | null;
   /** Convenience flag for UI components deciding whether to render the details panel. */
   isServiceSelected: boolean;
   /** Store a full service object directly (e.g. marker already carries full data). */
@@ -27,8 +19,9 @@ export interface UseSelectedServiceResult {
  * Manages the "selected service" state for the map details panel.
  *
  * Handles: capturing a marker click, retrieving the full service record,
- * storing it in state, deriving Directions/Street View URLs, and clearing
- * the selection when the panel is dismissed.
+ * storing it in state, and clearing the selection when the panel is
+ * dismissed. Directions/locate actions live in useMapActions, which acts
+ * directly on our own Leaflet map instead of generating external URLs.
  */
 export function useSelectedService(): UseSelectedServiceResult {
   const [selectedService, setSelectedService] = useState<Service | null>(null);
@@ -46,17 +39,8 @@ export function useSelectedService(): UseSelectedServiceResult {
     setSelectedService(null);
   }, []);
 
-  const navigationUrls = useMemo<NavigationUrls | null>(() => {
-    if (!selectedService) return null;
-    return {
-      directionsUrl: getDirectionsUrl(selectedService.lat, selectedService.lng),
-      streetViewUrl: getStreetViewUrl(selectedService.lat, selectedService.lng),
-    };
-  }, [selectedService]);
-
   return {
     selectedService,
-    navigationUrls,
     isServiceSelected: selectedService !== null,
     selectService,
     selectServiceFromDataset,

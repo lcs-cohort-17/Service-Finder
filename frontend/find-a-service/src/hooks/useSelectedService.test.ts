@@ -29,7 +29,6 @@ describe('useSelectedService', () => {
     const { result } = renderHook(() => useSelectedService());
 
     expect(result.current.selectedService).toBeNull();
-    expect(result.current.navigationUrls).toBeNull();
     expect(result.current.isServiceSelected).toBe(false);
   });
 
@@ -49,20 +48,7 @@ describe('useSelectedService', () => {
     expect(result.current.isServiceSelected).toBe(true);
   });
 
-  it('generates Directions and Street View URLs from the selected service coordinates', () => {
-    const { result } = renderHook(() => useSelectedService());
-
-    act(() => {
-      result.current.selectServiceFromDataset('1', services);
-    });
-
-    expect(result.current.navigationUrls).toEqual({
-      directionsUrl: 'https://www.google.com/maps/dir/?api=1&destination=-33.9249%2C18.4241',
-      streetViewUrl: 'https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=-33.9249%2C18.4241',
-    });
-  });
-
-  it('clears the selected service and navigation URLs when dismissed', () => {
+  it('clears the selected service when dismissed', () => {
     const { result } = renderHook(() => useSelectedService());
 
     act(() => {
@@ -75,7 +61,6 @@ describe('useSelectedService', () => {
     });
 
     expect(result.current.selectedService).toBeNull();
-    expect(result.current.navigationUrls).toBeNull();
     expect(result.current.isServiceSelected).toBe(false);
   });
 

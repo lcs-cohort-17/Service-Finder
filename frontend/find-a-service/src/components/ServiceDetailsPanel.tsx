@@ -1,29 +1,41 @@
 import React from 'react';
 import type { Service } from '../types/service';
-import type { NavigationUrls } from '../hooks/useSelectedService';
+import type { RouteSummary } from '../hooks/useMapActions';
 
 interface ServiceDetailsPanelProps {
   service: Service | null;
-  navigationUrls: NavigationUrls | null;
   onClose: () => void;
+  /** Fetches a real route to this service and draws it on our own map. */
+  onDirections: () => void;
+  /** Centers/zooms our own map on this service and opens its popup. */
+  onLocate: () => void;
+  isRouting?: boolean;
+  routeError?: string | null;
+  routeSummary?: RouteSummary | null;
 }
 
 /**
  * Displays the full data for the currently selected service (from a marker
- * click) along with Directions / Street View links. Renders nothing when
- * no service is selected, matching "no service data ... when no marker is
- * selected" from the acceptance criteria.
+ * click) along with Directions / Locate actions. Both actions act on our
+ * own in-app Leaflet map (see useMapActions) instead of opening Google
+ * Maps in a new tab. Renders nothing when no service is selected, matching
+ * "no service data ... when no marker is selected" from the acceptance
+ * criteria.
  */
 export const ServiceDetailsPanel: React.FC<ServiceDetailsPanelProps> = ({
   service,
-  navigationUrls,
   onClose,
+  onDirections,
+  onLocate,
+  isRouting = false,
+  routeError = null,
+  routeSummary = null,
 }) => {
   if (!service) {
     return null;
   }
 
-  const linkButtonStyle: React.CSSProperties = {
+  const actionButtonStyle: React.CSSProperties = {
     flex: 1,
     textAlign: 'center',
     padding: '10px 12px',
@@ -32,7 +44,8 @@ export const ServiceDetailsPanel: React.FC<ServiceDetailsPanelProps> = ({
     color: '#000',
     fontWeight: 700,
     fontSize: '13px',
-    textDecoration: 'none',
+    border: 'none',
+    cursor: 'pointer',
   };
 
   return (
@@ -84,20 +97,29 @@ export const ServiceDetailsPanel: React.FC<ServiceDetailsPanelProps> = ({
         {service.hours && <p style={{ margin: 0 }}>🕒 {service.hours}</p>}
       </div>
 
-      {navigationUrls && (
-        <div style={{ display: 'flex', gap: '10px', marginTop: '18px' }}>
-          <a href={navigationUrls.directionsUrl} target="_blank" rel="noreferrer" style={linkButtonStyle}>
-            Directions
-          </a>
-          <a
-            href={navigationUrls.streetViewUrl}
-            target="_blank"
-            rel="noreferrer"
-            style={{ ...linkButtonStyle, backgroundColor: '#374151', color: '#fff' }}
-          >
-            Street View
-          </a>
-        </div>
+      <div style={{ display: 'flex', gap: '10px', marginTop: '18px' }}>
+        <button type="button" onClick={onDirections} disabled={isRouting} style={actionButtonStyle}>
+          {isRouting ? 'Routing…' : 'Directions'}
+        </button>
+        <button
+          type="button"
+          onClick={onLocate}
+          style={{ ...actionButtonStyle, backgroundColor: '#374151', color: '#fff' }}
+        >
+          Locate
+        </button>
+      </div>
+
+      {routeSummary && (
+        <p style={{ marginTop: '10px', marginBottom: 0, fontSize: '12px', color: '#9ca3af' }}>
+          🚗 {routeSummary.distanceKm} km · {routeSummary.durationMin} min
+        </p>
+      )}
+
+      {routeError && (
+        <p role="alert" style={{ marginTop: '10px', marginBottom: 0, fontSize: '12px', color: '#f87171' }}>
+          {routeError}
+        </p>
       )}
     </aside>
   );

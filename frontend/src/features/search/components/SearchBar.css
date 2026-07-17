@@ -198,6 +198,7 @@
     left: 16px;
     right: 16px;
     width: auto;
-    max-width: none;
+    /* Add this line to keep it matching the input box size constraint */
+    max-width: 460px;
   }
 }

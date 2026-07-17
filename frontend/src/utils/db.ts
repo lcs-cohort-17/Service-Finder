@@ -1,5 +1,5 @@
 import Dexie, { Table } from "dexie";
-
+// added
 export interface CachedService {
     id: string;
     name: string;

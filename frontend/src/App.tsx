@@ -1,33 +1,18 @@
-import "./index.css";
+import { useState } from "react";
+import { AuthModal } from "./features/auth/components/AuthModal";
 
 function App() {
+  const [modalOpen, setModalOpen] = useState(false);
+
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="rounded-3xl border border-slate-200 bg-white p-10 shadow-sm">
-          <h1 className="text-4xl font-semibold tracking-tight text-slate-900">
-            Service Finder
-          </h1>
-          <p className="mt-4 text-lg leading-8 text-slate-600">
-            React + TypeScript + TailwindCSS scaffold for the Service Finder
-            app.
-          </p>
-          <div className="mt-10 grid gap-4 sm:grid-cols-2">
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
-              <h2 className="text-xl font-semibold text-slate-900">Auth</h2>
-              <p className="mt-2 text-sm text-slate-600">
-                Login, register, and user context.
-              </p>
-            </div>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
-              <h2 className="text-xl font-semibold text-slate-900">Map</h2>
-              <p className="mt-2 text-sm text-slate-600">
-                Map container, markers, and directions.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="flex min-h-screen items-center justify-center bg-slate-100">
+      <button
+        onClick={() => setModalOpen(true)}
+        className="rounded-full bg-slate-900 px-5 py-2.5 text-sm font-bold text-white"
+      >
+        Sign in
+      </button>
+      <AuthModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
     </div>
   );
 }

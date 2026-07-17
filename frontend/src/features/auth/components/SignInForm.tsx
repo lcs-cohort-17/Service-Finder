@@ -1,16 +1,15 @@
-// src/components/auth/SignUpForm.tsx
-// src/components/auth/SignUpForm.tsx
+// src/components/auth/SignInForm.tsx
+// src/components/auth/SignInForm.tsx
 import { useState, FormEvent } from "react";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase/firebase";
-import { getAuthErrorMessage } from "../firebase/authErrors.js";
+import { getAuthErrorMessage } from "../firebase/authErrors";
 
-type SignUpFormProps = {
+type SignInFormProps = {
   onSuccess: () => void;
 };
 
-export function SignUpForm({ onSuccess }: SignUpFormProps) {
-  const [name, setName] = useState("");
+export function SignInForm({ onSuccess }: SignInFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -27,8 +26,7 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
 
     setSubmitting(true);
     try {
-      const cred = await createUserWithEmailAndPassword(auth, email, password);
-      await updateProfile(cred.user, { displayName: name });
+      await signInWithEmailAndPassword(auth, email, password);
       onSuccess();
     } catch (err: any) {
       setError(getAuthErrorMessage(err.code));
@@ -40,26 +38,11 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1">
-        <label htmlFor="signup-name" className="text-sm font-semibold text-slate-700">
-          Name
-        </label>
-        <input
-          id="signup-name"
-          type="text"
-          placeholder="Your name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-          className="rounded-full border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
-        />
-      </div>
-
-      <div className="flex flex-col gap-1">
-        <label htmlFor="signup-email" className="text-sm font-semibold text-slate-700">
+        <label htmlFor="signin-email" className="text-sm font-semibold text-slate-700">
           Email
         </label>
         <input
-          id="signup-email"
+          id="signin-email"
           type="email"
           placeholder="you@example.com"
           value={email}
@@ -70,15 +53,14 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
       </div>
 
       <div className="flex flex-col gap-1">
-        <label htmlFor="signup-password" className="text-sm font-semibold text-slate-700">
+        <label htmlFor="signin-password" className="text-sm font-semibold text-slate-700">
           Password
         </label>
         <input
-          id="signup-password"
+          id="signin-password"
           type="password"
-          placeholder="Min. 6 characters"
+          placeholder="Your password"
           value={password}
-          minLength={6}
           onChange={(e) => setPassword(e.target.value)}
           required
           className="rounded-full border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
@@ -92,7 +74,7 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
         disabled={submitting}
         className="mt-2 rounded-full bg-slate-900 px-4 py-2.5 text-sm font-bold text-white hover:bg-slate-800 disabled:opacity-50"
       >
-        {submitting ? "Creating account…" : "Sign Up"}
+        {submitting ? "Signing in…" : "Sign In"}
       </button>
     </form>
   );

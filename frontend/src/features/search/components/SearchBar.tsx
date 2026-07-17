@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+// @ts-ignore
 import "./SearchBar.css";
 import type { SearchBarProps } from "../../../types/SearchBar.types";
 

@@ -1,15 +1,13 @@
 // src/components/auth/SignInForm.tsx
-// src/components/auth/SignInForm.tsx
 import { useState, FormEvent } from "react";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase/firebase";
-import { getAuthErrorMessage } from "../firebase/authErrors";
+import { useAuthStore } from "../../../store/useAuthStore";
 
 type SignInFormProps = {
   onSuccess: () => void;
 };
 
 export function SignInForm({ onSuccess }: SignInFormProps) {
+  const login = useAuthStore((s) => s.login);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -25,14 +23,15 @@ export function SignInForm({ onSuccess }: SignInFormProps) {
     }
 
     setSubmitting(true);
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      onSuccess();
-    } catch (err: any) {
-      setError(getAuthErrorMessage(err.code));
-    } finally {
-      setSubmitting(false);
+    const user = await login(email, password);
+    setSubmitting(false);
+
+    if (!user) {
+      setError(useAuthStore.getState().error || "Incorrect email or password.");
+      return;
     }
+
+    onSuccess();
   };
 
   return (

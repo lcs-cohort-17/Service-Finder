@@ -1,17 +1,18 @@
 // src/components/auth/SignUpForm.tsx
-// src/components/auth/SignUpForm.tsx
 import { useState, FormEvent } from "react";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { auth } from "../firebase/firebase";
-import { getAuthErrorMessage } from "../firebase/authErrors.js";
+import { useAuthStore } from "../../../store/useAuthStore";
 
 type SignUpFormProps = {
   onSuccess: () => void;
 };
 
 export function SignUpForm({ onSuccess }: SignUpFormProps) {
-  const [name, setName] = useState("");
+  const register = useAuthStore((s) => s.register);
+  const login = useAuthStore((s) => s.login);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -26,72 +27,42 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
     }
 
     setSubmitting(true);
-    try {
-      const cred = await createUserWithEmailAndPassword(auth, email, password);
-      await updateProfile(cred.user, { displayName: name });
-      onSuccess();
-    } catch (err: any) {
-      setError(getAuthErrorMessage(err.code));
-    } finally {
+    const success = await register({
+      first_name: firstName,
+      last_name: lastName,
+      email,
+      phone_number: phone,
+      role: "user",
+      password,
+    });
+
+    if (!success) {
+      setError(useAuthStore.getState().error || "Registration failed.");
       setSubmitting(false);
+      return;
     }
+
+    await login(email, password);
+    setSubmitting(false);
+    onSuccess();
   };
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1">
-        <label htmlFor="signup-name" className="text-sm font-semibold text-slate-700">
-          Name
-        </label>
-        <input
-          id="signup-name"
-          type="text"
-          placeholder="Your name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-          className="rounded-full border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
-        />
-      </div>
-
-      <div className="flex flex-col gap-1">
-        <label htmlFor="signup-email" className="text-sm font-semibold text-slate-700">
-          Email
-        </label>
-        <input
-          id="signup-email"
-          type="email"
-          placeholder="you@example.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          className="rounded-full border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
-        />
-      </div>
-
-      <div className="flex flex-col gap-1">
-        <label htmlFor="signup-password" className="text-sm font-semibold text-slate-700">
-          Password
-        </label>
-        <input
-          id="signup-password"
-          type="password"
-          placeholder="Min. 6 characters"
-          value={password}
-          minLength={6}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          className="rounded-full border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
-        />
-      </div>
-
+      <input placeholder="First name" value={firstName} onChange={(e) => setFirstName(e.target.value)} required
+        className="rounded-full border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600" />
+      <input placeholder="Last name" value={lastName} onChange={(e) => setLastName(e.target.value)} required
+        className="rounded-full border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600" />
+      <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required
+        className="rounded-full border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600" />
+      <input placeholder="Phone number" value={phone} onChange={(e) => setPhone(e.target.value)} required
+        className="rounded-full border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600" />
+      <input type="password" placeholder="Min. 6 characters" value={password} minLength={6}
+        onChange={(e) => setPassword(e.target.value)} required
+        className="rounded-full border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600" />
       {error && <p className="text-sm font-medium text-red-600">{error}</p>}
-
-      <button
-        type="submit"
-        disabled={submitting}
-        className="mt-2 rounded-full bg-slate-900 px-4 py-2.5 text-sm font-bold text-white hover:bg-slate-800 disabled:opacity-50"
-      >
+      <button type="submit" disabled={submitting}
+        className="mt-2 rounded-full bg-slate-900 px-4 py-2.5 text-sm font-bold text-white hover:bg-slate-800 disabled:opacity-50">
         {submitting ? "Creating account…" : "Sign Up"}
       </button>
     </form>

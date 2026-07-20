@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import type { CategoryKey } from "../components/FilterButtons/categoryStyles";
 
 /**
@@ -23,3 +24,17 @@ export interface Service {
   address?: string;
   source: ServiceSource;
 }
+=======
+export interface Service {
+  id: string;
+  name: string;
+  category: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  status?: "approved" | "pending" | "declined";
+  source?: string;
+  submittedBy?: string;
+  createdAt?: string;
+}
+>>>>>>> e73a6bdc776359e77e737f8e394e5d7b468492fe

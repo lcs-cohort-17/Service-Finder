@@ -2,6 +2,7 @@
 // Lutfeeya - MAP-001 //
 // ===========================
 // src/components/map/MapContainer.tsx
+import MarkerStyleTest from "../../tests/components/MarkerStyleTest";
 import React, { useEffect, useRef, useState } from 'react';
 import {
   MapContainer as LeafletMapContainer,
@@ -110,13 +111,18 @@ const MapContainer: React.FC<MapContainerProps> = ({
         }}
       >
         {/* Tile Layer */}
-        <TileLayer
-          attribution={MAP_CONFIG.tileLayer.attribution}
-          url={MAP_CONFIG.tileLayer.url}
-        />
+  {/* Tile Layer */}
+{/* Tile Layer */}
+<TileLayer
+  attribution={MAP_CONFIG.tileLayer.attribution}
+  url={MAP_CONFIG.tileLayer.url}
+/>
 
-        {/* Custom Zoom Control */}
-        {showZoomControl && <ZoomControl position="topright" />}
+{/* TEST MARKERS */}
+<MarkerStyleTest />
+
+{/* Custom Zoom Control */}
+{showZoomControl && <ZoomControl position="topright" />}
 
         {/* Map Event Handlers */}
         <MapEventHandler onMove={onMove} onZoom={onZoom} onClick={onClick} />

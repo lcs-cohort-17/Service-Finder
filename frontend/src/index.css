@@ -28,3 +28,23 @@ body {
 #root {
   min-height: 100vh;
 }
+
+/* Leaflet marker/tooltip polish */
+.sf-marker {
+  filter: drop-shadow(0 2px 3px rgba(15, 23, 42, 0.35));
+  transition:
+    transform 0.15s ease,
+    filter 0.15s ease;
+}
+
+.sf-marker-selected {
+  filter: drop-shadow(0 4px 6px rgba(15, 23, 42, 0.45));
+}
+
+.leaflet-tooltip {
+  border-radius: 8px;
+  border: none;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+  font-size: 12px;
+  padding: 6px 10px;
+}

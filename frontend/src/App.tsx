@@ -1,34 +1,26 @@
 import "./index.css";
+import { NavBar } from "./components/layout/NavBar";
+import { SideBar } from "./components/layout/SideBar";
+import { MapContainer } from "./components/map/MapContainer";
+import { FilterProvider } from "./context/FilterContext";
+import { ServiceProvider } from "./context/ServiceContext";
 
 function App() {
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="rounded-3xl border border-slate-200 bg-white p-10 shadow-sm">
-          <h1 className="text-4xl font-semibold tracking-tight text-slate-900">
-            Service Finder
-          </h1>
-          <p className="mt-4 text-lg leading-8 text-slate-600">
-            React + TypeScript + TailwindCSS scaffold for the Service Finder
-            app.
-          </p>
-          <div className="mt-10 grid gap-4 sm:grid-cols-2">
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
-              <h2 className="text-xl font-semibold text-slate-900">Auth</h2>
-              <p className="mt-2 text-sm text-slate-600">
-                Login, register, and user context.
-              </p>
+    <ServiceProvider>
+      <FilterProvider>
+        <div className="min-h-screen bg-slate-50">
+          <NavBar />
+
+          <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+            <div className="flex h-[75vh] min-h-[560px] flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm md:flex-row">
+              <SideBar />
+              <MapContainer />
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
-              <h2 className="text-xl font-semibold text-slate-900">Map</h2>
-              <p className="mt-2 text-sm text-slate-600">
-                Map container, markers, and directions.
-              </p>
-            </div>
-          </div>
+          </main>
         </div>
-      </div>
-    </div>
+      </FilterProvider>
+    </ServiceProvider>
   );
 }
 

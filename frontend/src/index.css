@@ -2,29 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  color-scheme: light;
+/* Leaflet container */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  z-index: 1;
 }
 
-html {
-  scroll-behavior: smooth;
+/* Fix for zoom control */
+.leaflet-control-zoom {
+  z-index: 1000 !important;
 }
 
-body {
-  margin: 0;
-  min-height: 100vh;
-  font-family:
-    Inter,
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
-  background-color: #f8fafc;
-  color: #0f172a;
+/* Map wrapper */
+.map-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
 }
 
+<<<<<<< HEAD
 #root {
   min-height: 100vh;
 }
@@ -66,4 +64,10 @@ body,
 
   font-size: 28px;
   color: #666;
+=======
+@media (max-width: 640px) {
+  .map-wrapper {
+    min-height: 350px;
+  }
+>>>>>>> 493eb1d48a930f755b8b0805aa321d5124b07b52
 }

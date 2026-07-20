@@ -1,34 +1,34 @@
+import LoginForm from "./features/auth/components/LoginForm";
+import SignUpForm from "./features/auth/components/SignUpForm";
 import "./index.css";
 
 function App() {
+  const isRegister = window.location.pathname === "/register";
+
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="rounded-3xl border border-slate-200 bg-white p-10 shadow-sm">
-          <h1 className="text-4xl font-semibold tracking-tight text-slate-900">
-            Service Finder
-          </h1>
-          <p className="mt-4 text-lg leading-8 text-slate-600">
-            React + TypeScript + TailwindCSS scaffold for the Service Finder
-            app.
-          </p>
-          <div className="mt-10 grid gap-4 sm:grid-cols-2">
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
-              <h2 className="text-xl font-semibold text-slate-900">Auth</h2>
-              <p className="mt-2 text-sm text-slate-600">
-                Login, register, and user context.
-              </p>
-            </div>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
-              <h2 className="text-xl font-semibold text-slate-900">Map</h2>
-              <p className="mt-2 text-sm text-slate-600">
-                Map container, markers, and directions.
-              </p>
-            </div>
+    <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-8 text-slate-900">
+      <section className="w-full max-w-[475px] rounded-[18px] bg-white px-6 py-7 shadow-2xl sm:px-8">
+        <div className="flex items-start justify-between gap-6">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-950">
+              {isRegister ? "Create your account" : "Sign in"}
+            </h1>
+            <p className="mt-1 text-base leading-5 text-slate-500">
+              Save routes, track your reports, and personalize ConnectWithUs.
+            </p>
           </div>
+          <a
+            href="/"
+            aria-label="Close"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xl leading-none text-slate-900 hover:bg-slate-200"
+          >
+            x
+          </a>
         </div>
-      </div>
-    </div>
+
+        {isRegister ? <SignUpForm /> : <LoginForm />}
+      </section>
+    </main>
   );
 }
 

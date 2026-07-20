@@ -1,4 +1,5 @@
 import "./index.css";
+import DirectionsForm from "./features/directions/components/DirectionsForm";
 
 function App() {
   return (
@@ -24,6 +25,16 @@ function App() {
               <p className="mt-2 text-sm text-slate-600">
                 Map container, markers, and directions.
               </p>
+            </div>
+          </div>
+
+          <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-6">
+            <h2 className="text-xl font-semibold text-slate-900">Directions</h2>
+            <p className="mt-2 text-sm text-slate-600">
+              Geolocation, route calculation, and turn-by-turn directions.
+            </p>
+            <div className="mt-4">
+              <DirectionsForm />
             </div>
           </div>
         </div>

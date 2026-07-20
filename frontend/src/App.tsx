@@ -8,6 +8,8 @@ import ProtectedRoute from "./components/layout/proctectedRouter";
 import { useAuthStore } from "./store/useAuthStore";
 import LoginForm from "./features/auth/components/LoginForm";
 import SignUpForm from "./features/auth/components/SignUpForm";
+import { useState } from "react";
+import FilterButtons from "./components/FilterButtons/FilterButtons";
 import "./index.css";
 
 
@@ -24,7 +26,20 @@ function App() {
 
   const isRegister = window.location.pathname === "/register";
 
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+
   return (
+    <div className="app">
+      <aside className="sidebar">
+        <FilterButtons
+          selectedCategories={selectedCategories}
+          onSelectionChange={setSelectedCategories}
+        />
+      </aside>
+
+      <main className="map-area">
+        <div className="map-placeholder">
+          Map goes here
     <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-8 text-slate-900">
       <section className="w-full max-w-[475px] rounded-[18px] bg-white px-6 py-7 shadow-2xl sm:px-8">
         <div className="flex items-start justify-between gap-6">
@@ -48,6 +63,8 @@ function App() {
         {isRegister ? <SignUpForm /> : <LoginForm />}
       </section>
     </main>
+      </main>
+    </div>
   );
 }
 

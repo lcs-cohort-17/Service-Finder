@@ -4,67 +4,39 @@ import Login from "./views/Login";
 import Dashboard from "./views/Dashboard";
 import Settings from "./views/Settings";
 import Users from "./views/Users";
-import ProtectedRoute from "./components/layout/proctectedRouter";
 import { useAuthStore } from "./store/useAuthStore";
-import LoginForm from "./features/auth/components/LoginForm";
-import SignUpForm from "./features/auth/components/SignUpForm";
-import { useState } from "react";
-import FilterButtons from "./components/FilterButtons/FilterButtons";
 import "./index.css";
 
-
 function App() {
-  const initAuthListener = useAuthStore((state) => state.initAuthListener);
+  const { user, loading, initAuthListener } = useAuthStore();
 
   useEffect(() => {
     const unsubscribe = initAuthListener();
-
-    return () => {
-      unsubscribe?.();
-    };
+    return () => unsubscribe?.();
   }, [initAuthListener]);
 
-  const isRegister = window.location.pathname === "/register";
-
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="mb-4 h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="app">
-      <aside className="sidebar">
-        <FilterButtons
-          selectedCategories={selectedCategories}
-          onSelectionChange={setSelectedCategories}
-        />
-      </aside>
-
-      <main className="map-area">
-        <div className="map-placeholder">
-          Map goes here
-    <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-8 text-slate-900">
-      <section className="w-full max-w-[475px] rounded-[18px] bg-white px-6 py-7 shadow-2xl sm:px-8">
-        <div className="flex items-start justify-between gap-6">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-950">
-              {isRegister ? "Create your account" : "Sign in"}
-            </h1>
-            <p className="mt-1 text-base leading-5 text-slate-500">
-              Save routes, track your reports, and personalize ConnectWithUs.
-            </p>
-          </div>
-          <a
-            href="/"
-            aria-label="Close"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xl leading-none text-slate-900 hover:bg-slate-200"
-          >
-            x
-          </a>
-        </div>
-
-        {isRegister ? <SignUpForm /> : <LoginForm />}
-      </section>
-    </main>
-      </main>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Navigate to={user ? "/dashboard" : "/login"} replace />} />
+        <Route path="/login" element={user ? <Navigate to="/dashboard" replace /> : <Login />} />
+        <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/login" replace />} />
+        <Route path="/users" element={user ? <Users /> : <Navigate to="/login" replace />} />
+        <Route path="/settings" element={user ? <Settings /> : <Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

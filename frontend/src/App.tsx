@@ -7,7 +7,7 @@ import Users from "./views/Users";
 import ProtectedRoute from "./components/layout/proctectedRouter";
 import { useAuthStore } from "./store/useAuthStore";
 import "./index.css";
-import Login from "./views/Login";
+
 
 function App() {
   const initAuthListener = useAuthStore((state) => state.initAuthListener);

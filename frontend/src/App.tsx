@@ -1,6 +1,11 @@
+import { useState } from "react";
+
+import FilterButtons from "./components/FilterButtons/FilterButtons";
 import "./index.css";
 
 function App() {
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
@@ -25,6 +30,12 @@ function App() {
                 Map container, markers, and directions.
               </p>
             </div>
+          </div>
+          <div className="mt-10">
+            <FilterButtons
+              selectedCategories={selectedCategories}
+              onSelectionChange={setSelectedCategories}
+            />
           </div>
         </div>
       </div>

@@ -1,3 +1,11 @@
+import { useEffect } from "react";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import Login from "./views/Login";
+import Dashboard from "./views/Dashboard";
+import Settings from "./views/Settings";
+import Users from "./views/Users";
+import ProtectedRoute from "./components/layout/proctectedRouter";
+import { useAuthStore } from "./store/useAuthStore";
 import { useState } from "react";
 import "./index.css";
 // Import your SearchBar component
@@ -6,7 +14,19 @@ import { SearchBar } from "./features/search/components/SearchBar";
 function App() {
   const [searchQuery, setSearchQuery] = useState("");
 
+  const initAuthListener = useAuthStore((state) => state.initAuthListener);
+
+  useEffect(() => {
+    const unsubscribe = initAuthListener();
+
+    return () => {
+      unsubscribe?.();
+    };
+  }, [initAuthListener]);
+
   return (
+
+    
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="rounded-3xl border border-slate-200 bg-white p-10 shadow-sm">
@@ -22,6 +42,7 @@ function App() {
               </p>
             </div>
             
+
             {/* Displaying your SearchBar right here */}
             <div className="w-full max-w-[460px]">
               <SearchBar 
@@ -48,6 +69,19 @@ function App() {
           </div>
         </div>
       </div>
+
+       <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/login" element={<Login />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/users" element={<Users />} />
+          <Route path="/settings" element={<Settings />} />
+        </Route>
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </BrowserRouter>
     </div>
   );
 }

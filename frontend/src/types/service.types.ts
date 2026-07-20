@@ -5,7 +5,7 @@ export interface Service {
   address: string;
   latitude: number;
   longitude: number;
-  status?: "approved" | "pending" | "rejected";
+  status?: "approved" | "pending" | "declined";
   source?: string;
   submittedBy?: string;
   createdAt?: string;

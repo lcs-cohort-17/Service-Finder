@@ -1,20 +1,18 @@
-import { useEffect } from "react";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { BrowserRouter, Navigate, Route, Routes, Link } from "react-router-dom";
 import Login from "./views/Login";
+import MapPage from "./views/MapPage";
 import Dashboard from "./views/Dashboard";
 import Settings from "./views/Settings";
 import Users from "./views/Users";
+// TODO: confirm this path — ProtectedRoute was used in the original file but never imported
+//import ProtectedRoute from "./components/ProtectedRoute";
 import { useAuthStore } from "./store/useAuthStore";
-import { useState } from "react";
 import "./index.css";
-// Import your SearchBar component
-import { SearchBar } from "./features/search/components/SearchBar";
 
 function App() {
   const { user, loading, initAuthListener } = useAuthStore();
   const [searchQuery, setSearchQuery] = useState("");
-
-  //const initAuthListener = useAuthStore((state) => state.initAuthListener);
 
   useEffect(() => {
     const unsubscribe = initAuthListener();
@@ -33,62 +31,45 @@ function App() {
   }
 
   return (
-
-    
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="rounded-3xl border border-slate-200 bg-white p-10 shadow-sm">
-          
-          {/* Layout Container to mimic its visual placement */}
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-            <div>
-              <h1 className="text-4xl font-semibold tracking-tight text-slate-900">
-                Service Finder
-              </h1>
-              <p className="mt-2 text-lg text-slate-600">
-                React + TypeScript + TailwindCSS scaffold for the Service Finder app.
-              </p>
-            </div>
-            
-
-            {/* Displaying your SearchBar right here */}
-            <div className="w-full max-w-[460px]">
-              <SearchBar 
-                value={searchQuery}
-                onSearchChange={(val) => setSearchQuery(val)}
-                onClear={() => setSearchQuery("")}
-              />
-            </div>
+    <BrowserRouter>
+      <div className="min-h-screen bg-gray-100">
+        <header className="bg-white shadow-sm px-4 py-3">
+          <div className="mx-auto flex max-w-7xl items-center justify-between">
+            <Link to="/" className="text-xl font-semibold text-gray-800">
+              Service Finder
+            </Link>
+            <nav className="flex gap-4 text-sm font-medium text-gray-600">
+              <Link to="/" className="hover:text-blue-600">
+                Map
+              </Link>
+              <Link to="/login" className="hover:text-blue-600">
+                Login
+              </Link>
+            </nav>
           </div>
+        </header>
 
-          <div className="mt-10 grid gap-4 sm:grid-cols-2">
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
-              <h2 className="text-xl font-semibold text-slate-900">Auth</h2>
-              <p className="mt-2 text-sm text-slate-600">
-                Login, register, and user context.
-              </p>
-            </div>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
-              <h2 className="text-xl font-semibold text-slate-900">Map</h2>
-              <p className="mt-2 text-sm text-slate-600">
-                Map container, markers, and directions.
-              </p>
-            </div>
-          </div>
-        </div>
+        <Routes>
+          {/* Public routes */}
+          <Route path="/" element={<MapPage />} />
+          <Route path="/map" element={<MapPage />} />
+          <Route
+            path="/login"
+            element={user ? <Navigate to="/dashboard" replace /> : <Login />}
+          />
+
+          {/* Protected routes */}
+          {/* <Route element={<ProtectedRoute />}> */}
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/users" element={<Users />} />
+            <Route path="/settings" element={<Settings />} />
+          {/* </Route> */}
+
+          {/* Single catch-all — was duplicated in the conflict */}
+          <Route path="*" element={<MapPage />} />
+        </Routes>
       </div>
-
-       <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Navigate to={user ? "/dashboard" : "/login"} replace />} />
-        <Route path="/login" element={user ? <Navigate to="/dashboard" replace /> : <Login />} />
-        <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/login" replace />} />
-        <Route path="/users" element={user ? <Users /> : <Navigate to="/login" replace />} />
-        <Route path="/settings" element={user ? <Settings /> : <Navigate to="/login" replace />} />
-        <Route path="*" element={<Navigate to="/login" replace />} />
-      </Routes>
     </BrowserRouter>
-    </div>
   );
 }
 

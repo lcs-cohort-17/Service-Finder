@@ -14,7 +14,7 @@ function App() {
   const { user, loading, initAuthListener } = useAuthStore();
   const [searchQuery, setSearchQuery] = useState("");
 
-  const initAuthListener = useAuthStore((state) => state.initAuthListener);
+  //const initAuthListener = useAuthStore((state) => state.initAuthListener);
 
   useEffect(() => {
     const unsubscribe = initAuthListener();

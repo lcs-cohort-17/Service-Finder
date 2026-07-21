@@ -25,8 +25,8 @@ export const LOCATIONS = {
   LONDON: [51.505, -0.09] as [number, number],
   NEW_YORK: [40.7128, -74.0060] as [number, number],
   TOKYO: [35.6762, 139.6503] as [number, number],
-  // Add your project's primary location
-  PROJECT_CENTER: [51.505, -0.09] as [number, number],
+  // The application's default service-search area (Cape Town)
+  PROJECT_CENTER: [-33.9249, 18.4241] as [number, number],
 };
 
 // Available tile layers (for future use)

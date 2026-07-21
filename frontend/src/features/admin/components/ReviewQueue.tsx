@@ -1,95 +1,95 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import SuggestionCard, { type Suggestion } from './SuggestionCard';
-
-/** @jsx React.createElement */
+import { approveSuggestion, getPendingSuggestions, rejectSuggestion } from '../../../api/serviceApi';
 
 export interface ReviewQueueProps {
-  /**
-   * Admin gating is normally decided by AdminDashboard (via useAuth) before
-   * ReviewQueue ever renders. This prop lets ReviewQueue also be used
-   * standalone in a preview/test harness without a real logged-in admin.
-   */
   isAdmin?: boolean;
 }
 
-// TODO(suggestions-ticket): replace with real suggestions fetched from
-// the backend (e.g. via useServiceStore) once that API exists. Mock data
-// keeps this ticket testable independently in the meantime.
-const MOCK_SUGGESTIONS: Suggestion[] = [
-  {
-    id: 'sugg-1',
-    name: 'Sunrise Community Clinic',
-    type: 'Clinic',
-    address: '12 Berea Road, Durban, 4001',
-    submittedBy: 'user_thandiwe',
-  },
-  {
-    id: 'sugg-2',
-    name: 'Westville Public Library',
-    type: 'Library',
-    address: '45 Jan Hofmeyr Road, Westville, 3629',
-    submittedBy: 'user_sipho',
-  },
-  {
-    id: 'sugg-3',
-    name: 'Overport Night Shelter',
-    type: 'Shelter',
-    address: '8 Overport Drive, Overport, 4067',
-    submittedBy: 'user_naledi',
-  },
-];
+interface LogEntry {
+  timestamp: string;
+  action: string;
+  suggestionName: string;
+}
 
-/**
- * ADMIN-010 / Admin Review Suggestions page content.
- * Lists pending service suggestions, each with Verify Location, Approve,
- * and Reject actions.
- */
 const ReviewQueue: React.FC<ReviewQueueProps> = ({ isAdmin }) => {
-  const [suggestions, setSuggestions] = useState<Suggestion[]>(MOCK_SUGGESTIONS);
-  const [log, setLog] = useState<string[]>([]);
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [log, setLog] = useState<LogEntry[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const addLog = (message: string): void => {
-    setLog((prev) => [`${new Date().toLocaleTimeString()} — ${message}`, ...prev]);
-  };
+  useEffect(() => {
+    const loadSuggestions = async (): Promise<void> => {
+      try {
+        setError(null);
+        setSuggestions(await getPendingSuggestions());
+      } catch (loadError) {
+        setError(loadError instanceof Error ? loadError.message : 'Unable to load suggestions.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    void loadSuggestions();
+  }, []);
 
-  const handleApprove = (id: string): void => {
-    const target = suggestions.find((s) => s.id === id);
-    if (target) addLog(`Approved: ${target.name}`);
-    setSuggestions((prev) => prev.filter((s) => s.id !== id));
-  };
+  const addLog = useCallback((action: string, suggestionName: string): void => {
+    setLog((previous) => [
+      { timestamp: new Date().toLocaleTimeString(), action, suggestionName },
+      ...previous,
+    ]);
+  }, []);
 
-  const handleReject = (id: string): void => {
-    const target = suggestions.find((s) => s.id === id);
-    if (target) addLog(`Rejected: ${target.name}`);
-    setSuggestions((prev) => prev.filter((s) => s.id !== id));
-  };
+  const handleApprove = useCallback(async (id: string): Promise<void> => {
+    const target = suggestions.find((suggestion) => suggestion.id === id);
+    if (!target) return;
+    try {
+      setError(null);
+      await approveSuggestion(id);
+      addLog('Approved', target.name);
+      setSuggestions((previous) => previous.filter((suggestion) => suggestion.id !== id));
+    } catch (actionError) {
+      setError(actionError instanceof Error ? actionError.message : 'Unable to approve suggestion.');
+    }
+  }, [suggestions, addLog]);
+
+  const handleReject = useCallback(async (id: string): Promise<void> => {
+    const target = suggestions.find((suggestion) => suggestion.id === id);
+    if (!target) return;
+    try {
+      setError(null);
+      await rejectSuggestion(id);
+      addLog('Rejected', target.name);
+      setSuggestions((previous) => previous.filter((suggestion) => suggestion.id !== id));
+    } catch (actionError) {
+      setError(actionError instanceof Error ? actionError.message : 'Unable to reject suggestion.');
+    }
+  }, [suggestions, addLog]);
+
+  const handleVerify = useCallback((address: string, suggestionId: string): void => {
+    const target = suggestions.find((suggestion) => suggestion.id === suggestionId);
+    if (target) addLog('Location verified (opened in Maps)', target.name);
+  }, [suggestions, addLog]);
 
   return (
     <div className="review-queue">
-      <h2>Review Suggestions</h2>
-
-      {suggestions.length === 0 && <p className="empty-state">No suggestions left to review.</p>}
-
-      {suggestions.map((suggestion) => (
-        <SuggestionCard
-          key={suggestion.id}
-          suggestion={suggestion}
-          onApprove={handleApprove}
-          onReject={handleReject}
-          isAdmin={isAdmin}
-        />
-      ))}
-
-      {log.length > 0 && (
-        <div className="review-queue-log">
-          <h3>Action Log</h3>
-          <ul>
-            {log.map((entry, i) => (
-              <li key={i}>{entry}</li>
-            ))}
-          </ul>
-        </div>
-      )}
+      <section className="review-queue-header">
+        <h2>Review Suggestions</h2>
+        <p className="review-queue-count">
+          {suggestions.length === 0 ? 'No suggestions to review' : `${suggestions.length} suggestion${suggestions.length !== 1 ? 's' : ''} pending`}
+        </p>
+      </section>
+      <section className="review-queue-content">
+        {isLoading ? <div className="empty-state"><p>Loading suggestions...</p></div>
+          : error ? <div className="empty-state" role="alert"><p>{error}</p></div>
+          : suggestions.length === 0 ? <div className="empty-state"><p>No suggestions left to review.</p></div>
+          : <div className="suggestions-list">
+              {suggestions.map((suggestion) => <SuggestionCard key={suggestion.id} suggestion={suggestion} onApprove={handleApprove} onReject={handleReject} onVerify={handleVerify} isAdmin={isAdmin} />)}
+            </div>}
+      </section>
+      {log.length > 0 && <section className="review-queue-log">
+        <h3>Action Log</h3>
+        <ul className="log-list">{log.map((entry, index) => <li key={index} className="log-entry"><span className="log-timestamp">{entry.timestamp}</span><span className="log-action">{entry.action}</span><span className="log-name">{entry.suggestionName}</span></li>)}</ul>
+      </section>}
     </div>
   );
 };

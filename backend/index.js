@@ -7,7 +7,8 @@ import serviceRoutes from './routes/serviceRoutes.js';
 const app = express();
 app.use(cors());
 app.use(express.json());
-const port = process.env.PORT;
+app.use('/api/services', serviceRoutes);
+const port = process.env.PORT || 3000;
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);

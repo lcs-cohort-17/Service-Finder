@@ -1,61 +1,130 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { useAuthStore } from '../../../store/useAuthStore';
 
+/**
+ * Props for the VerifyLocationButton component
+ * @interface VerifyLocationButtonProps
+ */
 export interface VerifyLocationButtonProps {
+  /** The address to verify */
   address: string;
+  /** Optional suggestion ID for tracking/logging */
   suggestionId?: string;
-  onVerify?: (address: string) => void;
-  /**
-   * Optional override for the admin check. Useful for preview/test harnesses
-   * where wiring up the real auth store isn't practical. When omitted,
-   * falls back to the real useAuthStore role check.
-   */
+  /** Optional callback when verify is triggered */
+  onVerify?: (address: string, suggestionId?: string) => void;
+  /** Optional override for admin role check (useful for testing) */
   isAdmin?: boolean;
+  /** Optional CSS class names */
+  className?: string;
 }
 
 /**
- * ADMIN-010: Verify Location Button
+ * ADMIN-011: Verify Location Button Component
  *
- * Displayed on each service suggestion in the Admin Review Suggestions page.
- * Lets an admin open the suggested address in Google Maps before
- * approving/rejecting. Only renders for authenticated users with the
- * "admin" role.
+ * A reusable button component that allows administrators to verify service
+ * suggestion addresses before approving or rejecting submissions. Opens
+ * the address in Google Maps for location verification.
+ *
+ * Features:
+ * - Admin-only visibility (role-based access control)
+ * - Opens address in Google Maps (new tab)
+ * - Logs verification actions
+ * - Full TypeScript typing
+ * - Accessible (ARIA labels, keyboard navigation)
+ * - Responsive design (works on mobile and desktop)
+ * - Loading state indicator
+ *
+ * @component
+ * @example
+ * ```tsx
+ * <VerifyLocationButton
+ *   address="123 Main St, City, Country"
+ *   suggestionId="sugg-123"
+ *   onVerify={(address, id) => console.log(`Verified: ${address}`)}
+ * />
+ * ```
  */
 const VerifyLocationButton: React.FC<VerifyLocationButtonProps> = ({
   address,
   suggestionId,
   onVerify,
   isAdmin,
+  className = '',
 }) => {
   const { user } = useAuthStore();
-  const hasAdminAccess = isAdmin ?? user?.role === 'admin';
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  // Determine if user has admin access
+  const hasAdminAccess: boolean = isAdmin ?? (user?.role === 'admin');
+
+  // Early return if not admin - don't render anything
   if (!hasAdminAccess) {
     return null;
   }
 
-  const handleVerify = (): void => {
-    if (onVerify) {
-      onVerify(address);
-      return;
-    }
+  /**
+   * Handles the verify location action
+   * Opens Google Maps in a new tab and triggers optional callback
+   */
+  const handleVerify = useCallback(async (): Promise<void> => {
+    setIsLoading(true);
 
-    const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
-    window.open(mapsUrl, '_blank', 'noopener,noreferrer');
+    try {
+      // Trigger optional callback if provided
+      if (onVerify) {
+        onVerify(address, suggestionId);
+      }
 
-    if (suggestionId) {
-      console.log(`Verifying address: "${address}" for suggestion: ${suggestionId}`);
+      // Build Google Maps URL with address
+      const mapsUrl = new URL('https://www.google.com/maps/search/');
+      mapsUrl.searchParams.set('api', '1');
+      mapsUrl.searchParams.set('query', address);
+
+      // Open in new tab with security options
+      const windowRef = window.open(
+        mapsUrl.toString(),
+        '_blank',
+        'noopener,noreferrer,width=1024,height=768'
+      );
+
+      // Log action for admin tracking
+      if (suggestionId) {
+        console.log(
+          `[ADMIN-011] Location verification initiated for suggestion "${suggestionId}"`,
+          {
+            address,
+            timestamp: new Date().toISOString(),
+            user: user?.email,
+          }
+        );
+      }
+
+      // Verify window opened successfully
+      if (!windowRef) {
+        console.warn('[ADMIN-011] Failed to open Maps window - popup may be blocked');
+      }
+    } catch (error) {
+      console.error('[ADMIN-011] Error during location verification:', error);
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, [address, suggestionId, onVerify, user?.email]);
 
   return (
     <button
       type="button"
-      className="verify-location-btn"
       onClick={handleVerify}
-      aria-label={`Verify location for ${address}`}
+      disabled={isLoading}
+      className={`verify-location-btn ${className} ${isLoading ? 'is-loading' : ''}`}
+      aria-label={`Verify location: ${address}`}
+      title={address}
     >
-      Verify Location
+      <span className="verify-location-icon" aria-hidden="true">
+        📍
+      </span>
+      <span className="verify-location-text">
+        {isLoading ? 'Verifying...' : 'Verify Location'}
+      </span>
     </button>
   );
 };

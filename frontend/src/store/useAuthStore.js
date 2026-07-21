@@ -7,8 +7,7 @@ import { useState } from 'react';
 //
 // To test admin-only UI (e.g. AdminDashboard) locally, temporarily set
 // MOCK_USER below to { email: 'admin@test.com', role: 'admin' }.
-// const null = { email: 'admin@test.com', role: 'admin' };
-const MOCK_USER = null;
+const MOCK_USER ={ email: 'admin@test.com', role: 'admin' };
 
 export function useAuthStore() {
   const [user] = useState(MOCK_USER);

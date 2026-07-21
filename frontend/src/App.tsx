@@ -1,38 +1,58 @@
-import { useEffect } from "react";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import Login from "./views/Login";
-import Dashboard from "./views/Dashboard";
-import Settings from "./views/Settings";
-import Users from "./views/Users";
-import ProtectedRoute from "./components/layout/proctectedRouter";
-import { useAuthStore } from "./store/useAuthStore";
-import "./index.css";
+import { useEffect, useState } from "react";
+import { Route, Routes } from "react-router-dom";
 
+import NavBar from "./components/layout/NavBar";
+import { AuthModal } from "./features/auth/components/AuthModal";
+
+import ProfilePage from "./features/profile/pages/ProfilePage";
+import OverviewTab from "./features/profile/components/OverviewTab";
+import SavedRoutesTab from "./features/profile/components/SavedRoutesTab";
+import ReportHistoryTab from "./features/profile/components/ReportHistoryTab";
+import SettingsTab from "./features/profile/components/SettingsTab";
+
+import { useAuthStore } from "./store/useAuthStore";
+
+function Home() {
+  return (
+    <section className="mx-auto max-w-5xl px-4 py-16 text-center sm:px-6 lg:px-8">
+      <h1 className="text-4xl font-semibold tracking-tight text-slate-900">
+        find-a-service
+      </h1>
+    </section>
+  );
+}
 
 function App() {
-  const initAuthListener = useAuthStore((state) => state.initAuthListener);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   useEffect(() => {
-    const unsubscribe = initAuthListener();
-
-    return () => {
-      unsubscribe?.();
-    };
-  }, [initAuthListener]);
+    if (isAuthenticated) {
+      setIsAuthOpen(false);
+    }
+  }, [isAuthenticated]);
 
   return (
-    <BrowserRouter>
+    <div className="min-h-screen bg-slate-50 text-slate-900">
+      <NavBar onSignIn={() => setIsAuthOpen(true)} />
+
       <Routes>
-        <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route path="/login" element={<Login />} />
-        <Route element={<ProtectedRoute />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/users" element={<Users />} />
-          <Route path="/settings" element={<Settings />} />
+        <Route path="/" element={<Home />} />
+
+        <Route path="/profile" element={<ProfilePage />}>
+          <Route index element={<OverviewTab />} />
+          <Route path="saved-routes" element={<SavedRoutesTab />} />
+          <Route path="report-history" element={<ReportHistoryTab />} />
+          <Route path="settings" element={<SettingsTab />} />
         </Route>
-        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
-    </BrowserRouter>
+
+      <AuthModal
+        isOpen={isAuthOpen}
+        onClose={() => setIsAuthOpen(false)}
+      />
+    </div>
   );
 }
 

@@ -128,14 +128,23 @@ const MapContainer: React.FC<MapContainerProps> = ({
             position={marker.position}
             icon={marker.icon ? createCustomIcon(marker.icon) : createLocationPinIcon()}
             title={marker.title}
+            eventHandlers={{
+              click: marker.onClick,
+              mouseover: (event) => event.target.openPopup(),
+              mouseout: (event) => {
+                if (!marker.isSelected) event.target.closePopup();
+              },
+            }}
           >
-            {marker.description && (
+            {(marker.popupContent || marker.description) && (
               <Popup>
-                <div className="p-2 max-w-xs">
+                <div className={marker.popupContent ? 'marker-popup-shell' : 'p-2 max-w-xs'}>
+                  {marker.popupContent ?? <>
                   {marker.title && (
                     <h3 className="font-bold text-lg mb-1">{marker.title}</h3>
                   )}
                   <p className="text-sm text-gray-600">{marker.description}</p>
+                  </>}
                 </div>
               </Popup>
             )}

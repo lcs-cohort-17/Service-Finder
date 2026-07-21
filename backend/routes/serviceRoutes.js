@@ -4,14 +4,16 @@ import { fetchApprovedServices, getApprovedCurrentUserSuggestedServices, getDecl
 import { requireRole, verifyToken } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
-router.get("/approved", verifyToken, requireRole(['user', 'admin']), fetchApprovedServices);
+// Public map data: visitors can browse approved services without an account.
+// Write/moderation routes below remain protected.
+router.get("/approved", fetchApprovedServices);
 router.get('/declined', verifyToken, requireRole(['admin']), getDeclinedServices);
 router.get('/pending', verifyToken, requireRole(['admin']), getPendingServices);
 router.post('/suggest', verifyToken, requireRole(['user', 'admin']), validateSubmission, submitService);
 router.get('/suggested/declined', verifyToken, requireRole(['user', 'admin']), getDeclinedCurrentUserSuggestedServices);
 router.get("/suggested/approved", verifyToken, requireRole(['user', 'admin']), getApprovedCurrentUserSuggestedServices);
 router.get('/suggested/pending', verifyToken, requireRole(['user', 'admin']), getPendingCurrentUserSuggestedServices);
-router.get("/approved/stream", verifyToken, requireRole(['user', 'admin']), streamApprovedServices);
+router.get("/approved/stream", streamApprovedServices);
 router.post('/seed', verifyToken, requireRole(['admin']), seedFromOverpassCon);
 router.patch('/moderate/:id', verifyToken, requireRole(['admin']), moderateService);
 export default router

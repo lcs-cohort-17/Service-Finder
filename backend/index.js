@@ -9,7 +9,8 @@ import errorHandler from './middleware/errorHandler.js';
 const app = express();
 app.use(cors());
 app.use(express.json());
-const port = process.env.PORT;
+// Keep this aligned with the frontend's VITE_BACKEND_PORT fallback.
+const port = Number(process.env.PORT) || 1818;
 // 2. Keep the database health check diagnostic connection probe active
 app.get("/test", async (req, res) => {
   try {

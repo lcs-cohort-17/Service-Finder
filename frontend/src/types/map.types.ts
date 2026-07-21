@@ -4,6 +4,7 @@
 
 // src/types/map.types.ts
 import { LatLngBounds, LatLngExpression, Map as LeafletMap } from 'leaflet';
+import type { ReactNode } from 'react';
 
 export interface MapConfig {
   defaultCenter: LatLngExpression;
@@ -22,6 +23,9 @@ export interface MapMarker {
   title?: string;
   description?: string;
   icon?: string;
+  onClick?: () => void;
+  popupContent?: ReactNode;
+  isSelected?: boolean;
 }
 
 export interface MapState {

@@ -4,8 +4,7 @@ import { fetchApprovedServices, getApprovedCurrentUserSuggestedServices, getDecl
 import { requireRole, verifyToken } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
-// Public map data: visitors can browse approved services without an account.
-// Write/moderation routes below remain protected.
+// Public map data: visitors may browse approved services without logging in.
 router.get("/approved", fetchApprovedServices);
 router.get('/declined', verifyToken, requireRole(['admin']), getDeclinedServices);
 router.get('/pending', verifyToken, requireRole(['admin']), getPendingServices);

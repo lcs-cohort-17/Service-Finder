@@ -4,6 +4,7 @@ import 'dotenv/config';
 import serviceAccount from './config/serviceAccountKey.json' with {type: 'json'}
 import userRoutes  from "./routes/userRoutes.js";
 import serviceRoutes  from "./routes/serviceRoutes.js";
+import directionsRoutes  from "./routes/directionsRoutes.js";
 import { db } from './config/firebase.js';
 import errorHandler from './middleware/errorHandler.js';
 const app = express();
@@ -48,6 +49,7 @@ app.get("/firestore-test", async (req, res) => {
 console.log("ACTUAL PROJECT IN USE:", serviceAccount.project_id);
 app.use('/api/users', userRoutes);
 app.use('/api/services', serviceRoutes);
+app.use('/api/directions', directionsRoutes);
 app.use(errorHandler);
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);

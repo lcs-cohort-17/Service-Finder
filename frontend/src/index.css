@@ -28,3 +28,42 @@ body {
 #root {
   min-height: 100vh;
 }
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+}
+
+.app {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  background: #f4f6fa;
+}
+
+.sidebar {
+  width: 420px;
+  background: white;
+  border-right: 1px solid #e5e7eb;
+
+  display: flex;
+  flex-direction: column;
+
+  overflow-y: auto;
+}
+
+.map-area {
+  flex: 1;
+  background: #d9d9d9;
+}
+
+.map-placeholder {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font-size: 28px;
+  color: #666;
+}

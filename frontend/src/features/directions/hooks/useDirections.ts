@@ -1,7 +1,14 @@
-// frontend/src/features/directions/hooks/useDirections.ts
 import { useState, useCallback, useRef } from "react";
 import { getRoute as getRouteFromService } from "../services/routeService";
-import type { Coordinates, TransportMode, RouteResult } from "../../../types/directions.types";
+import type {
+  Coordinates,
+  TransportMode,
+  RouteResult,
+} from "../../../types/directions.types";
+
+/* ========= Directions-005 ========= */
+import { useRouteStore } from "../../../store/useRouteStore";
+/* ================================== */
 
 interface LastRequest {
   origin: Coordinates;
@@ -13,7 +20,11 @@ interface UseDirectionsResult {
   route: RouteResult | null;
   loading: boolean;
   error: string | null;
-  getRoute: (origin: Coordinates, destination: Coordinates, mode: TransportMode) => Promise<void>;
+  getRoute: (
+    origin: Coordinates,
+    destination: Coordinates,
+    mode: TransportMode
+  ) => Promise<void>;
   retry: () => void;
   clearRoute: () => void;
 }
@@ -25,12 +36,25 @@ export function useDirections(): UseDirectionsResult {
   const lastRequestRef = useRef<LastRequest | null>(null);
 
   const getRoute = useCallback(
-    async (origin: Coordinates, destination: Coordinates, mode: TransportMode) => {
-      lastRequestRef.current = { origin, destination, mode };
+    async (
+      origin: Coordinates,
+      destination: Coordinates,
+      mode: TransportMode
+    ) => {
+      lastRequestRef.current = {
+        origin,
+        destination,
+        mode,
+      };
+
       setLoading(true);
       setError(null);
 
-      const result = await getRouteFromService(origin, destination, mode);
+      const result = await getRouteFromService(
+        origin,
+        destination,
+        mode
+      );
 
       if (result.success === false) {
         setError(result.error);
@@ -40,6 +64,39 @@ export function useDirections(): UseDirectionsResult {
       }
 
       setRoute(result.route);
+
+      /* ========= Directions-005 ========= */
+
+      const navigation = useRouteStore.getState();
+
+      navigation.setOrigin(
+        `${origin.lat}, ${origin.lng}`
+      );
+
+      navigation.setDestination(
+        `${destination.lat}, ${destination.lng}`
+      );
+
+      navigation.setRouteCoordinates(
+        result.route.polyline
+      );
+
+      navigation.setInstructions(
+        result.route.instructions.map(
+          (step) => step.instruction
+        )
+      );
+
+      navigation.setDistance(
+        `${(result.route.distance / 1000).toFixed(1)} km`
+      );
+
+      navigation.setEta(
+        `${Math.round(result.route.duration / 60)} min`
+      );
+
+      /* ================================== */
+
       setError(null);
       setLoading(false);
     },
@@ -48,15 +105,37 @@ export function useDirections(): UseDirectionsResult {
 
   const retry = useCallback(() => {
     const last = lastRequestRef.current;
+
     if (!last) return;
-    getRoute(last.origin, last.destination, last.mode);
+
+    getRoute(
+      last.origin,
+      last.destination,
+      last.mode
+    );
   }, [getRoute]);
 
   const clearRoute = useCallback(() => {
     setRoute(null);
     setError(null);
     lastRequestRef.current = null;
+
+    /* ========= Directions-005 ========= */
+
+    useRouteStore
+      .getState()
+      .resetNavigation();
+
+    /* ================================== */
+
   }, []);
 
-  return { route, loading, error, getRoute, retry, clearRoute };
+  return {
+    route,
+    loading,
+    error,
+    getRoute,
+    retry,
+    clearRoute,
+  };
 }

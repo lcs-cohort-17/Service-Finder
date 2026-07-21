@@ -1,4 +1,5 @@
 // frontend/src/features/directions/components/DirectionsForm.tsx
+
 import { useState } from "react";
 import { useGeolocation } from "../../../hooks/useGeolocation";
 import { useDirections } from "../hooks/useDirections";
@@ -15,7 +16,16 @@ function DirectionsForm() {
     getCurrentLocation,
   } = useGeolocation();
 
-  const { route, loading: routeLoading, error: routeError, getRoute, retry } = useDirections();
+  // ========= Directions-005 =========
+  const {
+    route,
+    loading: routeLoading,
+    error: routeError,
+    getRoute,
+    retry,
+    clearRoute,
+  } = useDirections();
+  // ==================================
 
   const [mode, setMode] = useState<TransportMode>("driving");
   const [destinationLat, setDestinationLat] = useState("");
@@ -28,6 +38,7 @@ function DirectionsForm() {
 
     const lat = parseFloat(destinationLat);
     const lng = parseFloat(destinationLng);
+
     if (Number.isNaN(lat) || Number.isNaN(lng)) return;
 
     getRoute(origin, { lat, lng }, mode);
@@ -36,13 +47,20 @@ function DirectionsForm() {
   return (
     <div className="directions-form">
       <div className="directions-origin">
-        <button type="button" onClick={getCurrentLocation} disabled={locationLoading}>
-          {locationLoading ? "Getting your location..." : "Use Current Location"}
+        <button
+          type="button"
+          onClick={getCurrentLocation}
+          disabled={locationLoading}
+        >
+          {locationLoading
+            ? "Getting your location..."
+            : "Use Current Location"}
         </button>
 
         {permissionState === "denied" && !locationLoading && (
           <p className="location-hint" role="status">
-            Location access is blocked. Enable it in your browser settings to use this feature.
+            Location access is blocked. Enable it in your browser settings to
+            use this feature.
           </p>
         )}
 
@@ -59,7 +77,10 @@ function DirectionsForm() {
         )}
       </div>
 
-      <form onSubmit={handleSubmit} className="directions-destination">
+      <form
+        onSubmit={handleSubmit}
+        className="directions-destination"
+      >
         <input
           type="text"
           placeholder="Destination latitude"
@@ -67,6 +88,7 @@ function DirectionsForm() {
           onChange={(e) => setDestinationLat(e.target.value)}
           required
         />
+
         <input
           type="text"
           placeholder="Destination longitude"
@@ -75,17 +97,40 @@ function DirectionsForm() {
           required
         />
 
-        <ModeSelector value={mode} onChange={setMode} />
+        <ModeSelector
+          value={mode}
+          onChange={setMode}
+        />
 
-        <button type="submit" disabled={!origin || routeLoading}>
-          {routeLoading ? "Calculating route..." : "Get Directions"}
-        </button>
+        <div className="mt-4 flex gap-3">
+          <button
+            type="submit"
+            disabled={!origin || routeLoading}
+          >
+            {routeLoading
+              ? "Calculating route..."
+              : "Get Directions"}
+          </button>
+
+          {/* ========= Directions-005 ========= */}
+          <button
+            type="button"
+            onClick={clearRoute}
+          >
+            Clear Route
+          </button>
+          {/* ================================== */}
+        </div>
       </form>
 
       {routeError && (
         <div className="directions-error">
           <p role="alert">{routeError}</p>
-          <button type="button" onClick={retry}>
+
+          <button
+            type="button"
+            onClick={retry}
+          >
             Retry
           </button>
         </div>
@@ -97,7 +142,10 @@ function DirectionsForm() {
             Distance: {(route.distance / 1000).toFixed(1)} km — ETA:{" "}
             {Math.round(route.duration / 60)} min
           </p>
-          <TurnByList instructions={route.instructions} />
+
+          <TurnByList
+            instructions={route.instructions}
+          />
         </div>
       )}
     </div>

@@ -1,4 +1,5 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import type { Map as LeafletMap } from 'leaflet';
 import MapContainer from './map/MapContainer';
 import { useServiceStore } from '../store/useServiceStore';
 import { useFilteredServices } from '../features/filters/hooks/usefilters';
@@ -6,8 +7,9 @@ import { getCategoryMarkerIconUrl } from '../components/FilterButtons/categorySt
 import { getCategoryStyle } from '../components/FilterButtons/categoryStyles';
 import { getDirectionsUrl } from '../utils/urlGenerators';
 import { MapPin, Navigation } from 'lucide-react';
+import { useSearch } from '../features/search/hooks/useSearch';
 
-interface MapPageProps { selectedCategories: string[]; }
+interface MapPageProps { selectedCategories: string[]; searchQuery: string; }
 
 function DirectionsButton({ latitude, longitude }: { latitude: number; longitude: number }) {
   const openDirections = () => {
@@ -36,11 +38,19 @@ function DirectionsButton({ latitude, longitude }: { latitude: number; longitude
   return <button className="directions-button" type="button" onClick={openDirections}><Navigation size={16} />Get directions</button>;
 }
 
-export default function MapPage({ selectedCategories }: MapPageProps) {
+export default function MapPage({ selectedCategories, searchQuery }: MapPageProps) {
   const { services, loading, error, selectedService, fetchAllServices, selectService } = useServiceStore();
+  const [map, setMap] = useState<LeafletMap | null>(null);
   useEffect(() => { void fetchAllServices(); }, [fetchAllServices]);
   const filteredServices = useFilteredServices(services, selectedCategories);
-  const markers = useMemo(() => filteredServices.map((service) => ({
+  const searchResults = useSearch(services, searchQuery);
+  // A typed search takes priority over the category filters so selecting a
+  // suggestion can reveal and focus a service from any category.
+  const visibleServices = searchQuery.trim() ? searchResults : filteredServices;
+  useEffect(() => {
+    if (selectedService && map) map.setView([selectedService.latitude, selectedService.longitude], Math.max(map.getZoom(), 15), { animate: true });
+  }, [map, selectedService]);
+  const markers = useMemo(() => visibleServices.map((service) => ({
     id: service.id,
     position: [service.latitude, service.longitude] as [number, number],
     title: service.name,
@@ -58,13 +68,14 @@ export default function MapPage({ selectedCategories }: MapPageProps) {
         <DirectionsButton latitude={service.latitude} longitude={service.longitude} />
       </div>
     ) : undefined,
-  })), [filteredServices, selectService, selectedService]);
+  })), [visibleServices, selectService, selectedService]);
 
   return (
     <main className="map-area">
-      <MapContainer center={[-33.9249, 18.4241]} zoom={13} markers={markers} containerClassName="map-surface" />
+      <MapContainer center={[-33.9249, 18.4241]} zoom={13} markers={markers} selectedMarkerId={selectedService?.id} onReady={setMap} containerClassName="map-surface" />
       {loading && <p className="map-status">Loading services…</p>}
       {error && <p className="map-status map-error">{error}</p>}
+      {!loading && !error && searchQuery.trim() && markers.length === 0 && <p className="map-status">No matching services found</p>}
     </main>
   );
 }

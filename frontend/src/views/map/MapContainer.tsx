@@ -24,6 +24,7 @@ interface MapContainerProps extends MapComponentProps {
   height?: string | number;
   width?: string | number;
   containerClassName?: string;
+  selectedMarkerId?: string;
 }
 
 // Map event handler component
@@ -68,8 +69,10 @@ const MapContainer: React.FC<MapContainerProps> = ({
   onZoom,
   onReady,
   onClick,
+  selectedMarkerId,
 }) => {
   const mapRef = useRef<L.Map | null>(null);
+  const markerRefs = useRef<Record<string, L.Marker>>({});
   const [isMapReady, setIsMapReady] = useState(false);
 
   // Handle map initialization
@@ -81,6 +84,10 @@ const MapContainer: React.FC<MapContainerProps> = ({
       }
     }
   }, [onReady, isMapReady]);
+
+  useEffect(() => {
+    if (selectedMarkerId) markerRefs.current[selectedMarkerId]?.openPopup();
+  }, [selectedMarkerId]);
 
   return (
     <div
@@ -128,6 +135,7 @@ const MapContainer: React.FC<MapContainerProps> = ({
             position={marker.position}
             icon={marker.icon ? createCustomIcon(marker.icon) : createLocationPinIcon()}
             title={marker.title}
+            ref={(leafletMarker) => { if (leafletMarker) markerRefs.current[marker.id] = leafletMarker; }}
             eventHandlers={{
               click: marker.onClick,
               mouseover: (event) => event.target.openPopup(),

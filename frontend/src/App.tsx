@@ -5,6 +5,7 @@ import MapPage from "./views/MapPage";
 import Dashboard from "./views/Dashboard";
 import Settings from "./views/Settings";
 import Users from "./views/Users";
+import DirectionsPage from "./features/directions/DirectionsPage";
 // import ProtectedRoute from "./components/ProtectedRoute";
 import { useAuthStore } from "./store/useAuthStore";
 import "./index.css";
@@ -41,7 +42,9 @@ function App() {
               <Link to="/" className="hover:text-blue-600">
                 Map
               </Link>
-
+              <Link to="/directions" className="hover:text-blue-600">
+                Directions
+              </Link>
               <Link to="/login" className="hover:text-blue-600">
                 Login
               </Link>
@@ -50,21 +53,16 @@ function App() {
         </header>
 
         <Routes>
-          {/* Public routes */}
           <Route path="/" element={<MapPage />} />
           <Route path="/map" element={<MapPage />} />
+          <Route path="/directions" element={<DirectionsPage />} />
           <Route
             path="/login"
             element={user ? <Navigate to="/dashboard" replace /> : <Login />}
           />
-
-          {/* Protected routes */}
-          {/* <Route element={<ProtectedRoute />}> */}
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/users" element={<Users />} />
           <Route path="/settings" element={<Settings />} />
-          {/* </Route> */}
-
           <Route path="*" element={<MapPage />} />
         </Routes>
       </div>
@@ -73,29 +71,3 @@ function App() {
 }
 
 export default App;
-*/
-
-import React from 'react'
-import DirectionsPage from './features/directions/DirectionsPage'
-
-function App() {
-  return (
-    <div className="min-h-screen h-screen overflow-hidden bg-gray-100 flex flex-col">
-      <header className="bg-white shadow-sm px-4 py-3 flex-shrink-0">
-        <div className="mx-auto max-w-7xl">
-          <h1 className="text-xl font-semibold text-gray-800">Service Finder</h1>
-        </div>
-      </header>
-
-      <main className="flex-1 min-h-0 p-3 sm:p-4 md:p-5">
-        <div className="mx-auto flex h-full max-w-7xl flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg">
-          <div className="flex-1 min-h-0 w-full">
-            <DirectionsPage />
-          </div>
-        </div>
-      </main>
-    </div>
-  )
-}
-
-export default App

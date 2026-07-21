@@ -4,7 +4,6 @@ import Login from "./views/Login";
 import Dashboard from "./views/Dashboard";
 import Settings from "./views/Settings";
 import Users from "./views/Users";
-import ProtectedRoute from "./components/layout/proctectedRouter";
 import { useAuthStore } from "./store/useAuthStore";
 import { useState } from "react";
 import "./index.css";
@@ -12,17 +11,26 @@ import "./index.css";
 import { SearchBar } from "./features/search/components/SearchBar";
 
 function App() {
+  const { user, loading, initAuthListener } = useAuthStore();
   const [searchQuery, setSearchQuery] = useState("");
 
   const initAuthListener = useAuthStore((state) => state.initAuthListener);
 
   useEffect(() => {
     const unsubscribe = initAuthListener();
-
-    return () => {
-      unsubscribe?.();
-    };
+    return () => unsubscribe?.();
   }, [initAuthListener]);
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="mb-4 h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
 
@@ -72,13 +80,11 @@ function App() {
 
        <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route path="/login" element={<Login />} />
-        <Route element={<ProtectedRoute />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/users" element={<Users />} />
-          <Route path="/settings" element={<Settings />} />
-        </Route>
+        <Route path="/" element={<Navigate to={user ? "/dashboard" : "/login"} replace />} />
+        <Route path="/login" element={user ? <Navigate to="/dashboard" replace /> : <Login />} />
+        <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/login" replace />} />
+        <Route path="/users" element={user ? <Users /> : <Navigate to="/login" replace />} />
+        <Route path="/settings" element={user ? <Settings /> : <Navigate to="/login" replace />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>

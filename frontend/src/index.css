@@ -28,3 +28,103 @@ body {
 #root {
   min-height: 100vh;
 }
+
+/* --- ADMIN-010: Review Suggestions / Verify Location Button --- */
+.access-denied {
+  text-align: center;
+  padding: 40px;
+  font-size: 1.2rem;
+  color: #e74c3c;
+}
+
+.admin-dashboard {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px;
+  font-family: sans-serif;
+}
+
+.admin-header {
+  margin-bottom: 24px;
+}
+
+.review-queue h2 {
+  margin-bottom: 16px;
+}
+
+.review-queue .empty-state {
+  color: #6b7280;
+}
+
+.suggestion-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.suggestion-type {
+  color: #6b7280;
+}
+
+.suggestion-address {
+  margin: 4px 0;
+  color: #374151;
+}
+
+.suggestion-submitted-by {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.suggestion-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.verify-location-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 6px;
+  border: 1px solid #2563eb;
+  background-color: transparent;
+  color: #2563eb;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.verify-location-btn:hover {
+  background-color: #2563eb;
+  color: #ffffff;
+}
+
+.verify-location-btn:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+@media (max-width: 767px) {
+  .suggestion-actions {
+    width: 100%;
+  }
+  .suggestion-actions button {
+    flex: 1;
+  }
+}
+
+.review-queue-log {
+  margin-top: 32px;
+  font-size: 0.875rem;
+  color: #4b5563;
+}

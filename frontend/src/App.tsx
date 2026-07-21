@@ -1,35 +1,15 @@
 import "./index.css";
+import AdminDashboard from "./features/admin/pages/AdminDashboard";
 
+// TEMP: rendering AdminDashboard directly so ADMIN-010 is reachable for
+// testing without a router yet. Swap back to the real landing page /
+// routing once that's set up.
+//
+// To actually see the dashboard (rather than "Access Denied"), open
+// src/store/useAuthStore.js and set MOCK_USER to
+// { email: 'admin@test.com', role: 'admin' }.
 function App() {
-  return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="rounded-3xl border border-slate-200 bg-white p-10 shadow-sm">
-          <h1 className="text-4xl font-semibold tracking-tight text-slate-900">
-            Service Finder
-          </h1>
-          <p className="mt-4 text-lg leading-8 text-slate-600">
-            React + TypeScript + TailwindCSS scaffold for the Service Finder
-            app.
-          </p>
-          <div className="mt-10 grid gap-4 sm:grid-cols-2">
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
-              <h2 className="text-xl font-semibold text-slate-900">Auth</h2>
-              <p className="mt-2 text-sm text-slate-600">
-                Login, register, and user context.
-              </p>
-            </div>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
-              <h2 className="text-xl font-semibold text-slate-900">Map</h2>
-              <p className="mt-2 text-sm text-slate-600">
-                Map container, markers, and directions.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  return <AdminDashboard />;
 }
 
 export default App;

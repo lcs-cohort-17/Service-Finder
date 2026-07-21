@@ -1,23 +1,25 @@
-// Minimal shape the map layer needs. Intentionally narrower than the
-// full Service model (no phone/website/openingHours/etc) to keep
-// marker payloads light at scale.
-export interface MapService {
-  id: string | number;n
-  name: string;
-  category: string;
-  address: string;
-  lat: number;
-  lng: number;
-}
+import type { CategoryKey } from "../components/FilterButtons/categoryStyles";
 
-// Shape of the raw approved-service objects coming back from
-// GET /api/services (mirrors Service.toFirestore() on the backend).
-export interface RawService {
-  id: string | number;
-  name?: string;
-  category?: string;
+/**
+ * Where a given Service record originated from.
+ * Services can be sourced from our own Firestore database
+ * (user-submitted / verified listings) or from an external API
+ * such as Overpass.
+ */
+export type ServiceSource = "firestore" | "overpass";
+
+/**
+ * Canonical shape of a service displayed on the map.
+ * Both the Firestore-backed data and the external API data
+ * should be normalized into this shape before being rendered
+ * or filtered.
+ */
+export interface Service {
+  id: string;
+  name: string;
+  category: CategoryKey;
+  latitude: number;
+  longitude: number;
   address?: string;
-  latitude?: number;
-  longitude?: number;
-  [key: string]: unknown;
+  source: ServiceSource;
 }

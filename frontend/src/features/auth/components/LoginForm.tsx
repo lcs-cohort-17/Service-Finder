@@ -1,22 +1,41 @@
 import { FormEvent, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuthStore } from "../../../store/useAuthStore";
 
 function LoginForm() {
+  const login = useAuthStore((s) => s.login);
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // TODO: Connect this form to the authentication flow when it is available.
+    setError("");
+
+    if (!email || !password) {
+      setError("Enter an email and password.");
+      return;
+    }
+
+    setSubmitting(true);
+    const user = await login(email, password);
+    setSubmitting(false);
+
+    if (!user) {
+      setError(useAuthStore.getState().error || "Incorrect email or password.");
+      return;
+    }
+
+    navigate("/"); // or wherever a logged-in user should land
   };
 
   return (
     <form className="mt-4 space-y-4" onSubmit={handleSubmit}>
       <div className="space-y-3">
         <div>
-          <label
-            htmlFor="email"
-            className="block text-sm font-semibold text-slate-600"
-          >
+          <label htmlFor="email" className="block text-sm font-semibold text-slate-600">
             Email
           </label>
           <input
@@ -31,12 +50,8 @@ function LoginForm() {
             placeholder="you@example.com"
           />
         </div>
-
         <div>
-          <label
-            htmlFor="password"
-            className="block text-sm font-semibold text-slate-600"
-          >
+          <label htmlFor="password" className="block text-sm font-semibold text-slate-600">
             Password
           </label>
           <input
@@ -53,21 +68,21 @@ function LoginForm() {
         </div>
       </div>
 
+      {error && <p className="text-sm font-medium text-red-600">{error}</p>}
+
       <button
         type="submit"
-        className="flex w-full items-center justify-center rounded-xl bg-teal-700 px-4 py-3 text-sm font-bold text-white transition hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-700 focus:ring-offset-2"
+        disabled={submitting}
+        className="flex w-full items-center justify-center rounded-xl bg-teal-700 px-4 py-3 text-sm font-bold text-white transition hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-700 focus:ring-offset-2 disabled:opacity-50"
       >
-        Sign in
+        {submitting ? "Signing in…" : "Sign in"}
       </button>
 
       <p className="text-center text-base text-slate-500">
         Don't have an account?{" "}
-        <a
-          href="/register"
-          className="font-bold text-teal-700 underline-offset-4 hover:underline"
-        >
+        <Link to="/register" className="font-bold text-teal-700 underline-offset-4 hover:underline">
           Sign up
-        </a>
+        </Link>
       </p>
     </form>
   );

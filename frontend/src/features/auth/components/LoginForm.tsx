@@ -1,10 +1,12 @@
 import { FormEvent, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../../store/useAuthStore";
 
-function LoginForm() {
+type LoginFormProps = {
+  onSuccess?: () => void;
+};
+
+function LoginForm({ onSuccess }: LoginFormProps) {
   const login = useAuthStore((s) => s.login);
-  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -28,7 +30,7 @@ function LoginForm() {
       return;
     }
 
-    navigate("/"); // or wherever a logged-in user should land
+    onSuccess?.();
   };
 
   return (
@@ -77,13 +79,6 @@ function LoginForm() {
       >
         {submitting ? "Signing in…" : "Sign in"}
       </button>
-
-      <p className="text-center text-base text-slate-500">
-        Don't have an account?{" "}
-        <Link to="/register" className="font-bold text-teal-700 underline-offset-4 hover:underline">
-          Sign up
-        </Link>
-      </p>
     </form>
   );
 }

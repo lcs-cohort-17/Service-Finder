@@ -1,11 +1,13 @@
 import { FormEvent, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../../store/useAuthStore";
 
-function SignUpForm() {
+type SignUpFormProps = {
+  onSuccess?: () => void;
+};
+
+function SignUpForm({ onSuccess }: SignUpFormProps) {
   const register = useAuthStore((s) => s.register);
   const login = useAuthStore((s) => s.login);
-  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -43,7 +45,7 @@ function SignUpForm() {
 
     await login(email, password);
     setSubmitting(false);
-    navigate("/");
+    onSuccess?.();
   };
 
   return (
@@ -126,13 +128,6 @@ function SignUpForm() {
       >
         {submitting ? "Creating account…" : "Create account"}
       </button>
-
-      <p className="text-center text-base text-slate-500">
-        Already have an account?{" "}
-        <Link to="/login" className="font-bold text-teal-700 underline-offset-4 hover:underline">
-          Sign in
-        </Link>
-      </p>
     </form>
   );
 }

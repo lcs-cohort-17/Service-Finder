@@ -1,74 +1,58 @@
-import { useEffect } from "react";
-import { BrowserRouter, Navigate, Route, Routes, Link } from "react-router-dom";
-import Login from "./views/Login";
-import MapPage from "./views/MapPage";
-import Dashboard from "./views/Dashboard";
-import Settings from "./views/Settings";
-import Users from "./views/Users";
-// import ProtectedRoute from "./components/ProtectedRoute";
+import { useEffect, useState } from "react";
+import { Route, Routes } from "react-router-dom";
+
+import NavBar from "./components/layout/NavBar";
+import { AuthModal } from "./features/auth/components/AuthModal";
+
+import ProfilePage from "./features/profile/pages/ProfilePage";
+import OverviewTab from "./features/profile/components/OverviewTab";
+import SavedRoutesTab from "./features/profile/components/SavedRoutesTab";
+import ReportHistoryTab from "./features/profile/components/ReportHistoryTab";
+import SettingsTab from "./features/profile/components/SettingsTab";
+
 import { useAuthStore } from "./store/useAuthStore";
-import "./index.css";
+
+function Home() {
+  return (
+    <section className="mx-auto max-w-5xl px-4 py-16 text-center sm:px-6 lg:px-8">
+      <h1 className="text-4xl font-semibold tracking-tight text-slate-900">
+        find-a-service
+      </h1>
+    </section>
+  );
+}
 
 function App() {
-  const { user, loading, initAuthListener } = useAuthStore();
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   useEffect(() => {
-    const unsubscribe = initAuthListener();
-    return () => unsubscribe?.();
-  }, [initAuthListener]);
-
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="mb-4 h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
-          <p>Loading...</p>
-        </div>
-      </div>
-    );
-  }
+    if (isAuthenticated) {
+      setIsAuthOpen(false);
+    }
+  }, [isAuthenticated]);
 
   return (
-    <BrowserRouter>
-      <div className="min-h-screen bg-gray-100">
-        <header className="bg-white shadow-sm px-4 py-3">
-          <div className="mx-auto flex max-w-7xl items-center justify-between">
-            <Link to="/" className="text-xl font-semibold text-gray-800">
-              Service Finder
-            </Link>
+    <div className="min-h-screen bg-slate-50 text-slate-900">
+      <NavBar onSignIn={() => setIsAuthOpen(true)} />
 
-            <nav className="flex gap-4 text-sm font-medium text-gray-600">
-              <Link to="/" className="hover:text-blue-600">
-                Map
-              </Link>
+      <Routes>
+        <Route path="/" element={<Home />} />
 
-              <Link to="/login" className="hover:text-blue-600">
-                Login
-              </Link>
-            </nav>
-          </div>
-        </header>
+        <Route path="/profile" element={<ProfilePage />}>
+          <Route index element={<OverviewTab />} />
+          <Route path="saved-routes" element={<SavedRoutesTab />} />
+          <Route path="report-history" element={<ReportHistoryTab />} />
+          <Route path="settings" element={<SettingsTab />} />
+        </Route>
+      </Routes>
 
-        <Routes>
-          {/* Public routes */}
-          <Route path="/" element={<MapPage />} />
-          <Route path="/map" element={<MapPage />} />
-          <Route
-            path="/login"
-            element={user ? <Navigate to="/dashboard" replace /> : <Login />}
-          />
-
-          {/* Protected routes */}
-          {/* <Route element={<ProtectedRoute />}> */}
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/users" element={<Users />} />
-          <Route path="/settings" element={<Settings />} />
-          {/* </Route> */}
-
-          <Route path="*" element={<MapPage />} />
-        </Routes>
-      </div>
-    </BrowserRouter>
+      <AuthModal
+        isOpen={isAuthOpen}
+        onClose={() => setIsAuthOpen(false)}
+      />
+    </div>
   );
 }
 

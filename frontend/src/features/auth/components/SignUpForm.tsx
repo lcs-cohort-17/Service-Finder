@@ -1,24 +1,60 @@
 import { FormEvent, useState } from "react";
+import { useAuthStore } from "../../../store/useAuthStore";
 
-function SignUpForm() {
+type SignUpFormProps = {
+  onSuccess?: () => void;
+};
+
+function SignUpForm({ onSuccess }: SignUpFormProps) {
+  const register = useAuthStore((s) => s.register);
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [homeArea, setHomeArea] = useState("");
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // TODO: Connect this form to the registration flow when it is available.
+    setError("");
+
+    if (!email || !password) {
+      setError("Enter an email and password.");
+      return;
+    }
+
+    const [firstName, ...rest] = name.trim().split(" ");
+    const lastName = rest.join(" ") || "";
+
+    setSubmitting(true);
+
+    const success = await register({
+      first_name: firstName || name,
+      last_name: lastName,
+      email,
+      home_area: homeArea,
+      role: "user",
+      password,
+    });
+
+    if (!success) {
+      setError(useAuthStore.getState().error || "Registration failed.");
+      setSubmitting(false);
+      return;
+    }
+
+    setSubmitting(false);
+
+    // Switch back to the Sign In form
+    onSuccess?.();
   };
 
   return (
     <form className="mt-4 space-y-4" onSubmit={handleSubmit}>
       <div className="space-y-3">
         <div>
-          <label
-            htmlFor="name"
-            className="block text-sm font-semibold text-slate-600"
-          >
+          <label htmlFor="name" className="block text-sm font-semibold text-slate-600">
             Name
           </label>
           <input
@@ -35,10 +71,7 @@ function SignUpForm() {
         </div>
 
         <div>
-          <label
-            htmlFor="register-email"
-            className="block text-sm font-semibold text-slate-600"
-          >
+          <label htmlFor="register-email" className="block text-sm font-semibold text-slate-600">
             Email
           </label>
           <input
@@ -55,10 +88,7 @@ function SignUpForm() {
         </div>
 
         <div>
-          <label
-            htmlFor="register-password"
-            className="block text-sm font-semibold text-slate-600"
-          >
+          <label htmlFor="register-password" className="block text-sm font-semibold text-slate-600">
             Password
           </label>
           <input
@@ -75,10 +105,7 @@ function SignUpForm() {
         </div>
 
         <div>
-          <label
-            htmlFor="home-area"
-            className="block text-sm font-semibold text-slate-600"
-          >
+          <label htmlFor="home-area" className="block text-sm font-semibold text-slate-600">
             Home area <span className="font-normal">(optional)</span>
           </label>
           <input
@@ -94,22 +121,15 @@ function SignUpForm() {
         </div>
       </div>
 
+      {error && <p className="text-sm font-medium text-red-600">{error}</p>}
+
       <button
         type="submit"
-        className="flex w-full items-center justify-center rounded-xl bg-teal-700 px-4 py-3 text-sm font-bold text-white transition hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-700 focus:ring-offset-2"
+        disabled={submitting}
+        className="flex w-full items-center justify-center rounded-xl bg-teal-700 px-4 py-3 text-sm font-bold text-white transition hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-700 focus:ring-offset-2 disabled:opacity-50"
       >
-        Create account
+        {submitting ? "Creating account…" : "Create account"}
       </button>
-
-      <p className="text-center text-base text-slate-500">
-        Already have an account?{" "}
-        <a
-          href="/login"
-          className="font-bold text-teal-700 underline-offset-4 hover:underline"
-        >
-          Sign in
-        </a>
-      </p>
     </form>
   );
 }

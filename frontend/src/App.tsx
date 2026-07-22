@@ -1,42 +1,50 @@
-import { useEffect } from "react";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import Login from "./views/Login";
-import Dashboard from "./views/Dashboard";
-import Settings from "./views/Settings";
-import Users from "./views/Users";
+import { useEffect, useState } from "react";
+import { Route, Routes } from "react-router-dom";
+
+import NavBar from "./components/layout/NavBar";
+import { AuthModal } from "./features/auth/components/AuthModal";
+import MapPage from "./views/MapPage";
+
+import ProfilePage from "./features/profile/pages/ProfilePage";
+import OverviewTab from "./features/profile/components/OverviewTab";
+import SavedRoutesTab from "./features/profile/components/SavedRoutesTab";
+import ReportHistoryTab from "./features/profile/components/ReportHistoryTab";
+import SettingsTab from "./features/profile/components/SettingsTab";
+
 import { useAuthStore } from "./store/useAuthStore";
-import "./index.css";
 
 function App() {
-  const { user, loading, initAuthListener } = useAuthStore();
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   useEffect(() => {
-    const unsubscribe = initAuthListener();
-    return () => unsubscribe?.();
-  }, [initAuthListener]);
-
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="mb-4 h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
-          <p>Loading...</p>
-        </div>
-      </div>
-    );
-  }
+    if (isAuthenticated) {
+      setIsAuthOpen(false);
+    }
+  }, [isAuthenticated]);
 
   return (
-    <BrowserRouter>
+    <div className="min-h-screen bg-slate-50 text-slate-900">
+      <NavBar onSignIn={() => setIsAuthOpen(true)} />
+
       <Routes>
-        <Route path="/" element={<Navigate to={user ? "/dashboard" : "/login"} replace />} />
-        <Route path="/login" element={user ? <Navigate to="/dashboard" replace /> : <Login />} />
-        <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/login" replace />} />
-        <Route path="/users" element={user ? <Users /> : <Navigate to="/login" replace />} />
-        <Route path="/settings" element={user ? <Settings /> : <Navigate to="/login" replace />} />
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route path="/" element={<MapPage />} />
+        <Route path="/map" element={<MapPage />} />
+
+        <Route path="/profile" element={<ProfilePage />}>
+          <Route index element={<OverviewTab />} />
+          <Route path="saved-routes" element={<SavedRoutesTab />} />
+          <Route path="report-history" element={<ReportHistoryTab />} />
+          <Route path="settings" element={<SettingsTab />} />
+        </Route>
       </Routes>
-    </BrowserRouter>
+
+      <AuthModal
+        isOpen={isAuthOpen}
+        onClose={() => setIsAuthOpen(false)}
+      />
+    </div>
   );
 }
 

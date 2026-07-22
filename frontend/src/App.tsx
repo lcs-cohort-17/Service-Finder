@@ -129,30 +129,29 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
+    // 🔥 FIX: use h-screen + flex column to lock viewport height
+    <div className="h-screen flex flex-col bg-slate-50 text-slate-900">
       <NavBar onSignIn={() => setIsAuthOpen(true)} />
 
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <div className="relative">
-              <MapPage />
-              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10">
-                <SuggestPlaceButton onClick={() => setIsFormOpen(true)} />
-              </div>
-            </div>
-          }
-        />
-        <Route path="/map" element={<MapPage />} />
+      {/* 🔥 FIX: flex-1 takes remaining space, min-h-0 prevents overflow */}
+      <div className="flex-1 min-h-0 relative">
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <MapPage onSuggestPlace={() => setIsFormOpen(true)} />
+            }
+          />
+          <Route path="/map" element={<MapPage />} />
 
-        <Route path="/profile" element={<ProfilePage />}>
-          <Route index element={<OverviewTab />} />
-          <Route path="saved-routes" element={<SavedRoutesTab />} />
-          <Route path="report-history" element={<ReportHistoryTab />} />
-          <Route path="settings" element={<SettingsTab />} />
-        </Route>
-      </Routes>
+          <Route path="/profile" element={<ProfilePage />}>
+            <Route index element={<OverviewTab />} />
+            <Route path="saved-routes" element={<SavedRoutesTab />} />
+            <Route path="report-history" element={<ReportHistoryTab />} />
+            <Route path="settings" element={<SettingsTab />} />
+          </Route>
+        </Routes>
+      </div>
 
       <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
 

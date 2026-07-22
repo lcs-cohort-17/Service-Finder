@@ -1,6 +1,7 @@
 import React from 'react';
 import Map from '../components/map/Map';
 import type { MapMarker } from '../types/map.types';
+import ApiUsageIndicator from '../components/map/ApiUsageIndicator';
 
 const MapPage: React.FC = () => {
   const projectLocation: [number, number] = [-33.9249, 18.4241];
@@ -47,6 +48,8 @@ const MapPage: React.FC = () => {
             markers={markers}
             className="relative h-full w-full"
           />
+           {/* NEW: API indicator floating top-right */}
+          <ApiUsageIndicator className="absolute top-4 right-4 z-[1000]" />
         </div>
       </div>
     </main>

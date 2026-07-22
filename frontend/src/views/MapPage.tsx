@@ -38,9 +38,9 @@ const MapPage: React.FC = () => {
   ];
 
   return (
-    <main className="flex-1 min-h-0 p-3 sm:p-4 md:p-5">
-      <div className="mx-auto flex h-[calc(100vh-80px)] max-w-7xl flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg">
-        <div className="flex-1 min-h-0 w-full">
+    <main className="flex-1 min-h-0 p-3 z-0 sm:p-4 md:p-5">
+      <div className=" mx-auto flex h-[calc(100vh-80px)] max-w-7xl flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg">
+        <div className="flex-1 min-h-0 w-full z-0">
           <Map
             center={projectLocation}
             zoom={13}

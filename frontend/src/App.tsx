@@ -3,6 +3,7 @@ import { Route, Routes } from "react-router-dom";
 
 import NavBar from "./components/layout/NavBar";
 import { AuthModal } from "./features/auth/components/AuthModal";
+import MapPage from "./views/MapPage";
 
 import ProfilePage from "./features/profile/pages/ProfilePage";
 import OverviewTab from "./features/profile/components/OverviewTab";
@@ -11,16 +12,6 @@ import ReportHistoryTab from "./features/profile/components/ReportHistoryTab";
 import SettingsTab from "./features/profile/components/SettingsTab";
 
 import { useAuthStore } from "./store/useAuthStore";
-
-function Home() {
-  return (
-    <section className="mx-auto max-w-5xl px-4 py-16 text-center sm:px-6 lg:px-8">
-      <h1 className="text-4xl font-semibold tracking-tight text-slate-900">
-        find-a-service
-      </h1>
-    </section>
-  );
-}
 
 function App() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
@@ -38,7 +29,8 @@ function App() {
       <NavBar onSignIn={() => setIsAuthOpen(true)} />
 
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<MapPage />} />
+        <Route path="/map" element={<MapPage />} />
 
         <Route path="/profile" element={<ProfilePage />}>
           <Route index element={<OverviewTab />} />

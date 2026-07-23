@@ -2,7 +2,7 @@
 // full Service model (no phone/website/openingHours/etc) to keep
 // marker payloads light at scale.
 export interface MapService {
-  id: string | number;n
+  id: string | number;
   name: string;
   category: string;
   address: string;
@@ -20,4 +20,18 @@ export interface RawService {
   latitude?: number;
   longitude?: number;
   [key: string]: unknown;
+}
+
+// Full service model used by the suggestions feature and backend.
+export interface Service {
+  id: string;
+  name: string;
+  category: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  status?: "approved" | "pending" | "declined";
+  source?: string;
+  submittedBy?: string;
+  createdAt?: string;
 }

@@ -21,6 +21,17 @@ type RegisterPayload = {
   password: string;
 };
 
+/** @addsuggestions-006-author Onke Mbingeleli
+ * MockUser shape consumed by the "Suggest a place" feature.
+ * Derived from our AppUser so both the backend auth and the
+ * suggestions UI share the same store.
+ */
+export type MockUser = {
+  uid: string;
+  email: string;
+  displayName: string;
+};
+
 type AuthState = {
   user: AppUser | null;
   token: string | null;
@@ -30,11 +41,27 @@ type AuthState = {
   login: (email: string, password: string) => Promise<AppUser | null>;
   register: (payload: RegisterPayload) => Promise<boolean>;
   logout: () => void;
+
+  // ── suggestion feature bridge ──────────────────────────
+  /** Derived from AppUser — null when not logged in. */
+  currentUser: MockUser | null;
+  /** True while a login/register request is in flight. */
+  isInitializing: boolean;
 };
 
 function getStoredUser(): AppUser | null {
   const raw = localStorage.getItem("app_user");
   return raw ? (JSON.parse(raw) as AppUser) : null;
+}
+
+/** Derive a MockUser from our AppUser for the suggestions feature. */
+function toMockUser(appUser: AppUser | null): MockUser | null {
+  if (!appUser) return null;
+  return {
+    uid: appUser.email,
+    email: appUser.email,
+    displayName: `${appUser.first_name} ${appUser.last_name}`.trim() || appUser.email,
+  };
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -48,6 +75,10 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   loading: false,
   error: null,
+
+  // ── suggestion feature bridge ──────────────────────────
+  currentUser: toMockUser(getStoredUser()),
+  isInitializing: false,
 
   login: async (email, password) => {
     set({ loading: true, error: null });
@@ -70,19 +101,24 @@ export const useAuthStore = create<AuthState>((set) => ({
       localStorage.setItem("app_token", data.token);
       localStorage.setItem("app_user", JSON.stringify(data.user));
 
+      const appUser = data.user as AppUser;
+
       set({
         token: data.token,
-        user: data.user,
+        user: appUser,
+        currentUser: toMockUser(appUser),
         isAuthenticated: true,
         loading: false,
         error: null,
+        isInitializing: false,
       });
 
-      return data.user;
+      return appUser;
     } catch (err: any) {
       set({
         error: err.message,
         loading: false,
+        isInitializing: false,
       });
 
       return null;
@@ -93,6 +129,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({
       loading: true,
       error: null,
+      isInitializing: true,
     });
 
     try {
@@ -113,6 +150,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       set({
         loading: false,
         error: null,
+        isInitializing: false,
       });
 
       return true;
@@ -120,6 +158,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       set({
         error: err.message,
         loading: false,
+        isInitializing: false,
       });
 
       return false;
@@ -136,6 +175,8 @@ export const useAuthStore = create<AuthState>((set) => ({
       isAuthenticated: false,
       loading: false,
       error: null,
+      currentUser: null,
+      isInitializing: false,
     });
   },
 }));

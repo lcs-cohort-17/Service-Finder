@@ -21,8 +21,7 @@ Responsibilities
 
 ✔ Render the application
 
-Authentication restoration now happens inside
-AuthProvider.
+Authentication is handled by useAuthStore (Zustand).
 
 ========================================================
 */

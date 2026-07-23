@@ -1,8 +1,23 @@
-// Minimal shape the map layer needs. Intentionally narrower than the
-// full Service model (no phone/website/openingHours/etc) to keep
-// marker payloads light at scale.
+/** The normalized service record shared by map markers, search, and details UI. */
+export interface Service {
+  id: string;
+  name: string;
+  category: string;
+  latitude: number;
+  longitude: number;
+  address?: string;
+  phone?: string;
+  website?: string;
+  hours?: string;
+  status?: "approved" | "pending" | "declined";
+  source?: string;
+  submittedBy?: string;
+  createdAt?: string;
+}
+
+/** Lightweight shape used by the optional clustered-marker renderer. */
 export interface MapService {
-  id: string | number;n
+  id: string | number;
   name: string;
   category: string;
   address: string;
@@ -10,8 +25,7 @@ export interface MapService {
   lng: number;
 }
 
-// Shape of the raw approved-service objects coming back from
-// GET /api/services (mirrors Service.toFirestore() on the backend).
+/** Raw approved-service response shape before it is normalized for rendering. */
 export interface RawService {
   id: string | number;
   name?: string;

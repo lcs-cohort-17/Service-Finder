@@ -1,6 +1,8 @@
 // src/store/useAuthStore.ts
+
 import { create } from "zustand";
-const b_port = import.meta.env.VITE_BACKEND_PORT
+
+const b_port = import.meta.env.VITE_BACKEND_PORT;
 const API_BASE = `http://localhost:${b_port}/api/users`;
 
 type AppUser = {
@@ -14,7 +16,7 @@ type RegisterPayload = {
   first_name: string;
   last_name: string;
   email: string;
-  phone_number: string;
+  home_area: string;
   role: string;
   password: string;
 };
@@ -37,22 +39,33 @@ function getStoredUser(): AppUser | null {
 
 export const useAuthStore = create<AuthState>((set) => ({
   user: getStoredUser(),
+
   token: localStorage.getItem("app_token"),
-  isAuthenticated: !!localStorage.getItem("app_token"),
+
+  // Only authenticated if BOTH the token and user exist
+  isAuthenticated:
+    !!localStorage.getItem("app_token") && !!getStoredUser(),
+
   loading: false,
   error: null,
 
   login: async (email, password) => {
     set({ loading: true, error: null });
+
     try {
       const res = await fetch(`${API_BASE}/login`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ email, password }),
       });
+
       const data = await res.json();
 
-      if (!res.ok) throw new Error(data.message || "Invalid credentials");
+      if (!res.ok) {
+        throw new Error(data.message || "Invalid email or password");
+      }
 
       localStorage.setItem("app_token", data.token);
       localStorage.setItem("app_user", JSON.stringify(data.user));
@@ -62,40 +75,67 @@ export const useAuthStore = create<AuthState>((set) => ({
         user: data.user,
         isAuthenticated: true,
         loading: false,
+        error: null,
       });
+
       return data.user;
     } catch (err: any) {
-      set({ error: err.message, loading: false });
+      set({
+        error: err.message,
+        loading: false,
+      });
+
       return null;
     }
   },
 
-register: async (payload) => {
-  set({ loading: true, error: null });
-  try {
-    const res = await fetch(`${API_BASE}/register`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+  register: async (payload) => {
+    set({
+      loading: true,
+      error: null,
     });
-    const data = await res.json();
 
-    if (!res.ok || !data.success) {
-      throw new Error(data.message || "Registration failed");
+    try {
+      const res = await fetch(`${API_BASE}/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Registration failed");
+      }
+
+      set({
+        loading: false,
+        error: null,
+      });
+
+      return true;
+    } catch (err: any) {
+      set({
+        error: err.message,
+        loading: false,
+      });
+
+      return false;
     }
-
-    set({ loading: false });
-    return true;
-  } catch (err: any) {
-    set({ error: err.message, loading: false });
-    return false;
-  }
-},
-
+  },
 
   logout: () => {
     localStorage.removeItem("app_token");
     localStorage.removeItem("app_user");
-    set({ user: null, token: null, isAuthenticated: false, error: null });
+
+    set({
+      user: null,
+      token: null,
+      isAuthenticated: false,
+      loading: false,
+      error: null,
+    });
   },
 }));

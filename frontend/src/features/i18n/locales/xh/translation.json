@@ -1,0 +1,104 @@
+{
+  "app": {
+    "title": "Isicelo Sam",
+    "description": "Wamkelekile kwisicelo sethu"
+  },
+  "navigation": {
+    "dashboard": "Idashibhodi",
+    "profile": "Iprofayili",
+    "settings": "Izicwangciso",
+    "logout": "Phuma",
+    "home": "Ikhaya",
+    "about": "Malunga",
+    "contact": "Qhagamshelana"
+  },
+  "common": {
+    "save": "Gcina",
+    "cancel": "Rhoxisa",
+    "delete": "Cima",
+    "edit": "Hlela",
+    "submit": "Ngenisa",
+    "loading": "Iyalayisha...",
+    "error": "Impazamo",
+    "success": "Impumelelo",
+    "search": "Khangela",
+    "filter": "Hlanganisa",
+    "noResults": "Akukho ziphumo zifunyenweyo",
+    "language": "Ulwimi",
+    "welcome": "Wamkelekile",
+    "welcomeBack": "Wamkelekile kwakhona"
+  },
+  "auth": {
+    "login": "Ngena",
+    "register": "Bhalisa",
+    "email": "I-imeyile",
+    "password": "Igama lokugqitha",
+    "confirmPassword": "Qinisekisa Igama lokugqitha",
+    "forgotPassword": "Ulibele igama lokugqitha?",
+    "rememberMe": "Ndikhumbule",
+    "loginButton": "Ngena",
+    "registerButton": "Yenza Iakhawunti",
+    "invalidCredentials": "I-imeyile okanye igama lokugqitha alichanekanga",
+    "emailRequired": "I-imeyile iyafuneka",
+    "passwordRequired": "Igama lokugqitha liyafuneka",
+    "passwordMinLength": "Igama lokugqitha kufuneka libe nobuncinane be-6 oonobumba",
+    "emailInvalid": "Nceda ufake idilesi ye-imeyile efanelekileyo"
+  },
+  "user": {
+    "profile": "Iprofayili Yomsebenzisi",
+    "name": "Igama Elipheleleyo",
+    "role": "Indima",
+    "memberSince": "Lilungu ukususela",
+    "updateProfile": "Hlaziya Iprofayili",
+    "changePassword": "Tshintsha Igama lokugqitha"
+  },
+  "errors": {
+    "generic": "Kukho into engahambanga kakuhle. Nceda uzame kwakhona.",
+    "network": "Impazamo yenethiwekhi. Nceda ujonge unxibelelwano lwakho.",
+    "notFound": "Iphepha alifumaneki",
+    "unauthorized": "Awunagunya lokujonga eli phepha",
+    "serverError": "Impazamo yeseva. Nceda uzame kwakhona kamva.",
+    "validation": "Nceda ujonge igalelo lakho kwaye uzame kwakhona"
+  },
+  "success": {
+    "saved": "Igcinwe ngempumelelo!",
+    "deleted": "Icinywe ngempumelelo!",
+    "updated": "Ihlaziywe ngempumelelo!",
+    "created": "Yenziwe ngempumelelo!"
+  },
+  "forms": {
+    "requiredField": "Eli candelo liyafuneka",
+    "minLength": "Ubuncinane {{count}} oonobumba bayafuneka",
+    "maxLength": "Ubuninzi {{count}} oonobumba bavunyelwe",
+    "emailFormat": "Nceda ufake i-imeyile efanelekileyo",
+    "passwordMatch": "Amagama okugqitha kufuneka afane"
+  },
+  "dates": {
+    "today": "Namhlanje",
+    "yesterday": "Izolo",
+    "tomorrow": "Ngomso",
+    "weekdays": {
+      "monday": "Mvulo",
+      "tuesday": "Lwesibini",
+      "wednesday": "Lwesithathu",
+      "thursday": "Lwesine",
+      "friday": "Lwesihlanu",
+      "saturday": "Mgqibelo",
+      "sunday": "Cawe"
+    },
+    "months": {
+      "january": "Janyuwari",
+      "february": "Februwari",
+      "march": "Matshi",
+      "april": "Epreli",
+      "may": "Meyi",
+      "june": "Juni",
+      "july": "Julayi",
+      "august": "Agasti",
+      "september": "Septemba",
+      "october": "Okthobha",
+      "november": "Novemba",
+      "december": "Disemba"
+    }
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "app": {
+    "title": "My Toepassing",
+    "description": "Welkom by ons toepassing"
+  },
+  "navigation": {
+    "dashboard": "Paneelbord",
+    "profile": "Profiel",
+    "settings": "Instellings",
+    "logout": "Teken af",
+    "home": "Tuis",
+    "about": "Oor",
+    "contact": "Kontak"
+  },
+  "common": {
+    "save": "Stoor",
+    "cancel": "Kanselleer",
+    "delete": "Verwyder",
+    "edit": "Wysig",
+    "submit": "Dien in",
+    "loading": "Laai...",
+    "error": "Fout",
+    "success": "Sukses",
+    "search": "Soek",
+    "filter": "Filter",
+    "noResults": "Geen resultate gevind nie",
+    "language": "Taal",
+    "welcome": "Welkom",
+    "welcomeBack": "Welkom terug"
+  },
+  "auth": {
+    "login": "Teken aan",
+    "register": "Registreer",
+    "email": "E-pos",
+    "password": "Wagwoord",
+    "confirmPassword": "Bevestig Wagwoord",
+    "forgotPassword": "Wagwoord vergeet?",
+    "rememberMe": "Onthou my",
+    "loginButton": "Teken in",
+    "registerButton": "Skep Rekening",
+    "invalidCredentials": "Ongeldige e-pos of wagwoord",
+    "emailRequired": "E-pos is verpligtend",
+    "passwordRequired": "Wagwoord is verpligtend",
+    "passwordMinLength": "Wagwoord moet minstens 6 karakters wees",
+    "emailInvalid": "Voer asseblief 'n geldige e-posadres in"
+  },
+  "user": {
+    "profile": "Gebruikersprofiel",
+    "name": "Volle Naam",
+    "role": "Rol",
+    "memberSince": "Lid sedert",
+    "updateProfile": "Werk Profiel by",
+    "changePassword": "Verander Wagwoord"
+  },
+  "errors": {
+    "generic": "Iets het verkeerd gegaan. Probeer asseblief weer.",
+    "network": "Netwerkfout. Gaan asseblief jou verbinding na.",
+    "notFound": "Bladsy nie gevind nie",
+    "unauthorized": "Jy is nie gemagtig om hierdie bladsy te sien nie",
+    "serverError": "Bedienerfout. Probeer asseblief later weer.",
+    "validation": "Gaan asseblief jou insette na en probeer weer"
+  },
+  "success": {
+    "saved": "Suksesvol gestoor!",
+    "deleted": "Suksesvol verwyder!",
+    "updated": "Suksesvol bygewerk!",
+    "created": "Suksesvol geskep!"
+  },
+  "forms": {
+    "requiredField": "Hierdie veld is verpligtend",
+    "minLength": "Minimum {{count}} karakters benodig",
+    "maxLength": "Maksimum {{count}} karakters toegelaat",
+    "emailFormat": "Voer asseblief 'n geldige e-pos in",
+    "passwordMatch": "Wagwoorde moet ooreenstem"
+  },
+  "dates": {
+    "today": "Vandag",
+    "yesterday": "Gister",
+    "tomorrow": "Môre",
+    "weekdays": {
+      "monday": "Maandag",
+      "tuesday": "Dinsdag",
+      "wednesday": "Woensdag",
+      "thursday": "Donderdag",
+      "friday": "Vrydag",
+      "saturday": "Saterdag",
+      "sunday": "Sondag"
+    },
+    "months": {
+      "january": "Januarie",
+      "february": "Februarie",
+      "march": "Maart",
+      "april": "April",
+      "may": "Mei",
+      "june": "Junie",
+      "july": "Julie",
+      "august": "Augustus",
+      "september": "September",
+      "october": "Oktober",
+      "november": "November",
+      "december": "Desember"
+    }
+  }
+}

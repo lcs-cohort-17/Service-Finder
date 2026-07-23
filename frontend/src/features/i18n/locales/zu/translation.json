@@ -1,0 +1,104 @@
+{
+  "app": {
+    "title": "Uhlelo Lwami",
+    "description": "Wamukelekile ohlelweni lwethu"
+  },
+  "navigation": {
+    "dashboard": "Idayishibhodi",
+    "profile": "Iphrofayili",
+    "settings": "Izilungiselelo",
+    "logout": "Phuma",
+    "home": "Ikhaya",
+    "about": "Mayelana",
+    "contact": "Xhumana"
+  },
+  "common": {
+    "save": "Gcina",
+    "cancel": "Khansela",
+    "delete": "Susa",
+    "edit": "Hlela",
+    "submit": "Thumela",
+    "loading": "Iyalayisha...",
+    "error": "Iphutha",
+    "success": "Impumelelo",
+    "search": "Sesha",
+    "filter": "Hlunga",
+    "noResults": "Ayikho imiphumela etholakele",
+    "language": "Ulimi",
+    "welcome": "Wamukelekile",
+    "welcomeBack": "Wamukelekile futhi"
+  },
+  "auth": {
+    "login": "Ngena",
+    "register": "Bhalisa",
+    "email": "I-imeyili",
+    "password": "Iphasiwedi",
+    "confirmPassword": "Qinisekisa Iphasiwedi",
+    "forgotPassword": "Ukhohliwe iphasiwedi?",
+    "rememberMe": "Ngikhumbule",
+    "loginButton": "Ngena ngemvume",
+    "registerButton": "Yenza I-akhawunti",
+    "invalidCredentials": "I-imeyili noma iphasiwedi ayilungile",
+    "emailRequired": "I-imeyili iyadingeka",
+    "passwordRequired": "Iphasiwedi iyadingeka",
+    "passwordMinLength": "Iphasiwedi kufanele ibe okungenani izinhlamvu ezi-6",
+    "emailInvalid": "Sicela ufake ikheli le-imeyili elivumelekile"
+  },
+  "user": {
+    "profile": "Iphrofayili Yomsebenzisi",
+    "name": "Igama Eliphelele",
+    "role": "Indima",
+    "memberSince": "Uyilungu kusukela",
+    "updateProfile": "Buyekeza Iphrofayili",
+    "changePassword": "Shintsha Iphasiwedi"
+  },
+  "errors": {
+    "generic": "Kukhona okungahambanga kahle. Sicela uzame futhi.",
+    "network": "Iphutha lenethiwekhi. Sicela uhlole ukuxhumana kwakho.",
+    "notFound": "Ikhasi alitholakali",
+    "unauthorized": "Awunagunya lokubuka leli khasi",
+    "serverError": "Iphutha lomshini. Sicela uzame futhi ngokuhamba kwesikhathi.",
+    "validation": "Sicela uhlole okufakileyo bese uzama futhi"
+  },
+  "success": {
+    "saved": "Kugcinwe ngempumelelo!",
+    "deleted": "Kususiwe ngempumelelo!",
+    "updated": "Kubuyekezwe ngempumelelo!",
+    "created": "Kudalwe ngempumelelo!"
+  },
+  "forms": {
+    "requiredField": "Le nsimu iyadingeka",
+    "minLength": "Okungenani izinhlamvu {{count}} ziyadingeka",
+    "maxLength": "Okuphezulu izinhlamvu {{count}} zivunyelwe",
+    "emailFormat": "Sicela ufake i-imeyili evumelekile",
+    "passwordMatch": "Amaphasiwedi kufanele afane"
+  },
+  "dates": {
+    "today": "Namuhla",
+    "yesterday": "Izolo",
+    "tomorrow": "Kusasa",
+    "weekdays": {
+      "monday": "Msombuluko",
+      "tuesday": "Lwesibili",
+      "wednesday": "Lwesithathu",
+      "thursday": "Lwesine",
+      "friday": "Lwesihlanu",
+      "saturday": "Mgqibelo",
+      "sunday": "Isonto"
+    },
+    "months": {
+      "january": "Januwari",
+      "february": "Februwari",
+      "march": "Mashi",
+      "april": "Ephreli",
+      "may": "Meyi",
+      "june": "Juni",
+      "july": "Julayi",
+      "august": "Agasti",
+      "september": "Septemba",
+      "october": "Okthoba",
+      "november": "Novemba",
+      "december": "Disemba"
+    }
+  }
+}

@@ -1,34 +1,42 @@
+import { useEffect } from "react";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import Login from "./views/Login";
+import Dashboard from "./views/Dashboard";
+import Settings from "./views/Settings";
+import Users from "./views/Users";
+import { useAuthStore } from "./store/useAuthStore";
 import "./index.css";
 
 function App() {
-  return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="rounded-3xl border border-slate-200 bg-white p-10 shadow-sm">
-          <h1 className="text-4xl font-semibold tracking-tight text-slate-900">
-            Service Finder
-          </h1>
-          <p className="mt-4 text-lg leading-8 text-slate-600">
-            React + TypeScript + TailwindCSS scaffold for the Service Finder
-            app.
-          </p>
-          <div className="mt-10 grid gap-4 sm:grid-cols-2">
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
-              <h2 className="text-xl font-semibold text-slate-900">Auth</h2>
-              <p className="mt-2 text-sm text-slate-600">
-                Login, register, and user context.
-              </p>
-            </div>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
-              <h2 className="text-xl font-semibold text-slate-900">Map</h2>
-              <p className="mt-2 text-sm text-slate-600">
-                Map container, markers, and directions.
-              </p>
-            </div>
-          </div>
+  const { user, loading, initAuthListener } = useAuthStore();
+
+  useEffect(() => {
+    const unsubscribe = initAuthListener();
+    return () => unsubscribe?.();
+  }, [initAuthListener]);
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="mb-4 h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+          <p>Loading...</p>
         </div>
       </div>
-    </div>
+    );
+  }
+
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Navigate to={user ? "/dashboard" : "/login"} replace />} />
+        <Route path="/login" element={user ? <Navigate to="/dashboard" replace /> : <Login />} />
+        <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/login" replace />} />
+        <Route path="/users" element={user ? <Users /> : <Navigate to="/login" replace />} />
+        <Route path="/settings" element={user ? <Settings /> : <Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

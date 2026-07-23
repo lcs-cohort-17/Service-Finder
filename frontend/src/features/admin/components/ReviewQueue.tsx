@@ -65,14 +65,45 @@ const ReviewQueue: React.FC<ReviewQueueProps> = ({ isAdmin }) => {
 
   return (
     <div className="review-queue">
-      <section className="review-queue-header">
-        <h2>Review Suggestions</h2>
-        <p className="review-queue-count">
-          {services.length === 0
-            ? 'No suggestions to review'
-            : `${services.length} suggestion${services.length !== 1 ? 's' : ''} pending`}
-        </p>
-      </section>
+<section className="review-queue-header">
+
+  <div className="review-header-left">
+
+    <p className="review-label">
+      ADMINISTRATOR
+    </p>
+
+    <h1 className="review-title">
+      Suggestion review queue
+    </h1>
+
+    <p className="review-subtitle">
+      Accept a suggestion to publish it on the public map.
+      Rejected suggestions stay hidden.
+    </p>
+
+  </div>
+
+  <div className="review-stats">
+
+    <div className="stat-card">
+      <span className="stat-title">Pending</span>
+      <strong>{services.length}</strong>
+    </div>
+
+    <div className="stat-card">
+      <span className="stat-title">Approved</span>
+      <strong>0</strong>
+    </div>
+
+    <div className="stat-card">
+      <span className="stat-title">Rejected</span>
+      <strong>0</strong>
+    </div>
+
+  </div>
+
+</section>
 
       <section className="review-queue-content">
         {isLoading ? (

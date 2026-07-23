@@ -1,49 +1,14 @@
 import React, { useState, useCallback } from 'react';
 import { useAuthStore } from '../../../store/useAuthStore';
 
-/**
- * Props for the VerifyLocationButton component
- * @interface VerifyLocationButtonProps
- */
 export interface VerifyLocationButtonProps {
-  /** The address to verify */
   address: string;
-  /** Optional suggestion ID for tracking/logging */
   suggestionId?: string;
-  /** Optional callback when verify is triggered */
   onVerify?: (address: string, suggestionId?: string) => void;
-  /** Optional override for admin role check (useful for testing) */
   isAdmin?: boolean;
-  /** Optional CSS class names */
   className?: string;
 }
 
-/**
- * ADMIN-011: Verify Location Button Component
- *
- * A reusable button component that allows administrators to verify service
- * suggestion addresses before approving or rejecting submissions. Opens
- * the address in Google Maps for location verification.
- *
- * Features:
- * - Admin-only visibility (role-based access control)
- * - Opens address in Google Maps (new tab)
- * - Logs verification actions
- * - Full TypeScript typing
- * - Accessible (ARIA labels, keyboard navigation)
- * - Responsive design (works on mobile and desktop)
- * - Loading state indicator
- *
- * @component
- * @example
- * ```tsx
- * <VerifyLocationButton
- *   address="123 Main St, City, Country"
- *   suggestionId="sugg-123"
- *   onVerify={(address, id) => console.log(`Verified: ${address}`)}
- * />
- * ```
- */
 const VerifyLocationButton: React.FC<VerifyLocationButtonProps> = ({
   address,
   suggestionId,
@@ -52,42 +17,32 @@ const VerifyLocationButton: React.FC<VerifyLocationButtonProps> = ({
   className = '',
 }) => {
   const { user } = useAuthStore();
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Determine if user has admin access
-  const hasAdminAccess: boolean = isAdmin ?? (user?.role === 'admin');
+  const hasAdminAccess = isAdmin ?? (user?.role === 'admin');
 
-  // Early return if not admin - don't render anything
   if (!hasAdminAccess) {
     return null;
   }
 
-  /**
-   * Handles the verify location action
-   * Opens Google Maps in a new tab and triggers optional callback
-   */
   const handleVerify = useCallback(async (): Promise<void> => {
     setIsLoading(true);
 
     try {
-      // Trigger optional callback if provided
       if (onVerify) {
         onVerify(address, suggestionId);
       }
 
-      // Build Google Maps URL with address
       const mapsUrl = new URL('https://www.google.com/maps/search/');
       mapsUrl.searchParams.set('api', '1');
       mapsUrl.searchParams.set('query', address);
 
-      // Open in new tab with security options
       const windowRef = window.open(
         mapsUrl.toString(),
         '_blank',
         'noopener,noreferrer,width=1024,height=768'
       );
 
-      // Log action for admin tracking
       if (suggestionId) {
         console.log(
           `[ADMIN-011] Location verification initiated for suggestion "${suggestionId}"`,
@@ -99,12 +54,16 @@ const VerifyLocationButton: React.FC<VerifyLocationButtonProps> = ({
         );
       }
 
-      // Verify window opened successfully
       if (!windowRef) {
-        console.warn('[ADMIN-011] Failed to open Maps window - popup may be blocked');
+        console.warn(
+          '[ADMIN-011] Failed to open Maps window - popup may be blocked'
+        );
       }
     } catch (error) {
-      console.error('[ADMIN-011] Error during location verification:', error);
+      console.error(
+        '[ADMIN-011] Error during location verification:',
+        error
+      );
     } finally {
       setIsLoading(false);
     }
@@ -115,15 +74,36 @@ const VerifyLocationButton: React.FC<VerifyLocationButtonProps> = ({
       type="button"
       onClick={handleVerify}
       disabled={isLoading}
-      className={`verify-location-btn ${className} ${isLoading ? 'is-loading' : ''}`}
+      className={`verify-location-btn ${className} ${
+        isLoading ? 'is-loading' : ''
+      }`}
       aria-label={`Verify location: ${address}`}
       title={address}
     >
-      <span className="verify-location-icon" aria-hidden="true">
-        📍
-      </span>
+      {isLoading ? (
+        <span
+          className="verify-spinner"
+          aria-hidden="true"
+        />
+      ) : (
+        <span
+          className="verify-location-icon"
+          aria-hidden="true"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z" />
+          </svg>
+        </span>
+      )}
+
       <span className="verify-location-text">
-        {isLoading ? 'Verifying...' : 'Verify Location'}
+        {isLoading ? 'Verifying...' : 'Verify location'}
       </span>
     </button>
   );

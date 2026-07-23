@@ -7,14 +7,9 @@ export interface SuggestionCardProps {
   onApprove: (id: string) => void;
   onReject: (id: string) => void;
   onVerify?: (address: string, suggestionId: string) => void;
-  /** Optional override for admin-gating, passed through to VerifyLocationButton. */
   isAdmin?: boolean;
 }
 
-/**
- * ADMIN-010: renders a single service suggestion with its details and the
- * admin action row (Verify Location / Approve / Reject).
- */
 const SuggestionCard: React.FC<SuggestionCardProps> = ({
   suggestion,
   onApprove,
@@ -22,30 +17,64 @@ const SuggestionCard: React.FC<SuggestionCardProps> = ({
   onVerify,
   isAdmin,
 }) => {
+  const categoryClass = suggestion.category
+    .toLowerCase()
+    .replace(/\s+/g, '-');
+
   return (
     <div className="suggestion-card">
+      {/* Left Side */}
       <div className="suggestion-details">
-        <strong>{suggestion.name}</strong>{' '}
-        <span className="suggestion-type">({suggestion.category})</span>
-        <p className="suggestion-address">{suggestion.address}</p>
+        <div className="suggestion-header">
+          <span className={`suggestion-type ${categoryClass}`}>
+            {suggestion.category}
+          </span>
+
+          <h3 className="suggestion-name">
+            {suggestion.name}
+          </h3>
+        </div>
+
+        <p className="suggestion-address">
+          📍 {suggestion.address}
+        </p>
+
         {suggestion.submittedBy && (
-          <p className="suggestion-submitted-by">Submitted by {suggestion.submittedBy}</p>
+          <p className="suggestion-submitted-by">
+            Suggested by{' '}
+            <strong>{suggestion.submittedBy}</strong>
+          </p>
         )}
       </div>
 
+      {/* Right Side */}
       <div className="suggestion-actions">
+        <button
+          type="button"
+          className="btn btn-approve"
+          onClick={() => onApprove(suggestion.id)}
+        >
+          ✓ Approve
+        </button>
+
+        <button
+          type="button"
+          className="btn btn-reject"
+          onClick={() => onReject(suggestion.id)}
+        >
+          ✕ Reject
+        </button>
+
         <VerifyLocationButton
           address={suggestion.address ?? ''}
           suggestionId={suggestion.id}
           isAdmin={isAdmin}
-          onVerify={onVerify ? () => onVerify(suggestion.address ?? '', suggestion.id) : undefined}
+          onVerify={
+            onVerify
+              ? () => onVerify(suggestion.address ?? '', suggestion.id)
+              : undefined
+          }
         />
-        <button type="button" onClick={() => onApprove(suggestion.id)}>
-          Approve
-        </button>
-        <button type="button" onClick={() => onReject(suggestion.id)}>
-          Reject
-        </button>
       </div>
     </div>
   );

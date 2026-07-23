@@ -76,10 +76,12 @@ body,
 }
 
 .map-area {
-  flex: 1;
   position: relative;
   min-width: 0;
   background: #d9d9d9;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 .sidebar-search { padding: 20px 20px 0; }
 .service-search-wrap { position: relative; z-index: 1100; }

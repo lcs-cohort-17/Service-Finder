@@ -5,9 +5,13 @@ import { useServiceStore } from '../store/useServiceStore';
 import { useFilteredServices } from '../features/filters/hooks/usefilters';
 import { getCategoryMarkerIconUrl } from '../components/FilterButtons/categoryStyles';
 import { getCategoryStyle } from '../components/FilterButtons/categoryStyles';
-import { getDirectionsUrl } from '../utils/urlGenerators';
+import { getDirectionsUrl, getStreetViewUrl } from '../utils/urlGenerators';
 import { MapPin, Navigation } from 'lucide-react';
 import { useSearch } from '../features/search/hooks/useSearch';
+import { useMediaQuery } from '../hooks/useMediaQuery';
+import DesktopPopup from '../features/service-details/components/DesktopPopup';
+import MobileBottomSheet from '../features/service-details/components/MobileBottomSheet';
+import type { ServiceDetailsData } from '../features/service-details/types';
 
 interface MapPageProps { selectedCategories: string[]; searchQuery: string; }
 
@@ -70,9 +74,53 @@ function MapPage({ selectedCategories, searchQuery }: MapPageProps) {
     ) : undefined,
   })), [visibleServices, selectService, selectedService]);
 
+  const isMobile = useMediaQuery('(max-width: 768px)');
+
+  const selectedServiceDetails = selectedService
+    ? {
+        id: selectedService.id,
+        name: selectedService.name,
+        address: selectedService.address ?? 'Address not available',
+        hours: selectedService.hours ?? 'Hours unavailable',
+        phone: selectedService.phone ?? 'Phone unavailable',
+        website: selectedService.website ?? 'Website unavailable',
+        lat: selectedService.latitude,
+        lng: selectedService.longitude,
+        type: selectedService.category,
+      }
+    : null;
+
   return (
     <main className="map-area">
-      <MapContainer center={[-33.9249, 18.4241]} zoom={13} markers={markers} selectedMarkerId={selectedService?.id} onReady={setMap} containerClassName="map-surface" />
+      <MapContainer
+        center={[-33.9249, 18.4241]}
+        zoom={13}
+        markers={markers}
+        selectedMarkerId={selectedService?.id}
+        onReady={setMap}
+        containerClassName="map-surface"
+      />
+
+      {selectedServiceDetails && isMobile ? (
+        <MobileBottomSheet
+          data={selectedServiceDetails}
+          onDirections={(service) => window.open(getDirectionsUrl(service.lat, service.lng), '_blank')}
+          onStreetView={(service) => window.open(getStreetViewUrl(service.lat, service.lng), '_blank')}
+          onClose={() => useServiceStore.getState().clearSelectedService()}
+          isOpen={Boolean(selectedService)}
+        />
+      ) : null}
+
+      {selectedServiceDetails && !isMobile ? (
+        <DesktopPopup
+          data={selectedServiceDetails}
+          onDirections={(service) => window.open(getDirectionsUrl(service.lat, service.lng), '_blank')}
+          onStreetView={(service) => window.open(getStreetViewUrl(service.lat, service.lng), '_blank')}
+          onClose={() => useServiceStore.getState().clearSelectedService()}
+          isOpen={Boolean(selectedService)}
+        />
+      ) : null}
+
       {loading && <p className="map-status">Loading services…</p>}
       {error && <p className="map-status map-error">{error}</p>}
       {!loading && !error && searchQuery.trim() && markers.length === 0 && <p className="map-status">No matching services found</p>}

@@ -16,6 +16,10 @@ export function filterServicesByCategory(
   services: Service[],
   selectedCategories: string[]
 ): Service[] {
+  if (selectedCategories.length === 0) {
+    return services;
+  }
+
   return services.filter((service: Service) =>
     selectedCategories.includes(service.category)
   );

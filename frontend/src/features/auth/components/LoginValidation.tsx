@@ -41,7 +41,13 @@ const useLoginValidation = () => {
 
   // Validate email format using regex
   const isValidEmail = (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // Define allowed domains in an array for easier maintenance
+    const allowedDomains = ['gmail.com', 'outlook.com', 'icloud.com', 'yahoo.com'];
+
+    // Create a regex string from the array
+    const domainPattern = allowedDomains.map(domain => domain.replace('.', '\\.')).join('|');
+    const emailRegex = new RegExp(`^[^\s@]+@(${domainPattern})$`);
+
     return emailRegex.test(email);
   };
 
@@ -60,7 +66,9 @@ const useLoginValidation = () => {
     } 
     // Check if email format is valid
     else if (!isValidEmail(email)) {
-      setEmailError('Invalid email format');
+      setEmailError(
+        'Invalid email. Only Gmail, Outlook, iCloud, or Yahoo are accepted.'
+      );
       isValid = false;
     }
 

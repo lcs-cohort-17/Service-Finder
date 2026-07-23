@@ -1,112 +1,195 @@
-/** @addsuggestions-005-author Onke Mbingeleli
- * @addsuggestions-006-author Onke Mbingeleli
- *
- * Application shell that combines the AppRouter (for page routing)
- * with the "Suggest a place" feature overlay.
- */
-import { useEffect, useState } from 'react';
-import './App.css';
-import './components/styles/DesignSystem.css';
-import AppRouter from './routes/AppRouter';
-import { SuggestPlaceButton, SuggestionForm, SuggestToast } from './features/suggestions/components';
-import { useSuggestion } from './features/suggestions/hooks/useSuggestion';
-import { useAuthStore } from './store/useAuthStore';
-import Login from './views/Login';
-import type { SuggestCategory } from './types/suggestion.types';
+import { useEffect, useState } from "react";
+import "./components/styles/DesignSystem.css";
+import { Route, Routes } from "react-router-dom";
+
+import NavBar from "./components/layout/NavBar";
+import { AuthModal } from "./features/auth/components/AuthModal";
+import MapPage from "./views/MapPage";
+
+import ProfilePage from "./features/profile/pages/ProfilePage";
+import OverviewTab from "./features/profile/components/OverviewTab";
+import SavedRoutesTab from "./features/profile/components/SavedRoutesTab";
+import ReportHistoryTab from "./features/profile/components/ReportHistoryTab";
+import SettingsTab from "./features/profile/components/SettingsTab";
+
+import { useAuthStore } from "./store/useAuthStore";
+
+/** @addsuggestions-005-author Onke Mbingeleli */
+import { SuggestPlaceButton, SuggestionForm, SuggestToast } from "./features/suggestions/components";
+import type {
+  LatLng,
+  SuggestCategory,
+  SuggestFormErrors,
+  SuggestFormValues,
+  SuggestHourEntry,
+  SuggestPhoto,
+  SuggestToastState,
+} from "./types/suggestion.types";
+import { DAYS } from "./features/suggestions/components";
 
 const CATEGORIES: SuggestCategory[] = [
-  { value: 'clinic', label: 'Clinic', glyph: '🏥' },
-  { value: 'library', label: 'Library', glyph: '📚' },
-  { value: 'shelter', label: 'Shelter', glyph: '🏠' },
-  { value: 'police', label: 'Police station', glyph: '🚓' },
-  { value: 'school', label: 'School', glyph: '🏫' },
+  { value: "clinic", label: "Clinic", glyph: "🏥" },
+  { value: "library", label: "Library", glyph: "📚" },
+  { value: "shelter", label: "Shelter", glyph: "🏠" },
+  { value: "police", label: "Police station", glyph: "🚓" },
+  { value: "school", label: "School", glyph: "🏫" },
 ];
 
+const EMPTY_VALUES: SuggestFormValues = {
+  category: '',
+  name: '',
+  area: '',
+  notes: '',
+  phone: '',
+  website: '',
+};
+
+const emptyHours = (): SuggestHourEntry[] =>
+  DAYS.map((day) => ({ day, closed: true, open: '', close: '' }));
+
 function App() {
-  const currentUser = useAuthStore((s) => s.currentUser);
-  const logout = useAuthStore((s) => s.logout);
-  const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
 
-  const suggest = useSuggestion();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
-  // Close the login overlay once the user is authenticated.
   useEffect(() => {
-    if (currentUser && isLoginOpen) setIsLoginOpen(false);
-  }, [currentUser, isLoginOpen]);
+    if (isAuthenticated) {
+      setIsAuthOpen(false);
+    }
+  }, [isAuthenticated]);
+
+  // Suggestions state
+  const [isFormOpen, setIsFormOpen] = useState(false);
+
+  const [values, setValues] = useState<SuggestFormValues>(EMPTY_VALUES);
+  const [errors, setErrors] = useState<SuggestFormErrors>({});
+  const [formError, setFormError] = useState('');
+  const [selectedLocation, setSelectedLocation] = useState<LatLng | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [photos, setPhotos] = useState<SuggestPhoto[]>([]);
+  const [hours, setHours] = useState<SuggestHourEntry[]>(emptyHours());
+  const [isHoursModalOpen, setIsHoursModalOpen] = useState(false);
+  const [toast, setToast] = useState<SuggestToastState | null>(null);
+
+  function resetForm() {
+    setValues(EMPTY_VALUES);
+    setErrors({});
+    setFormError('');
+    setSelectedLocation(null);
+    setPhotos([]);
+    setHours(emptyHours());
+  }
+
+  function applyHours(days: string[], open: string, close: string, closed: boolean) {
+    setHours((prev) =>
+      prev.map((entry) => (days.includes(entry.day) ? { ...entry, closed, open, close } : entry))
+    );
+  }
+
+  const WEEKDAYS = DAYS.slice(0, 5);
+  const WEEKEND = DAYS.slice(5);
+
+  function handleFieldChange(field: keyof SuggestFormValues, value: string) {
+    setValues((prev) => ({ ...prev, [field]: value }));
+    setErrors((prev) => ({ ...prev, [field]: undefined }));
+  }
+
+  function handleAddPhotos() {
+    const id = `${Date.now()}`;
+    setPhotos((prev) => [...prev, { id, url: `https://picsum.photos/seed/${id}/56/56` }]);
+  }
+
+  function handleSubmit() {
+    const nextErrors: SuggestFormErrors = {};
+    if (!values.category) nextErrors.category = 'Category is required';
+    if (!values.name.trim()) nextErrors.name = 'Name is required';
+    if (!values.area.trim()) nextErrors.area = 'Area is required';
+    if (!selectedLocation) {
+      setFormError('Please set a location on the map before submitting.');
+    } else {
+      setFormError('');
+    }
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0 || !selectedLocation) return;
+
+    setIsSubmitting(true);
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setIsFormOpen(false);
+      resetForm();
+      setToast({ variant: 'success', message: 'Thanks! Your suggestion was submitted for review.' });
+    }, 900);
+  }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <header className="bg-white shadow-sm px-4 py-3 flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-gray-800">Service Finder</h1>
-        <div className="flex items-center gap-3">
-          <SuggestPlaceButton onClick={suggest.openForm} />
-          <button
-            type="button"
-            className="text-sm font-medium text-gray-700 hover:text-gray-900"
-            onClick={() => (currentUser ? logout() : setIsLoginOpen(true))}
-          >
-            {currentUser ? `Sign out (${currentUser.email})` : 'Sign in'}
-          </button>
-        </div>
-      </header>
+    <div className="min-h-screen bg-slate-50 text-slate-900">
+      <NavBar onSignIn={() => setIsAuthOpen(true)} />
 
-      <main>
-        <AppRouter />
-      </main>
+      <Routes>
+        <Route path="/" element={<MapPage />} />
+        <Route path="/map" element={<MapPage />} />
 
-      <SuggestionForm
-        isOpen={suggest.isOpen}
-        onClose={suggest.closeForm}
-        isAuthenticated={suggest.isAuthenticated}
-        onLoginRedirect={() => {
-          suggest.closeForm();
-          setIsLoginOpen(true);
-        }}
-        categories={CATEGORIES}
-        values={suggest.values}
-        errors={suggest.errors}
-        formError={suggest.formError}
-        isSubmitting={suggest.isSubmitting}
-        onFieldChange={suggest.onFieldChange}
-        onSubmit={suggest.onSubmit}
-        selectedLocation={suggest.selectedLocation}
-        onSetLocation={suggest.onSetLocation}
-        photos={suggest.photos}
-        onAddPhotos={suggest.onAddPhotos}
-        hours={suggest.hours}
-        isHoursModalOpen={suggest.isHoursModalOpen}
-        onOpenHours={suggest.onOpenHours}
-        onCloseHours={suggest.onCloseHours}
-        onBackFromHours={suggest.onBackFromHours}
-        onEditHourDay={suggest.onEditHourDay}
-        onEditAllHours={suggest.onEditAllHours}
-        onEditWeekdayHours={suggest.onEditWeekdayHours}
-        onEditWeekendHours={suggest.onEditWeekendHours}
-        onSaveHours={suggest.onSaveHours}
+        <Route path="/profile" element={<ProfilePage />}>
+          <Route index element={<OverviewTab />} />
+          <Route path="saved-routes" element={<SavedRoutesTab />} />
+          <Route path="report-history" element={<ReportHistoryTab />} />
+          <Route path="settings" element={<SettingsTab />} />
+        </Route>
+      </Routes>
+
+      <AuthModal
+        isOpen={isAuthOpen}
+        onClose={() => setIsAuthOpen(false)}
       />
 
-      {isLoginOpen && !currentUser && (
-        <div className="fixed inset-0 z-[2500] bg-slate-900/40 flex items-center justify-center">
-          <div className="relative">
-            <button
-              type="button"
-              className="absolute -top-3 -right-3 bg-white rounded-full w-8 h-8 shadow"
-              onClick={() => setIsLoginOpen(false)}
-              aria-label="Close"
-            >
-              ✕
-            </button>
-            <Login />
-          </div>
-        </div>
-      )}
+      <SuggestPlaceButton onClick={() => setIsFormOpen(true)} />
 
-      {suggest.toast && (
-        <SuggestToast
-          variant={suggest.toast.variant}
-          message={suggest.toast.message}
-          onDismiss={suggest.dismissToast}
-        />
+      <SuggestionForm
+        isOpen={isFormOpen}
+        onClose={() => {
+          setIsFormOpen(false);
+          setIsHoursModalOpen(false);
+        }}
+        isAuthenticated={isAuthenticated}
+        onLoginRedirect={() => setIsAuthOpen(true)}
+        categories={CATEGORIES}
+        values={values}
+        errors={errors}
+        formError={formError}
+        isSubmitting={isSubmitting}
+        onFieldChange={handleFieldChange}
+        onSubmit={handleSubmit}
+        selectedLocation={selectedLocation}
+        onSetLocation={(location) => {
+          setSelectedLocation(location);
+          setFormError('');
+        }}
+        photos={photos}
+        onAddPhotos={handleAddPhotos}
+        hours={hours}
+        isHoursModalOpen={isHoursModalOpen}
+        onOpenHours={() => setIsHoursModalOpen(true)}
+        onCloseHours={() => setIsHoursModalOpen(false)}
+        onBackFromHours={() => setIsHoursModalOpen(false)}
+        onEditHourDay={(day) =>
+          setHours((prev) =>
+            prev.map((entry) =>
+              entry.day === day
+                ? entry.closed
+                  ? { ...entry, closed: false, open: '09:00', close: '17:00' }
+                  : { ...entry, closed: true, open: '', close: '' }
+                : entry
+            )
+          )
+        }
+        onEditAllHours={() => applyHours(DAYS, '09:00', '17:00', false)}
+        onEditWeekdayHours={() => applyHours(WEEKDAYS, '09:00', '17:00', false)}
+        onEditWeekendHours={() => applyHours(WEEKEND, '10:00', '14:00', false)}
+        onSaveHours={() => setIsHoursModalOpen(false)}
+      />
+
+      {toast && (
+        <SuggestToast variant={toast.variant} message={toast.message} onDismiss={() => setToast(null)} />
       )}
     </div>
   );

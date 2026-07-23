@@ -1,8 +1,13 @@
 import React from 'react';
 import Map from '../components/map/Map';
 import type { MapMarker } from '../types/map.types';
+import { SuggestPlaceButton } from '../features/suggestions/components';
 
-const MapPage: React.FC = () => {
+interface MapPageProps {
+  onSuggestPlace?: () => void;
+}
+
+const MapPage: React.FC<MapPageProps> = ({ onSuggestPlace }) => {
   const projectLocation: [number, number] = [-33.9249, 18.4241];
   const markers: MapMarker[] = [
     {
@@ -39,7 +44,7 @@ const MapPage: React.FC = () => {
 
   return (
     <main className="flex-1 min-h-0 p-3 z-0 sm:p-4 md:p-5">
-      <div className=" mx-auto flex h-[calc(100vh-80px)] max-w-7xl flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg">
+      <div className="relative mx-auto flex h-[calc(100vh-80px)] max-w-7xl flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg">
         <div className="flex-1 min-h-0 w-full z-0">
           <Map
             center={projectLocation}
@@ -48,6 +53,11 @@ const MapPage: React.FC = () => {
             className="relative h-full w-full"
           />
         </div>
+        {onSuggestPlace && (
+          <div className="absolute top-3 right-3 z-10">
+            <SuggestPlaceButton onClick={onSuggestPlace} />
+          </div>
+        )}
       </div>
     </main>
   );

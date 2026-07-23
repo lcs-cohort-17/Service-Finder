@@ -1,18 +1,45 @@
+/** @addsuggestions-005-author Onke Mbingeleli */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
   color-scheme: light;
+  --ink: #12283c;
+  --paper: #eef2f1;
+  --panel: #ffffff;
+  --teal: #0e7c86;
+  --teal-dark: #0a5c63;
+  --amber: #e8a33d;
+  --coral: #e85d4e;
+  --success: #3fa34d;
+  --charcoal: #1b1f23;
+  --muted: #5d6b72;
+  --line: #dce3e1;
+  --radius: 14px;
+  --shadow: 0 6px 24px rgba(18, 40, 60, 0.1);
 }
 
-html {
-  scroll-behavior: smooth;
-}
+/* Backward-compat variables */
+:root {
+  --text: #6b6375;
+  --text-h: #08060d;
+  --bg: #fff;
+  --border: #e5e4e7;
+  --code-bg: #f4f3ec;
+  --accent: #aa3bff;
+  --accent-bg: rgba(170, 59, 255, 0.1);
+  --accent-border: rgba(170, 59, 255, 0.5);
+  --social-bg: rgba(244, 243, 236, 0.5);
+  --shadow:
+    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
-body {
-  margin: 0;
-  min-height: 100vh;
+  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --mono: ui-monospace, Consolas, monospace;
+
   font-family:
     Inter,
     ui-sans-serif,
@@ -21,12 +48,19 @@ body {
     BlinkMacSystemFont,
     "Segoe UI",
     sans-serif;
-  background-color: #f8fafc;
-  color: #0f172a;
+  font-size: 18px;
+  line-height: 145%;
+  letter-spacing: 0.18px;
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-#root {
-  min-height: 100vh;
+html {
+  scroll-behavior: smooth;
 }
 
 html,
@@ -34,6 +68,12 @@ body,
 #root {
   margin: 0;
   height: 100%;
+  min-height: 100vh;
+}
+
+body {
+  background-color: #f8fafc;
+  color: #0f172a;
 }
 
 .app {

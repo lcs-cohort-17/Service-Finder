@@ -139,10 +139,10 @@ function App() {
           <Route
             path="/"
             element={
-              <MapPage onSuggestPlace={() => setIsFormOpen(true)} />
+              <MapPage selectedCategories={[]} searchQuery={""} />
             }
           />
-          <Route path="/map" element={<MapPage />} />
+          <Route path="/map" element={<MapPage selectedCategories={[]} searchQuery={""} />} />
 
           <Route path="/profile" element={<ProfilePage />}>
             <Route index element={<OverviewTab />} />

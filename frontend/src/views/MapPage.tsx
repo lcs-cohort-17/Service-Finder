@@ -38,7 +38,7 @@ function DirectionsButton({ latitude, longitude }: { latitude: number; longitude
   return <button className="directions-button" type="button" onClick={openDirections}><Navigation size={16} />Get directions</button>;
 }
 
-export default function MapPage({ selectedCategories, searchQuery }: MapPageProps) {
+function MapPage({ selectedCategories, searchQuery }: MapPageProps) {
   const { services, loading, error, selectedService, fetchAllServices, selectService } = useServiceStore();
   const [map, setMap] = useState<LeafletMap | null>(null);
   useEffect(() => { void fetchAllServices(); }, [fetchAllServices]);

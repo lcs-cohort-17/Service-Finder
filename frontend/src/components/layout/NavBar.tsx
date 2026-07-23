@@ -20,7 +20,16 @@ function NavBar({ onSignIn }: NavBarProps) {
         find-a-service
       </Link>
 
-      <div>
+      <div className="flex items-center gap-4">
+        {isLoggedIn && (
+          <Link
+            to="/community"
+            className="text-sm font-semibold text-slate-700 no-underline hover:text-slate-900"
+          >
+            {/* COMMUNITY-001/002 - Onke Mbingeleli */}
+            Community Reports
+          </Link>
+        )}
         {isLoggedIn ? (
           <button
             type="button"

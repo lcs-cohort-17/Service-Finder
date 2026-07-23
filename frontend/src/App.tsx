@@ -4,6 +4,7 @@ import { Route, Routes } from "react-router-dom";
 import NavBar from "./components/layout/NavBar";
 import { AuthModal } from "./features/auth/components/AuthModal";
 import MapPage from "./views/MapPage";
+import CommunityReportsPage from "./views/CommunityReportsPage";
 
 import ProfilePage from "./features/profile/pages/ProfilePage";
 import OverviewTab from "./features/profile/components/OverviewTab";
@@ -29,8 +30,8 @@ function App() {
       <NavBar onSignIn={() => setIsAuthOpen(true)} />
 
       <Routes>
-        <Route path="/" element={<MapPage />} />
-        <Route path="/map" element={<MapPage />} />
+        <Route path="/" element={<MapPage onRequireAuth={() => setIsAuthOpen(true)} />} />
+        <Route path="/map" element={<MapPage onRequireAuth={() => setIsAuthOpen(true)} />} />
 
         <Route path="/profile" element={<ProfilePage />}>
           <Route index element={<OverviewTab />} />
@@ -38,6 +39,12 @@ function App() {
           <Route path="report-history" element={<ReportHistoryTab />} />
           <Route path="settings" element={<SettingsTab />} />
         </Route>
+
+        {/* COMMUNITY-001/002 - Onke Mbingeleli */}
+        <Route
+          path="/community"
+          element={<CommunityReportsPage onRequireAuth={() => setIsAuthOpen(true)} />}
+        />
       </Routes>
 
       <AuthModal

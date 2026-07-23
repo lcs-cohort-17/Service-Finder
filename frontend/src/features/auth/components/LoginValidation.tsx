@@ -43,7 +43,7 @@ const useLoginValidation = () => {
   const isValidEmail = (email: string): boolean => {
     // Only allow specific email providers
     const allowedDomainsRegex =
-      /^[^\s@]+@(gmail\.com|outlook\.com|icloud\.com)$/;
+      /^[^\s@]+@(gmail\.com|outlook\.com|icloud\.com|yahoo\.com)$/;
     return allowedDomainsRegex.test(email);
   };
 
@@ -63,7 +63,7 @@ const useLoginValidation = () => {
     // Check if email format is valid
     else if (!isValidEmail(email)) {
       setEmailError(
-        'Invalid email. Only Gmail, Outlook, or iCloud are accepted.'
+        'Invalid email. Only Gmail, Outlook, iCloud, or Yahoo are accepted.'
       );
       isValid = false;
     }

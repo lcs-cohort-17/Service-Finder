@@ -1,10 +1,10 @@
 // src/components/LogoutButton.tsx
-import { useAuthStore } from '../../store/useAuthStore';
+import useAuthStore from '../../store/useAuthStore';
 import { useNavigate } from 'react-router-dom';
 
 const LogoutButton = () => {
   const navigate = useNavigate();
-  const { logout } = useAuthStore();
+  const logout = useAuthStore((state) => state.logout);
 
   const handleLogout = async () => {
     try {

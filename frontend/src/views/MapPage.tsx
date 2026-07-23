@@ -78,4 +78,6 @@ export default function MapPage({ selectedCategories, searchQuery }: MapPageProp
       {!loading && !error && searchQuery.trim() && markers.length === 0 && <p className="map-status">No matching services found</p>}
     </main>
   );
-}
+};
+
+export default MapPage;

@@ -24,8 +24,27 @@ export interface MapMarker {
   description?: string;
   icon?: string;
   onClick?: () => void;
-  popupContent?: ReactNode;
-  isSelected?: boolean;
+}
+
+export interface ServiceMarker {
+  id: string;
+  name: string;
+  category: string;
+  position: LatLngExpression;
+  description?: string;
+  rating?: number;
+}
+
+export interface MapMarkersProps {
+  markers: ServiceMarker[];
+  onMarkerClick?: (marker: ServiceMarker) => void;
+}
+
+export interface MapControlsProps {
+  onZoomIn: () => void;
+  onZoomOut: () => void;
+  onReset?: () => void;
+  className?: string;
 }
 
 export interface MapState {

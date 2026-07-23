@@ -18,4 +18,11 @@ declare module '*.svg';
 declare module '*.jpg';
 declare module '*.jpeg';
 declare module '*.gif';
-/// <reference types="vite/client" />
+
+interface ImportMetaEnv {
+  readonly VITE_BACKEND_PORT: string;
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}

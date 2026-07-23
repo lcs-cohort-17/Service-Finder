@@ -1,0 +1,204 @@
+/* ==========================================================================
+   1. CORE COMPONENT STYLES (Standard CSS)
+   ========================================================================== */
+
+/* --- Search Container --- */
+.cwu-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #1a2c3d;
+  border: 1px solid #2b4257;
+  border-radius: 6px;
+  padding: 6px 14px;
+  width: 100%;
+  max-width: 460px;
+  height: 38px;
+  box-sizing: border-box;
+  transition: color 150ms cubic-bezier(0.4, 0, 0.2, 1), border-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cwu-search:focus-within {
+  border-color: #00e7c8;
+}
+
+/* --- Search Icon & Input --- */
+.cwu-search__icon {
+  flex-shrink: 0;
+  color: #7fa4c0;
+  display: flex;
+  align-items: center;
+}
+
+.cwu-search__input {
+  background-color: transparent;
+  border-style: none;
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  color: #ffffff;
+  font-size: 15px;
+  width: 100%;
+  min-width: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.cwu-search__input::placeholder {
+  color: #94a9bc;
+}
+
+/* --- Clear Button --- */
+.cwu-search__clear {
+  display: none;
+  align-items: center;
+  /* Fixed typo here */
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  border-style: none;
+  padding: 0;
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color 150ms cubic-bezier(0.4, 0, 0.2, 1), background-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cwu-search__clear--visible {
+  display: flex;
+}
+
+.cwu-search__clear:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 820px) {
+  .cwu-search {
+    max-width: 100%;
+  }
+}
+
+/* ==========================================================================
+   2. SEARCH BAR WRAPPER & DROPDOWN LAYOUT
+   ========================================================================== */
+
+/* --- Search Wrapper Constraints --- */
+.search-wrapper {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 100%;
+  max-width: 460px;
+  z-index: 100;
+  display: block;
+}
+
+/* Forces the input component to stretch inside the wrapper */
+.search-wrapper .cwu-search {
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  width: 100% !important;
+  display: flex !important;
+  z-index: 102;
+  box-sizing: border-box;
+}
+
+/* Flattens the bottom corners dynamically when the dropdown is active */
+.search-wrapper:focus-within .cwu-search {
+  border-bottom-right-radius: 0px !important;
+  border-bottom-left-radius: 0px !important;
+  border-color: #00e7c8 !important;
+}
+
+/* --- Dropdown Panel --- */
+.suggestions-dropdown {
+  position: absolute !important;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  z-index: 101;
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+  background-color: #1a2c3d;
+  border: 1px solid #2b4257;
+  border-top-width: 0px;
+  border-bottom-right-radius: 6px;
+  border-bottom-left-radius: 6px;
+  max-height: 250px;
+  overflow-y: auto;
+  box-sizing: border-box;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+}
+
+/* Webkit Scrollbar overrides */
+.suggestions-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.suggestions-dropdown::-webkit-scrollbar-thumb {
+  background: #2b4257;
+  border-radius: 3px;
+}
+
+/* ==========================================================================
+   3. DROPDOWN ITEMS & ALIGNMENT
+   ========================================================================== */
+
+.suggestion-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 24px;
+  cursor: pointer;
+  transition: color 150ms cubic-bezier(0.4, 0, 0.2, 1), background-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  border-bottom: 1px solid rgba(43, 66, 87, 0.4);
+}
+
+.suggestion-item:last-child {
+  border-bottom-width: 0px;
+}
+
+.suggestion-item:hover {
+  background-color: #243b50;
+}
+
+/* --- Dynamic SVG Icon highlight on hover --- */
+.suggestion-icon-container {
+  margin-right: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #7fa4c0;
+  transition: color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  width: 14px;
+  height: 14px;
+}
+
+.suggestion-item:hover .suggestion-icon-container {
+  color: #00e7c8;
+}
+
+.suggestion-icon-container svg {
+  width: 14px;
+  height: 14px;
+  display: block;
+}
+
+.suggestion-text {
+  flex-grow: 1;
+  color: #ffffff;
+  font-size: 14px;
+  text-align: left;
+}
+
+@media (max-width: 1024px) {
+  .search-wrapper {
+    left: 16px;
+    right: 16px;
+    width: auto;
+    /* Add this line to keep it matching the input box size constraint */
+    max-width: 460px;
+  }
+}

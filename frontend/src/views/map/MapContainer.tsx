@@ -163,7 +163,7 @@ const MapContainer: React.FC<MapContainerProps> = ({
       {/* Loading State */}
       {!isMapReady && (
         <div className="map-loading">
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 z-0 ">
             <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
             <span className="text-gray-600">Loading map...</span>
           </div>

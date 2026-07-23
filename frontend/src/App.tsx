@@ -1,34 +1,62 @@
-import LoginForm from "./features/auth/components/LoginForm";
-import SignUpForm from "./features/auth/components/SignUpForm";
-import "./index.css";
+import { useEffect, useState } from "react";
+import { Route, Routes } from "react-router-dom";
+
+import NavBar from "./components/layout/NavBar";
+import { AuthModal } from "./features/auth/components/AuthModal";
+
+import ProfilePage from "./features/profile/pages/ProfilePage";
+import OverviewTab from "./features/profile/components/OverviewTab";
+import SavedRoutesTab from "./features/profile/components/SavedRoutesTab";
+import ReportHistoryTab from "./features/profile/components/ReportHistoryTab";
+import SettingsTab from "./features/profile/components/SettingsTab";
+
+import { useAuthStore } from "./store/useAuthStore";
+import AdminDashboard from "./features/admin/pages/AdminDashboard";
+
+function Home() {
+  return (
+    <section className="mx-auto max-w-5xl px-4 py-16 text-center sm:px-6 lg:px-8">
+      <a href="/admin-dashboard">
+      <h1 className="text-4xl font-semibold tracking-tight text-slate-900">
+        see services
+      </h1>
+      </a>
+    </section>
+  );
+}
 
 function App() {
-  const isRegister = window.location.pathname === "/register";
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      setIsAuthOpen(false);
+    }
+  }, [isAuthenticated]);
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-8 text-slate-900">
-      <section className="w-full max-w-[475px] rounded-[18px] bg-white px-6 py-7 shadow-2xl sm:px-8">
-        <div className="flex items-start justify-between gap-6">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-950">
-              {isRegister ? "Create your account" : "Sign in"}
-            </h1>
-            <p className="mt-1 text-base leading-5 text-slate-500">
-              Save routes, track your reports, and personalize ConnectWithUs.
-            </p>
-          </div>
-          <a
-            href="/"
-            aria-label="Close"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xl leading-none text-slate-900 hover:bg-slate-200"
-          >
-            x
-          </a>
-        </div>
+    <div className="min-h-screen bg-slate-50 text-slate-900">
+      <NavBar onSignIn={() => setIsAuthOpen(true)} />
 
-        {isRegister ? <SignUpForm /> : <LoginForm />}
-      </section>
-    </main>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/admin-dashboard" element={<AdminDashboard />} />
+
+        <Route path="/profile" element={<ProfilePage />}>
+          <Route index element={<OverviewTab />} />
+          <Route path="saved-routes" element={<SavedRoutesTab />} />
+          <Route path="report-history" element={<ReportHistoryTab />} />
+          <Route path="settings" element={<SettingsTab />} />
+        </Route>
+      </Routes>
+
+      <AuthModal
+        isOpen={isAuthOpen}
+        onClose={() => setIsAuthOpen(false)}
+      />
+    </div>
   );
 }
 

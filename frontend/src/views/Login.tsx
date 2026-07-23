@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import LoginForm from "../features/auth/components/LoginForm";
 
 function Login() {
@@ -13,15 +14,14 @@ function Login() {
               Save routes, track your reports, and personalize ConnectWithUs.
             </p>
           </div>
-          <a
-            href="/"
+          <Link
+            to="/"
             aria-label="Close"
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-2xl leading-none text-slate-900 hover:bg-slate-200"
           >
             x
-          </a>
+          </Link>
         </div>
-
         <LoginForm />
       </section>
     </main>
